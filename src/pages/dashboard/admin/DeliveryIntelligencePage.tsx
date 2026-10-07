@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Truck, Search, Package, BarChart3 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Truck, Search, Package, BarChart3, ArrowLeft } from 'lucide-react';
 import { visitorService } from '../../../services/visitorService';
 import type { SmartVisitorPass, VisitorAnalyticsData } from '../../../types/visitor';
 import { StatusBadge } from '../../../components/ui/StatusBadge';
@@ -9,6 +10,7 @@ import { DataTable } from '../../../components/ui/DataTable';
 import { MobileDataCard } from '../../../components/ui/MobileDataCard';
 
 export const DeliveryIntelligencePage: React.FC = () => {
+  const navigate = useNavigate();
   const currentSocietyId = 'soc-gvs';
   const officerActor = { id: 'sec-guard-1', name: 'Officer Vikram Singh', role: 'SECURITY' };
 
@@ -22,7 +24,6 @@ export const DeliveryIntelligencePage: React.FC = () => {
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'PARCEL_ROOM' | 'DELIVERIES' | 'ANALYTICS'>('PARCEL_ROOM');
-
 
   const reloadData = () => {
     const list = visitorService.getPasses(currentSocietyId);
@@ -49,172 +50,229 @@ export const DeliveryIntelligencePage: React.FC = () => {
   );
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-6 pb-24 space-y-4 md:space-y-6 text-slate-900 dark:text-slate-100">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Truck className="w-7 h-7 text-[#083B56] dark:text-[#83CBEA]" />
-            Visitor Follow-Up & Delivery Intelligence
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Track courier delivery packages, monitor overstayed guests, inspect peak visiting hours, and record package pickups.
-          </p>
+    <div style={{ background: 'var(--aarizo-page, #F7FBFE)', minHeight: '100vh', paddingBottom: '5rem', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+      {/* Top Header */}
+      <div style={{ background: '#ffffff', borderBottom: '1px solid #DCE8EF', padding: '0.85rem 1.25rem' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <button
+              onClick={() => navigate(-1)}
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                background: '#F4FAFE',
+                border: '1px solid #DCE8EF',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#083B56',
+                cursor: 'pointer',
+              }}
+            >
+              <ArrowLeft size={18} />
+            </button>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <h1 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#083B56' }}>
+                  Parcel & Delivery Intelligence
+                </h1>
+                <span
+                  style={{
+                    background: '#ECFDF5',
+                    border: '1px solid #A7F3D0',
+                    color: '#059669',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                >
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981', display: 'inline-block' }}></span>
+                  Parcel Room Active
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#52788D' }}>
+                Track courier packages, manage parcel room holding & inspect visitor peak hours
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div
-        style={{
-          background: '#EBF3F7',
-          borderRadius: '16px',
-          padding: '0.375rem',
-          display: 'flex',
-          gap: '0.375rem',
-          overflowX: 'auto',
-          scrollbarWidth: 'none',
-          boxShadow: 'inset 0 1px 3px rgba(8, 59, 86, 0.06)',
-          marginTop: '1rem',
-          marginBottom: '1rem',
-        }}
-      >
-        {[
-          { key: 'PARCEL_ROOM', label: 'Parcel Room Hub', icon: Package },
-          { key: 'DELIVERIES', label: `Delivery Entry Log (${deliveryPasses.length})`, icon: Truck },
-          { key: 'ANALYTICS', label: 'Visitor Analytics & Peak Hours', icon: BarChart3 },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.key;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key as any)}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.45rem',
-                padding: '0.6rem 1rem',
-                borderRadius: '12px',
-                border: isActive ? 'none' : '1px solid #DCE8EF',
-                background: isActive ? 'var(--aarizo-navy, #083B56)' : '#FFFFFF',
-                color: isActive ? '#FFFFFF' : '#475569',
-                fontWeight: 700,
-                fontSize: '0.8125rem',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                transition: 'all 0.15s ease',
-                boxShadow: isActive ? '0 3px 10px rgba(8, 59, 86, 0.25)' : '0 1px 3px rgba(0,0,0,0.04)',
-                flexShrink: 0,
-              }}
-            >
-              <Icon size={15} color={isActive ? 'var(--aarizo-sky, #83CBEA)' : 'var(--aarizo-blue, #176B91)'} />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      <div style={{ maxWidth: '1100px', margin: '1.25rem auto', padding: '0 1rem' }}>
+        {/* Navigation Tabs */}
+        <div style={{ display: 'flex', gap: '0.5rem', background: '#ffffff', padding: '0.35rem', borderRadius: '12px', border: '1px solid #DCE8EF', marginBottom: '1.25rem' }}>
+          {[
+            { key: 'PARCEL_ROOM', label: 'Parcel Holding Hub', icon: Package },
+            { key: 'DELIVERIES', label: `Delivery Gate Log (${deliveryPasses.length})`, icon: Truck },
+            { key: 'ANALYTICS', label: 'Visitor & Delivery Analytics', icon: BarChart3 },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key as any)}
+                style={{
+                  flex: 1,
+                  padding: '0.65rem 1rem',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontWeight: 700,
+                  fontSize: '0.88rem',
+                  cursor: 'pointer',
+                  background: isActive ? '#F4FAFE' : 'transparent',
+                  color: isActive ? '#083B56' : '#52788D',
+                  borderBottom: isActive ? '2px solid #F06543' : '2px solid transparent',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                }}
+              >
+                <Icon size={16} color={isActive ? '#F06543' : '#52788D'} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
 
-      {/* Tab 0: Parcel Room Hub */}
-      {activeTab === 'PARCEL_ROOM' && <ParcelRoomSecurityHub />}
+        {/* Tab 0: Parcel Room Hub */}
+        {activeTab === 'PARCEL_ROOM' && <ParcelRoomSecurityHub />}
 
+        {/* Tab 1: Delivery Log */}
+        {activeTab === 'DELIVERIES' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '16px', padding: '1.25rem' }}>
+              <div style={{ position: 'relative', maxWidth: '400px', marginBottom: '1.25rem' }}>
+                <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
+                <input
+                  type="text"
+                  placeholder="Search vendor, package ref, flat code..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.65rem 1rem 0.65rem 2.3rem',
+                    borderRadius: '10px',
+                    border: '1px solid #CBD5E1',
+                    fontSize: '0.88rem',
+                    outline: 'none',
+                    background: '#F8FAFC',
+                    color: '#083B56',
+                    fontWeight: 600,
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
 
-      {/* Tab 1: Delivery Log */}
-      {activeTab === 'DELIVERIES' && (
-        <div className="space-y-4">
-          <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="relative w-full sm:w-80">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search vendor, package ref, flat code..."
-                className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#176B91]"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+              <DataTable
+                columns={[
+                  {
+                    key: 'vendor',
+                    header: 'Vendor',
+                    render: (p: SmartVisitorPass) => (
+                      <span style={{ fontWeight: 800, color: '#083B56' }}>
+                        {p.deliveryVendor || p.companyName || 'Courier'}
+                      </span>
+                    )
+                  },
+                  { key: 'packageRef', header: 'Package Ref No', render: (p: SmartVisitorPass) => <span style={{ fontFamily: 'monospace', fontSize: '0.82rem', color: '#083B56' }}>{p.packageReferenceNumber || 'N/A'}</span> },
+                  { key: 'flatResident', header: 'Flat & Resident', render: (p: SmartVisitorPass) => `Flat ${p.flatCode} (${p.residentName})` },
+                  { key: 'agent', header: 'Agent Name', render: (p: SmartVisitorPass) => `${p.visitorName} (${p.visitorPhone})` },
+                  { key: 'entryTime', header: 'Entry Time', render: (p: SmartVisitorPass) => p.checkedInAt || 'Pending' },
+                  { key: 'pickupTime', header: 'Pickup Time', render: (p: SmartVisitorPass) => p.pickupTimestamp || 'Awaiting Pickup' },
+                  {
+                    key: 'status',
+                    header: 'Status',
+                    render: (p: SmartVisitorPass) => (
+                      <StatusBadge
+                        variant={p.status === 'CHECKED_OUT' ? 'success' : p.isOverdue ? 'danger' : 'info'}
+                        label={p.status === 'CHECKED_OUT' ? 'PICKED UP' : p.status}
+                      />
+                    )
+                  },
+                  {
+                    key: 'actions',
+                    header: 'Pickup Action',
+                    render: (p: SmartVisitorPass) => (
+                      p.status === 'CHECKED_IN' ? (
+                        <button
+                          onClick={() => handleRecordPickup(p.id)}
+                          style={{
+                            padding: '0.45rem 0.85rem',
+                            background: '#059669',
+                            color: '#ffffff',
+                            borderRadius: '8px',
+                            fontWeight: 700,
+                            fontSize: '0.8rem',
+                            border: 'none',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Record Pickup
+                        </button>
+                      ) : null
+                    )
+                  }
+                ]}
+                data={filteredDeliveries}
+                keyExtractor={(p: SmartVisitorPass) => p.id}
+                pageSize={10}
+                mobileRender={(p: SmartVisitorPass) => (
+                  <MobileDataCard
+                    title={`${p.deliveryVendor || p.companyName || 'Courier'} • Flat ${p.flatCode}`}
+                    subtitle={`Agent: ${p.visitorName} (${p.visitorPhone})`}
+                    status={
+                      <StatusBadge
+                        variant={p.status === 'CHECKED_OUT' ? 'success' : p.isOverdue ? 'danger' : 'info'}
+                        label={p.status === 'CHECKED_OUT' ? 'PICKED UP' : p.status}
+                      />
+                    }
+                    attributes={[
+                      { label: 'Package Ref', value: p.packageReferenceNumber || 'N/A' },
+                      { label: 'Resident', value: p.residentName },
+                      { label: 'Entry Time', value: p.checkedInAt || 'Pending' },
+                      { label: 'Pickup Time', value: p.pickupTimestamp || 'Awaiting Pickup' }
+                    ]}
+                    actions={
+                      p.status === 'CHECKED_IN' ? (
+                        <button
+                          onClick={() => handleRecordPickup(p.id)}
+                          style={{
+                            width: '100%',
+                            padding: '0.65rem',
+                            background: '#059669',
+                            color: '#ffffff',
+                            fontSize: '0.85rem',
+                            fontWeight: 700,
+                            borderRadius: '8px',
+                            border: 'none',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Record Package Pickup
+                        </button>
+                      ) : undefined
+                    }
+                  />
+                )}
               />
             </div>
           </div>
+        )}
 
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4">
-            <DataTable
-              columns={[
-                {
-                  key: 'vendor',
-                  header: 'Vendor',
-                  render: (p: SmartVisitorPass) => (
-                    <span className="font-bold text-[#083B56] dark:text-[#83CBEA]">
-                      {p.deliveryVendor || p.companyName || 'Courier'}
-                    </span>
-                  )
-                },
-                { key: 'packageRef', header: 'Package Ref No', render: (p: SmartVisitorPass) => <span className="font-mono text-[11px]">{p.packageReferenceNumber || 'N/A'}</span> },
-                { key: 'flatResident', header: 'Flat & Resident', render: (p: SmartVisitorPass) => `Flat ${p.flatCode} (${p.residentName})` },
-                { key: 'agent', header: 'Agent Name', render: (p: SmartVisitorPass) => `${p.visitorName} (${p.visitorPhone})` },
-                { key: 'entryTime', header: 'Entry Time', render: (p: SmartVisitorPass) => p.checkedInAt || 'Pending' },
-                { key: 'pickupTime', header: 'Pickup Time', render: (p: SmartVisitorPass) => p.pickupTimestamp || 'Awaiting Pickup' },
-                {
-                  key: 'status',
-                  header: 'Status',
-                  render: (p: SmartVisitorPass) => (
-                    <StatusBadge
-                      variant={p.status === 'CHECKED_OUT' ? 'success' : p.isOverdue ? 'danger' : 'info'}
-                      label={p.status === 'CHECKED_OUT' ? 'PICKED UP' : p.status}
-                    />
-                  )
-                },
-                {
-                  key: 'actions',
-                  header: 'Pickup Action',
-                  render: (p: SmartVisitorPass) => (
-                    p.status === 'CHECKED_IN' ? (
-                      <button
-                        onClick={() => handleRecordPickup(p.id)}
-                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded font-semibold text-xs transition-colors"
-                      >
-                        Record Pickup
-                      </button>
-                    ) : null
-                  )
-                }
-              ]}
-              data={filteredDeliveries}
-              keyExtractor={(p: SmartVisitorPass) => p.id}
-              pageSize={10}
-              mobileRender={(p: SmartVisitorPass) => (
-                <MobileDataCard
-                  title={`${p.deliveryVendor || p.companyName || 'Courier'} • Flat ${p.flatCode}`}
-                  subtitle={`Agent: ${p.visitorName} (${p.visitorPhone})`}
-                  status={
-                    <StatusBadge
-                      variant={p.status === 'CHECKED_OUT' ? 'success' : p.isOverdue ? 'danger' : 'info'}
-                      label={p.status === 'CHECKED_OUT' ? 'PICKED UP' : p.status}
-                    />
-                  }
-                  attributes={[
-                    { label: 'Package Ref', value: p.packageReferenceNumber || 'N/A' },
-                    { label: 'Resident', value: p.residentName },
-                    { label: 'Entry Time', value: p.checkedInAt || 'Pending' },
-                    { label: 'Pickup Time', value: p.pickupTimestamp || 'Awaiting Pickup' }
-                  ]}
-                  actions={
-                    p.status === 'CHECKED_IN' ? (
-                      <button
-                        onClick={() => handleRecordPickup(p.id)}
-                        className="w-full py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-lg min-h-[44px]"
-                      >
-                        Record Package Pickup
-                      </button>
-                    ) : undefined
-                  }
-                />
-              )}
-            />
+        {/* Tab 2: Visitor Analytics */}
+        {activeTab === 'ANALYTICS' && (
+          <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '16px', padding: '1.25rem' }}>
+            <VisitorAnalyticsWidget analytics={analytics} />
           </div>
-        </div>
-      )}
-
-      {/* Tab 2: Visitor Analytics */}
-      {activeTab === 'ANALYTICS' && <VisitorAnalyticsWidget analytics={analytics} />}
+        )}
+      </div>
     </div>
   );
 };
-

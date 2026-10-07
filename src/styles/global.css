@@ -563,9 +563,9 @@ input, select, textarea {
 .aarizo-general-modal select:focus,
 .aarizo-general-modal textarea:focus {
   background-color: #FFFFFF !important;
-  border-color: #176B91 !important;
+  border-color: var(--aarizo-coral, #F06543) !important;
   outline: none !important;
-  box-shadow: 0 0 0 3px rgba(23, 107, 145, 0.18) !important;
+  box-shadow: 0 0 0 3px rgba(240, 101, 67, 0.18) !important;
 }
 
 /* Primary Modal Action Buttons Uniform Aesthetics */

@@ -107,239 +107,285 @@ export const NotificationCenterPage: React.FC = () => {
   };
 
   return (
-    <div style={{ minHeight: '100%', background: 'var(--aarizo-page, #F7FBFE)', paddingBottom: 'calc(6rem + env(safe-area-inset-bottom, 0px))' }}>
-      {/* ── Subheader with Back Button & Unread Counter ── */}
+    <div style={{ minHeight: '100vh', background: 'var(--aarizo-page, #F7FBFE)', paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
+      {/* ── Subheader Bar ── */}
       <div
         style={{
-          background: 'linear-gradient(135deg, var(--aarizo-navy, #083B56) 0%, #0D4767 100%)',
-          padding: '1.25rem 1rem',
-          paddingTop: 'calc(1.25rem + env(safe-area-inset-top, 0px))',
-          color: '#ffffff',
-          boxShadow: '0 2px 8px rgba(8, 59, 86, 0.08)',
+          background: '#ffffff',
+          borderBottom: '1px solid var(--aarizo-border, #DCE8EF)',
+          padding: '0.875rem 1rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '0.75rem',
+          boxShadow: '0 1px 3px rgba(8, 59, 86, 0.03)',
+          marginBottom: '1.25rem',
         }}
       >
-        <div className="max-w-4xl mx-auto w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3.5">
-            <button
-              onClick={() => navigate(-1)}
-              aria-label="Go Back"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: '50%',
-                background: 'rgba(255, 255, 255, 0.15)',
-                border: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#ffffff',
-                cursor: 'pointer',
-                flexShrink: 0,
-              }}
-            >
-              <ArrowLeft size={18} />
-            </button>
-            <div>
-              <h1 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: '#ffffff' }}>Notifications</h1>
-              <p style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.75)', margin: '0.125rem 0 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            aria-label="Go Back"
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              background: 'var(--aarizo-card-blue, #F4FAFE)',
+              border: '1px solid var(--aarizo-border, #DCE8EF)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--aarizo-navy, #083B56)',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <div>
+            <h1 style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', margin: 0, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              Notifications
+              <span style={{ fontSize: '0.65rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '12px', background: '#ECFDF5', color: '#059669', border: '1px solid #A7F3D0' }}>
                 {unreadCount} unread
-              </p>
-            </div>
+              </span>
+            </h1>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--aarizo-text-secondary, #657785)', margin: 0, marginTop: 2 }}>
+              Green Valley Society · Real-time push, in-app alerts, WhatsApp &amp; emergency logs
+            </p>
           </div>
+        </div>
 
-          {/* Mode Switcher */}
-          <div className="flex items-center gap-1.5 w-full sm:w-auto p-1 rounded-xl bg-white/15">
-            <button
-              onClick={() => setViewMode('ALERTS')}
-              className="flex-1 sm:flex-initial"
-              style={{
-                padding: '0.45rem 0.85rem',
-                borderRadius: '8px',
-                border: 'none',
-                background: viewMode === 'ALERTS' ? '#ffffff' : 'transparent',
-                color: viewMode === 'ALERTS' ? '#083B56' : '#ffffff',
-                fontWeight: 700,
-                fontSize: '0.75rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.35rem',
-              }}
-            >
-              <Bell size={13} /> Alerts Feed
-            </button>
-            <button
-              onClick={() => setViewMode('ENGINE_HUB')}
-              className="flex-1 sm:flex-initial"
-              style={{
-                padding: '0.45rem 0.85rem',
-                borderRadius: '8px',
-                border: 'none',
-                background: viewMode === 'ENGINE_HUB' ? '#ffffff' : 'transparent',
-                color: viewMode === 'ENGINE_HUB' ? '#083B56' : '#ffffff',
-                fontWeight: 700,
-                fontSize: '0.75rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.35rem',
-              }}
-            >
-              <Radio size={13} className={viewMode === 'ENGINE_HUB' ? 'text-[#176B91]' : 'text-white'} /> Real-Time Engine Hub
-            </button>
-          </div>
+        {/* Mode Switcher Group */}
+        <div
+          style={{
+            background: 'var(--aarizo-card-blue, #F4FAFE)',
+            border: '1px solid var(--aarizo-border, #DCE8EF)',
+            borderRadius: '12px',
+            padding: '0.25rem',
+            display: 'flex',
+            gap: '0.25rem',
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setViewMode('ALERTS')}
+            style={{
+              padding: '0.45rem 0.85rem',
+              borderRadius: '8px',
+              border: 'none',
+              background: viewMode === 'ALERTS' ? 'var(--aarizo-coral, #F06543)' : 'transparent',
+              color: viewMode === 'ALERTS' ? '#ffffff' : 'var(--aarizo-navy, #083B56)',
+              fontWeight: viewMode === 'ALERTS' ? 800 : 700,
+              fontSize: '0.75rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              boxShadow: viewMode === 'ALERTS' ? '0 2px 8px rgba(240, 101, 67, 0.25)' : 'none',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <Bell size={13} /> Alerts Feed
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode('ENGINE_HUB')}
+            style={{
+              padding: '0.45rem 0.85rem',
+              borderRadius: '8px',
+              border: 'none',
+              background: viewMode === 'ENGINE_HUB' ? 'var(--aarizo-coral, #F06543)' : 'transparent',
+              color: viewMode === 'ENGINE_HUB' ? '#ffffff' : 'var(--aarizo-navy, #083B56)',
+              fontWeight: viewMode === 'ENGINE_HUB' ? 800 : 700,
+              fontSize: '0.75rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              boxShadow: viewMode === 'ENGINE_HUB' ? '0 2px 8px rgba(240, 101, 67, 0.25)' : 'none',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <Radio size={13} /> Real-Time Engine Hub
+          </button>
         </div>
       </div>
 
       {viewMode === 'ENGINE_HUB' ? (
-        <div className="max-w-6xl mx-auto w-full px-4 pt-6">
+        <div className="max-w-7xl mx-auto w-full px-3 sm:px-4">
           <NotificationEngineHub />
         </div>
       ) : (
-        <>
-
-      {/* ── Filter Pills: All / Unread ── */}
-      <div className="max-w-4xl mx-auto w-full" style={{ padding: '1rem 1rem 0.5rem' }}>
-        <div
-          style={{
-            background: '#EBF3F7',
-            borderRadius: '16px',
-            padding: '0.375rem',
-            display: 'inline-flex',
-            gap: '0.375rem',
-            boxShadow: 'inset 0 1px 3px rgba(8, 59, 86, 0.06)',
-          }}
-        >
-          <button
-            onClick={() => setFilter('ALL')}
+        <div className="max-w-5xl mx-auto w-full px-3 sm:px-4 space-y-4">
+          {/* ── Filter Pills Container (Segmented Control) ── */}
+          <div
             style={{
-              padding: '0.5rem 1.25rem',
-              borderRadius: '12px',
-              border: 'none',
-              background: filter === 'ALL' ? '#083B56' : '#ffffff',
-              color: filter === 'ALL' ? '#ffffff' : '#475569',
-              fontWeight: 700,
-              fontSize: '0.8125rem',
-              cursor: 'pointer',
-              boxShadow: filter === 'ALL' ? '0 3px 10px rgba(8, 59, 86, 0.25)' : 'none',
-              transition: 'all 0.15s ease',
+              background: '#ffffff',
+              border: '1px solid var(--aarizo-border, #DCE8EF)',
+              borderRadius: '16px',
+              padding: '0.35rem',
+              display: 'inline-flex',
+              gap: '0.35rem',
+              boxShadow: '0 2px 6px rgba(8, 59, 86, 0.03)',
             }}
           >
-            All Notifications
-          </button>
-          <button
-            onClick={() => setFilter('UNREAD')}
-            style={{
-              padding: '0.5rem 1.25rem',
-              borderRadius: '12px',
-              border: 'none',
-              background: filter === 'UNREAD' ? '#083B56' : '#ffffff',
-              color: filter === 'UNREAD' ? '#ffffff' : '#475569',
-              fontWeight: 700,
-              fontSize: '0.8125rem',
-              cursor: 'pointer',
-              boxShadow: filter === 'UNREAD' ? '0 3px 10px rgba(8, 59, 86, 0.25)' : 'none',
-              transition: 'all 0.15s ease',
-            }}
-          >
-            Unread ({unreadCount})
-          </button>
-        </div>
-      </div>
-
-      {/* ── Notification List (Responsive 1-col Mobile, 2-col Desktop) ── */}
-      <div className="max-w-4xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-3.5 p-3 sm:p-4">
-        {filtered.map((item) => {
-          const isComplaint = item.type === 'complaint';
-          const iconBg = isComplaint ? '#FFF0F1' : '#EDF8F0';
-          const iconColor = isComplaint ? '#D9535B' : '#3F8F58';
-          const badgeBg = isComplaint ? '#FFF0F1' : '#EDF8F0';
-          const badgeColor = isComplaint ? '#D9535B' : '#3F8F58';
-
-          return (
-            <div
-              key={item.id}
+            <button
+              type="button"
+              onClick={() => setFilter('ALL')}
               style={{
-                background: '#ffffff',
-                borderRadius: '16px',
-                border: '1px solid var(--aarizo-border-soft, #E8F1F5)',
-                padding: '0.875rem 1rem',
-                boxShadow: '0 2px 10px rgba(8, 59, 86, 0.05)',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '0.75rem',
-                position: 'relative',
+                padding: '0.5rem 1.125rem',
+                borderRadius: '12px',
+                border: 'none',
+                background: filter === 'ALL' ? 'var(--aarizo-coral, #F06543)' : 'transparent',
+                color: filter === 'ALL' ? '#ffffff' : 'var(--aarizo-navy, #083B56)',
+                fontWeight: filter === 'ALL' ? 800 : 700,
+                fontSize: '0.78125rem',
+                cursor: 'pointer',
+                boxShadow: filter === 'ALL' ? '0 3px 10px rgba(240, 101, 67, 0.28)' : 'none',
+                transition: 'all 0.15s ease',
               }}
             >
-              {/* Circular status icon */}
+              All Notifications
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilter('UNREAD')}
+              style={{
+                padding: '0.5rem 1.125rem',
+                borderRadius: '12px',
+                border: 'none',
+                background: filter === 'UNREAD' ? 'var(--aarizo-coral, #F06543)' : 'transparent',
+                color: filter === 'UNREAD' ? '#ffffff' : 'var(--aarizo-navy, #083B56)',
+                fontWeight: filter === 'UNREAD' ? 800 : 700,
+                fontSize: '0.78125rem',
+                cursor: 'pointer',
+                boxShadow: filter === 'UNREAD' ? '0 3px 10px rgba(240, 101, 67, 0.28)' : 'none',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              Unread ({unreadCount})
+            </button>
+          </div>
+
+          {/* ── Notification List Grid ── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            {filtered.length === 0 ? (
               <div
                 style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: '50%',
-                  background: iconBg,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: iconColor,
-                  flexShrink: 0,
-                  marginTop: 2,
+                  gridColumn: '1 / -1',
+                  background: '#ffffff',
+                  borderRadius: '16px',
+                  border: '1px solid #DCE8EF',
+                  padding: '3rem 1.5rem',
+                  textAlign: 'center',
+                  color: '#657785',
                 }}
               >
-                {isComplaint ? <AlertCircle size={18} /> : <Info size={18} />}
+                <Bell size={36} style={{ margin: '0 auto 0.5rem auto', color: '#083B56', opacity: 0.4 }} />
+                <div style={{ fontWeight: 800, color: '#083B56', fontSize: '0.9375rem' }}>No notifications found</div>
+                <div style={{ fontSize: '0.75rem', marginTop: 4 }}>You are all caught up with your society alerts.</div>
               </div>
+            ) : (
+              filtered.map((item) => {
+                const isComplaint = item.type === 'complaint';
+                const iconBg = isComplaint ? '#FEF2F2' : '#F4FAFE';
+                const iconColor = isComplaint ? '#DC2626' : '#083B56';
+                const badgeBg = isComplaint ? '#FEF2F2' : '#EAF6FC';
+                const badgeColor = isComplaint ? '#DC2626' : '#083B56';
+                const badgeBorder = isComplaint ? '#FECACA' : '#DCE8EF';
 
-              {/* Text content */}
-              <div style={{ flex: 1, minWidth: 0, paddingRight: '1rem' }}>
-                <h3 style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--aarizo-text, #203746)', margin: 0 }}>
-                  {item.title}
-                </h3>
-                <p style={{ fontSize: '0.75rem', color: 'var(--aarizo-text-secondary, #657785)', margin: '0.25rem 0 0.5rem', lineHeight: 1.4 }}>
-                  {item.description}
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span
+                return (
+                  <div
+                    key={item.id}
                     style={{
-                      fontSize: '0.6875rem',
-                      fontWeight: 700,
-                      color: badgeColor,
-                      background: badgeBg,
-                      padding: '0.15rem 0.5rem',
-                      borderRadius: '9999px',
+                      background: '#ffffff',
+                      borderRadius: '16px',
+                      border: '1px solid #DCE8EF',
+                      padding: '1rem 1.125rem',
+                      boxShadow: '0 2px 8px rgba(8, 59, 86, 0.04)',
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '0.875rem',
+                      position: 'relative',
                     }}
                   >
-                    {item.category}
-                  </span>
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--aarizo-text-muted, #8B9AA5)' }}>
-                    {item.date}
-                  </span>
-                </div>
-              </div>
+                    {/* Circular status icon */}
+                    <div
+                      style={{
+                        width: 38,
+                        height: 38,
+                        borderRadius: '50%',
+                        background: iconBg,
+                        border: `1px solid ${badgeBorder}`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: iconColor,
+                        flexShrink: 0,
+                        marginTop: 2,
+                      }}
+                    >
+                      {isComplaint ? <AlertCircle size={18} /> : <Info size={18} />}
+                    </div>
 
-              {/* Dismiss button */}
-              <button
-                onClick={() => handleDismiss(item.id)}
-                aria-label="Dismiss Notification"
-                style={{
-                  position: 'absolute',
-                  top: 10,
-                  right: 10,
-                  background: 'none',
-                  border: 'none',
-                  color: '#cbd5e1',
-                  cursor: 'pointer',
-                  padding: '4px',
-                }}
-              >
-                <X size={14} />
-              </button>
-            </div>
-          );
-        })}
-      </div>
-      </>
+                    {/* Text content */}
+                    <div style={{ flex: 1, minWidth: 0, paddingRight: '1rem' }}>
+                      <h3 style={{ fontSize: '0.875rem', fontWeight: 800, color: '#083B56', margin: 0 }}>
+                        {item.title}
+                      </h3>
+                      <p style={{ fontSize: '0.75rem', color: '#657785', margin: '0.25rem 0 0.5rem', lineHeight: 1.45 }}>
+                        {item.description}
+                      </p>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span
+                          style={{
+                            fontSize: '0.6875rem',
+                            fontWeight: 700,
+                            color: badgeColor,
+                            background: badgeBg,
+                            border: `1px solid ${badgeBorder}`,
+                            padding: '0.15rem 0.5rem',
+                            borderRadius: '12px',
+                          }}
+                        >
+                          {item.category}
+                        </span>
+                        <span style={{ fontSize: '0.6875rem', color: '#657785', fontFamily: 'monospace' }}>
+                          {item.date}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Dismiss button */}
+                    <button
+                      type="button"
+                      onClick={() => handleDismiss(item.id)}
+                      aria-label="Dismiss Notification"
+                      style={{
+                        position: 'absolute',
+                        top: 10,
+                        right: 10,
+                        background: 'none',
+                        border: 'none',
+                        color: '#94A3B8',
+                        cursor: 'pointer',
+                        padding: '4px',
+                        borderRadius: '6px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

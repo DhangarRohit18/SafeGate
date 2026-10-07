@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { amenityService } from '../../../services/amenityService';
 import { realtimeService } from '../../../services/realtimeService';
@@ -18,8 +19,33 @@ import {
   Ban,
   Plus,
   ShieldCheck,
-  Building
+  Building,
+  Dumbbell,
+  Trophy,
+  PartyPopper,
+  HeartHandshake,
+  MapPin,
+  ChevronRight,
+  ArrowLeft,
+  Search
 } from 'lucide-react';
+
+type FilterCategory = 'ALL' | 'FITNESS' | 'SPORTS' | 'EVENTS' | 'RECREATION';
+
+interface CategoryTab {
+  id: FilterCategory;
+  label: string;
+  icon: React.FC<{ size?: number; color?: string; className?: string }>;
+  types?: AmenityType[];
+}
+
+const CATEGORY_TABS: CategoryTab[] = [
+  { id: 'ALL', label: 'All Facilities', icon: Sparkles },
+  { id: 'FITNESS', label: 'Fitness & Gym', icon: Dumbbell, types: ['GYM', 'SWIMMING_POOL'] },
+  { id: 'SPORTS', label: 'Sports & Courts', icon: Trophy, types: ['BADMINTON_COURT', 'TENNIS_COURT'] },
+  { id: 'EVENTS', label: 'Events & Halls', icon: PartyPopper, types: ['CLUBHOUSE', 'PARTY_HALL', 'MEETING_ROOM'] },
+  { id: 'RECREATION', label: 'Recreation', icon: HeartHandshake, types: ['KIDS_PLAY_AREA', 'VISITOR_LOUNGE'] },
+];
 
 const AMENITY_TYPES: AmenityType[] = [
   'SWIMMING_POOL',
@@ -34,14 +60,18 @@ const AMENITY_TYPES: AmenityType[] = [
 ];
 
 export const AdminAmenityManagementPage: React.FC = () => {
+  const navigate = useNavigate();
   const { currentUser } = useAuth();
   const societyId = (currentUser as any)?.societyId || 'soc-1';
 
   const [amenities, setAmenities] = useState<SocietyAmenity[]>([]);
   const [bookings, setBookings] = useState<AmenityBooking[]>([]);
-  const [selectedAmenity, setSelectedAmenity] = useState<SocietyAmenity | null>(null);
+  const [activeCategory, setActiveCategory] = useState<FilterCategory>('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Modals state
+  const [selectedAmenity, setSelectedAmenity] = useState<SocietyAmenity | null>(null);
+  const [selectedDetailAmenity, setSelectedDetailAmenity] = useState<SocietyAmenity | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showBlackoutModal, setShowBlackoutModal] = useState(false);
   const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
@@ -59,6 +89,7 @@ export const AdminAmenityManagementPage: React.FC = () => {
     requiresApproval: boolean;
     isBookable: boolean;
     imageUrl?: string;
+    bookingFee?: number;
   }>({
     name: '',
     type: 'BADMINTON_COURT',
@@ -70,7 +101,8 @@ export const AdminAmenityManagementPage: React.FC = () => {
     slotDurationMinutes: 60,
     requiresApproval: false,
     isBookable: true,
-    imageUrl: ''
+    imageUrl: '',
+    bookingFee: 0
   });
 
   const [blackoutForm, setBlackoutForm] = useState({
@@ -126,7 +158,8 @@ export const AdminAmenityManagementPage: React.FC = () => {
       slotDurationMinutes: 60,
       requiresApproval: false,
       isBookable: true,
-      imageUrl: ''
+      imageUrl: '',
+      bookingFee: 0
     });
     loadData();
   };
@@ -176,173 +209,485 @@ export const AdminAmenityManagementPage: React.FC = () => {
     loadData();
   };
 
+  const filteredAmenities = amenities.filter(amenity => {
+    const matchesCategory = (() => {
+      if (activeCategory === 'ALL') return true;
+      const cat = CATEGORY_TABS.find(c => c.id === activeCategory);
+      if (!cat || !cat.types) return true;
+      return cat.types.includes(amenity.type);
+    })();
+
+    const matchesSearch =
+      amenity.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      amenity.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      amenity.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (amenity.description && amenity.description.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    return matchesCategory && matchesSearch;
+  });
+
   const pendingBookings = bookings.filter(b => b.status === 'PENDING');
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-6 pb-24 space-y-6">
-      {/* Header */}
+    <div style={{ minHeight: '100%', background: 'var(--aarizo-page, #F7FBFE)', paddingBottom: '2.5rem' }}>
+      {/* ── Subheader matching Residents, Child Safety & NGO tabs ── */}
       <div
-        className="p-5 md:p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-white"
-        style={{ background: 'linear-gradient(135deg, var(--aarizo-navy, #083B56) 0%, #0D4767 100%)' }}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '1rem 1rem 0.75rem',
+          background: 'var(--aarizo-card-blue, #F4FAFE)',
+          borderBottom: '1px solid var(--aarizo-border, #DCE8EF)',
+        }}
       >
-        <div>
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-6 h-6" style={{ color: 'var(--aarizo-sky, #83CBEA)' }} />
-            <h1 className="text-xl md:text-2xl font-extrabold text-white">Amenity & Facility Management</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+          <button
+            onClick={() => navigate(-1)}
+            aria-label="Back"
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              background: '#ffffff',
+              border: '1px solid var(--aarizo-border, #DCE8EF)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--aarizo-navy, #083B56)',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <div>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', margin: 0, letterSpacing: '-0.02em' }}>
+              Amenity &amp; Facility Management
+            </h2>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--aarizo-text-secondary, #657785)', margin: 0, marginTop: 2 }}>
+              Green Valley Society · Timings, capacities, blackout dates &amp; resident slot bookings
+            </p>
           </div>
-          <p className="text-xs md:text-sm mt-1" style={{ color: 'var(--aarizo-sky, #83CBEA)' }}>
-            Configure timings, capacities, maintenance schedules, blackout dates, and approve resident slot bookings.
-          </p>
         </div>
+
         <button
           onClick={() => setShowCreateModal(true)}
-          className="px-4 py-2.5 text-white font-bold text-xs rounded-xl shadow-sm flex items-center justify-center gap-2 transition flex-shrink-0"
-          style={{ background: 'var(--aarizo-blue, #176B91)', border: '1px solid rgba(255,255,255,0.2)' }}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            padding: '0.45rem 0.875rem',
+            borderRadius: '10px',
+            background: 'var(--aarizo-coral, #F06543)',
+            color: '#ffffff',
+            fontWeight: 800,
+            fontSize: '0.75rem',
+            border: 'none',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(240, 101, 67, 0.25)',
+          }}
         >
-          <Plus className="w-4 h-4" /> Add New Amenity
+          <Plus size={15} /> Add New Amenity
         </button>
       </div>
 
-      {/* Pending Approvals Widget */}
-      {pendingBookings.length > 0 && (
-        <div className="p-4 md:p-6 rounded-2xl border border-amber-200 bg-amber-50/50 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-amber-600" />
-              <h2 className="text-lg font-semibold text-slate-900">
-                Pending Booking Requests ({pendingBookings.length})
-              </h2>
-            </div>
-          </div>
-
-          <div className="divide-y divide-amber-200/60">
-            {pendingBookings.map(bk => (
-              <div key={bk.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <p className="font-semibold text-slate-900">
-                    {bk.amenityName} — <span className="text-amber-700">{bk.residentName} ({bk.flatNumber})</span>
-                  </p>
-                  <div className="flex items-center gap-4 text-xs text-slate-600 mt-1">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5" /> {bk.bookingDate}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5" /> {bk.startTime} - {bk.endTime}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Users className="w-3.5 h-3.5" /> {bk.guestCount} Guest(s)
-                    </span>
-                  </div>
-                  {bk.purpose && <p className="text-xs text-slate-500 italic mt-0.5">"{bk.purpose}"</p>}
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleApproveBooking(bk.id)}
-                    className="px-3 py-1.5 border border-emerald-300 text-emerald-700 hover:bg-emerald-50 text-xs font-semibold rounded-lg flex items-center gap-1"
-                  >
-                    <CheckCircle className="w-4 h-4" /> Approve
-                  </button>
-                  <button
-                    onClick={() => handleRejectBooking(bk.id)}
-                    className="px-3 py-1.5 border border-rose-300 text-rose-700 hover:bg-rose-50 text-xs font-semibold rounded-lg flex items-center gap-1"
-                  >
-                    <XCircle className="w-4 h-4" /> Reject
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* ── Search Bar & Filter Strip ── */}
+      <div className="max-w-7xl mx-auto w-full" style={{ padding: '1rem 1rem 0.5rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.625rem',
+            background: '#ffffff',
+            border: '1px solid var(--aarizo-border, #DCE8EF)',
+            borderRadius: '12px',
+            padding: '0 0.875rem',
+            height: '46px',
+            boxShadow: '0 1px 4px rgba(8, 59, 86, 0.04)',
+          }}
+        >
+          <Search size={18} color="var(--aarizo-text-secondary, #657785)" />
+          <input
+            type="text"
+            placeholder="Search by facility name, location, timing, or category..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              flex: 1,
+              border: 'none',
+              outline: 'none',
+              fontSize: '0.8125rem',
+              color: 'var(--aarizo-text, #203746)',
+              background: 'transparent',
+              minHeight: 'auto',
+            }}
+          />
         </div>
-      )}
 
-      {/* Amenities Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {amenities.map(amenity => (
-          <div key={amenity.id} className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col justify-between">
-            <div>
-              {amenity.imageUrl && (
-                <div className="h-44 w-full overflow-hidden relative">
-                  <img src={amenity.imageUrl} alt={amenity.name} className="w-full h-full object-cover" />
-                  <div className="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-md text-white text-xs px-2.5 py-1 rounded-full font-medium">
-                    {amenity.type.replace(/_/g, ' ')}
-                  </div>
-                </div>
-              )}
-              <div className="p-5">
-                <h3 className="text-lg font-bold text-slate-900">{amenity.name}</h3>
-                <p className="text-slate-500 text-xs mt-1 flex items-center gap-1">
-                  <Building className="w-3.5 h-3.5" /> {amenity.location}
-                </p>
-                <p className="text-slate-600 text-sm mt-3 line-clamp-2">{amenity.description}</p>
+        {/* Category Filter Pills */}
+        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', overflowX: 'auto', scrollbarWidth: 'none' }}>
+          {CATEGORY_TABS.map(tab => {
+            const isActive = activeCategory === tab.id;
+            const IconComponent = tab.icon;
+            const count = amenities.filter(a => {
+              if (tab.id === 'ALL') return true;
+              return tab.types?.includes(a.type);
+            }).length;
 
-                <div className="mt-4 pt-3 border-t border-slate-100 grid grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <span className="text-slate-400 block">Timings</span>
-                    <span className="font-semibold text-slate-700 flex items-center gap-1 mt-0.5">
-                      <Clock className="w-3.5 h-3.5 text-[#176B91]" /> {amenity.openTime} - {amenity.closeTime}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block">Slot Capacity</span>
-                    <span className="font-semibold text-slate-700 flex items-center gap-1 mt-0.5">
-                      <Users className="w-3.5 h-3.5 text-emerald-500" /> Max {amenity.capacityPerSlot} Pax
-                    </span>
-                  </div>
-                </div>
-
-                {/* Maintenance & Blackouts info */}
-                {amenity.blackoutDates.length > 0 && (
-                  <div className="mt-3 bg-rose-50 border border-rose-100 p-2 rounded-lg text-xs text-rose-800">
-                    <span className="font-semibold flex items-center gap-1">
-                      <Ban className="w-3.5 h-3.5" /> Blackout Active:
-                    </span>
-                    {amenity.blackoutDates.map(b => (
-                      <div key={b.id}>{b.startDate} to {b.endDate}: {b.reason}</div>
-                    ))}
-                  </div>
-                )}
-
-                {amenity.maintenanceSchedules.length > 0 && (
-                  <div className="mt-2 bg-amber-50 border border-amber-100 p-2 rounded-lg text-xs text-amber-800">
-                    <span className="font-semibold flex items-center gap-1">
-                      <Wrench className="w-3.5 h-3.5" /> Maintenance:
-                    </span>
-                    {amenity.maintenanceSchedules.map(m => (
-                      <div key={m.id}>{m.title} ({m.startDate})</div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="p-5 pt-0 flex items-center gap-2">
+            return (
               <button
-                className="flex-1 py-2 px-3 border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold rounded-xl flex items-center justify-center gap-1"
-                onClick={() => {
-                  setSelectedAmenity(amenity);
-                  setShowBlackoutModal(true);
+                key={tab.id}
+                onClick={() => setActiveCategory(tab.id)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  background: isActive ? 'var(--aarizo-coral, #F06543)' : '#ffffff',
+                  border: '1px solid var(--aarizo-border, #DCE8EF)',
+                  borderRadius: '10px',
+                  padding: '0.4rem 0.75rem',
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  color: isActive ? '#ffffff' : 'var(--aarizo-text, #203746)',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
                 }}
               >
-                <Ban className="w-3.5 h-3.5" /> Block Dates
+                <IconComponent size={14} color={isActive ? '#ffffff' : 'var(--aarizo-coral, #F06543)'} />
+                <span>{tab.label}</span>
+                <span
+                  style={{
+                    fontSize: '0.625rem',
+                    padding: '0.1rem 0.4rem',
+                    borderRadius: '9999px',
+                    fontWeight: 800,
+                    background: isActive ? 'rgba(255, 255, 255, 0.25)' : 'var(--aarizo-card-blue, #F4FAFE)',
+                    color: isActive ? '#ffffff' : 'var(--aarizo-navy, #083B56)',
+                  }}
+                >
+                  {count}
+                </span>
               </button>
-              <button
-                className="flex-1 py-2 px-3 border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold rounded-xl flex items-center justify-center gap-1"
-                onClick={() => {
-                  setSelectedAmenity(amenity);
-                  setShowMaintenanceModal(true);
-                }}
-              >
-                <Wrench className="w-3.5 h-3.5" /> Maintenance
-              </button>
-            </div>
-          </div>
-        ))}
+            );
+          })}
+        </div>
       </div>
 
-      {/* Booking History Table */}
-      <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-        <h2 className="text-lg font-bold text-slate-900 mb-4">All Resident Amenity Bookings</h2>
-        <div className="mt-4">
+      {/* ── Count Heading ── */}
+      <div className="max-w-7xl mx-auto w-full" style={{ padding: '0.5rem 1rem 0.25rem' }}>
+        <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--aarizo-text-secondary, #657785)' }}>
+          {filteredAmenities.length} facilities &amp; amenities found
+        </span>
+      </div>
+
+      <div className="max-w-7xl mx-auto w-full px-3 sm:px-4 space-y-4">
+        {/* Pending Approvals Widget */}
+        {pendingBookings.length > 0 && (
+          <div
+            style={{
+              background: '#FFFBEB',
+              border: '1px solid #FCD34D',
+              borderRadius: '14px',
+              padding: '1rem',
+              boxShadow: '0 2px 8px rgba(8, 59, 86, 0.03)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+              <ShieldCheck size={20} color="#D97706" />
+              <h3 style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', margin: 0 }}>
+                Pending Resident Booking Requests ({pendingBookings.length})
+              </h3>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+              {pendingBookings.map(bk => (
+                <div
+                  key={bk.id}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.375rem',
+                    padding: '0.625rem 0',
+                    borderTop: '1px solid #FDE68A',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <div>
+                      <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--aarizo-navy, #083B56)' }}>
+                        {bk.amenityName} — <span style={{ color: 'var(--aarizo-coral, #F06543)' }}>{bk.residentName} ({bk.flatNumber})</span>
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', fontSize: '0.75rem', color: 'var(--aarizo-text-secondary, #657785)', marginTop: 2 }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                          <Calendar size={13} color="var(--aarizo-text-secondary, #657785)" /> {bk.bookingDate}
+                        </span>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                          <Clock size={13} color="var(--aarizo-text-secondary, #657785)" /> {bk.startTime} - {bk.endTime}
+                        </span>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                          <Users size={13} color="var(--aarizo-text-secondary, #657785)" /> {bk.guestCount} Guest(s)
+                        </span>
+                      </div>
+                      {bk.purpose && (
+                        <div style={{ fontSize: '0.75rem', color: 'var(--aarizo-text-secondary, #657785)', fontStyle: 'italic', marginTop: 2 }}>
+                          "{bk.purpose}"
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <button
+                        onClick={() => handleApproveBooking(bk.id)}
+                        style={{
+                          background: '#059669',
+                          color: '#ffffff',
+                          fontWeight: 700,
+                          fontSize: '0.75rem',
+                          border: 'none',
+                          borderRadius: '8px',
+                          padding: '0.35rem 0.75rem',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 4,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <CheckCircle size={14} /> Approve
+                      </button>
+                      <button
+                        onClick={() => handleRejectBooking(bk.id)}
+                        style={{
+                          background: '#DC2626',
+                          color: '#ffffff',
+                          fontWeight: 700,
+                          fontSize: '0.75rem',
+                          border: 'none',
+                          borderRadius: '8px',
+                          padding: '0.35rem 0.75rem',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 4,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <XCircle size={14} /> Reject
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Compact Amenities Cards Grid ── */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+          {filteredAmenities.map(amenity => {
+            const hasBlackout = amenity.blackoutDates && amenity.blackoutDates.length > 0;
+            const hasMaintenance = amenity.maintenanceSchedules && amenity.maintenanceSchedules.length > 0;
+
+            return (
+              <div
+                key={amenity.id}
+                onClick={() => setSelectedDetailAmenity(amenity)}
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid var(--aarizo-border-soft, #E8F1F5)',
+                  borderRadius: '16px',
+                  boxShadow: '0 2px 10px rgba(8, 59, 86, 0.05)',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  cursor: 'pointer',
+                }}
+              >
+                <div>
+                  {/* Image Banner */}
+                  <div style={{ position: 'relative', aspectRatio: '16/10', width: '100%', overflow: 'hidden', background: '#F4FAFE' }}>
+                    {amenity.imageUrl ? (
+                      <img
+                        src={amenity.imageUrl}
+                        alt={amenity.name}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--aarizo-text-secondary, #657785)' }}>
+                        <Building size={28} />
+                      </div>
+                    )}
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 60%)' }} />
+
+                    {/* Top-Left Pricing Badge */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 8,
+                        left: 8,
+                        background: 'var(--aarizo-navy, #083B56)',
+                        color: '#ffffff',
+                        fontSize: '0.6875rem',
+                        fontWeight: 800,
+                        padding: '0.2rem 0.6rem',
+                        borderRadius: '20px',
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                      }}
+                    >
+                      {amenity.bookingFee && amenity.bookingFee > 0 ? (
+                        <span style={{ color: '#FBBF24' }}>₹{amenity.bookingFee}</span>
+                      ) : (
+                        <span style={{ color: '#34D399' }}>Free</span>
+                      )}
+                    </div>
+
+                    {/* Top-Right Category Badge */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        background: 'rgba(8, 59, 86, 0.85)',
+                        backdropFilter: 'blur(4px)',
+                        color: '#ffffff',
+                        fontSize: '0.625rem',
+                        fontWeight: 800,
+                        padding: '0.2rem 0.5rem',
+                        borderRadius: '20px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                      }}
+                    >
+                      {amenity.type.replace(/_/g, ' ')}
+                    </div>
+                  </div>
+
+                  {/* Card Content */}
+                  <div style={{ padding: '0.75rem' }}>
+                    <h3
+                      style={{
+                        fontSize: '0.9375rem',
+                        fontWeight: 800,
+                        color: 'var(--aarizo-navy, #083B56)',
+                        margin: 0,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {amenity.name}
+                    </h3>
+
+                    <div style={{ fontSize: '0.75rem', color: 'var(--aarizo-text-secondary, #657785)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <MapPin size={13} color="var(--aarizo-coral, #F06543)" style={{ flexShrink: 0 }} />
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{amenity.location}</span>
+                    </div>
+
+                    {amenity.description && (
+                      <p
+                        style={{
+                          fontSize: '0.75rem',
+                          color: 'var(--aarizo-text-secondary, #657785)',
+                          marginTop: 6,
+                          margin: '6px 0 0 0',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          lineHeight: '1.3',
+                        }}
+                      >
+                        {amenity.description}
+                      </p>
+                    )}
+
+                    {/* Timing & Capacity Bar */}
+                    <div
+                      style={{
+                        marginTop: '0.625rem',
+                        paddingTop: '0.5rem',
+                        borderTop: '1px solid var(--aarizo-border-soft, #E8F1F5)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        color: 'var(--aarizo-navy, #083B56)',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <Clock size={13} color="var(--aarizo-coral, #F06543)" />
+                        <span>{amenity.openTime}–{amenity.closeTime}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <Users size={13} color="#059669" />
+                        <span>Max {amenity.capacityPerSlot}</span>
+                      </div>
+                    </div>
+
+                    {/* Blackout or Maintenance Badges */}
+                    {(hasBlackout || hasMaintenance) && (
+                      <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                        {hasBlackout && (
+                          <span style={{ fontSize: '0.625rem', fontWeight: 800, background: '#FEE2E2', color: '#991B1B', padding: '0.15rem 0.4rem', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                            <Ban size={10} /> Blackout
+                          </span>
+                        )}
+                        {hasMaintenance && (
+                          <span style={{ fontSize: '0.625rem', fontWeight: 800, background: '#FEF3C7', color: '#92400E', padding: '0.15rem 0.4rem', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                            <Wrench size={10} /> Maintenance
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Primary Coral Outline Button matching Resident & NGO tabs */}
+                <div style={{ padding: '0.75rem', paddingTop: 0 }}>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedDetailAmenity(amenity);
+                    }}
+                    style={{
+                      width: '100%',
+                      height: '36px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.375rem',
+                      borderRadius: '10px',
+                      background: '#FFF7F5',
+                      border: '1px solid var(--aarizo-coral, #F06543)',
+                      color: 'var(--aarizo-coral, #F06543)',
+                      fontWeight: 800,
+                      fontSize: '0.75rem',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <span>View Details &amp; Actions</span>
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ── Booking History Section Card ── */}
+        <div
+          style={{
+            background: '#ffffff',
+            border: '1px solid var(--aarizo-border, #DCE8EF)',
+            borderRadius: '16px',
+            padding: '1rem',
+            boxShadow: '0 2px 10px rgba(8, 59, 86, 0.04)',
+          }}
+        >
+          <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', margin: '0 0 0.75rem 0' }}>
+            All Resident Amenity Bookings
+          </h3>
+          <div>
             <DataTable
               columns={[
                 { key: 'amenityName', header: 'Amenity' },
@@ -351,16 +696,38 @@ export const AdminAmenityManagementPage: React.FC = () => {
                 { key: 'date', header: 'Date' },
                 { key: 'timeSlot', header: 'Time' },
                 { key: 'guestsCount', header: 'Guests', render: (b: any) => `${b.guestsCount} Guest(s)` },
-                { key: 'status', header: 'Status', render: (b: any) => (
-                  <span className={`px-2.5 py-1 text-xs rounded-full font-bold ${
-                          b.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-800' :
-                          b.status === 'PENDING' ? 'bg-amber-100 text-amber-800' :
-                          b.status === 'CANCELLED' ? 'bg-slate-100 text-slate-700' :
-                          'bg-rose-100 text-rose-800'
-                        }`}>
-                          {b.status}
-                        </span>
-                )}
+                {
+                  key: 'status',
+                  header: 'Status',
+                  render: (b: any) => (
+                    <span
+                      style={{
+                        padding: '0.2rem 0.6rem',
+                        fontSize: '0.75rem',
+                        borderRadius: '9999px',
+                        fontWeight: 800,
+                        background:
+                          b.status === 'APPROVED'
+                            ? '#D1FAE5'
+                            : b.status === 'PENDING'
+                            ? '#FEF3C7'
+                            : b.status === 'CANCELLED'
+                            ? '#F3F4F6'
+                            : '#FEE2E2',
+                        color:
+                          b.status === 'APPROVED'
+                            ? '#065F46'
+                            : b.status === 'PENDING'
+                            ? '#92400E'
+                            : b.status === 'CANCELLED'
+                            ? '#374151'
+                            : '#991B1B',
+                      }}
+                    >
+                      {b.status}
+                    </span>
+                  ),
+                },
               ]}
               data={bookings}
               keyExtractor={(b: any) => b.id}
@@ -369,22 +736,158 @@ export const AdminAmenityManagementPage: React.FC = () => {
                 <MobileDataCard
                   title={b.amenityName}
                   subtitle={`${b.date} - ${b.timeSlot}`}
-                  status={<span className={`px-2 py-0.5 text-[0.65rem] rounded-full font-bold ${
-                          b.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-800' :
-                          b.status === 'PENDING' ? 'bg-amber-100 text-amber-800' :
-                          b.status === 'CANCELLED' ? 'bg-slate-100 text-slate-700' :
-                          'bg-rose-100 text-rose-800'
-                        }`}>{b.status}</span>}
+                  status={
+                    <span
+                      style={{
+                        padding: '0.15rem 0.5rem',
+                        fontSize: '0.625rem',
+                        borderRadius: '9999px',
+                        fontWeight: 800,
+                        background:
+                          b.status === 'APPROVED'
+                            ? '#D1FAE5'
+                            : b.status === 'PENDING'
+                            ? '#FEF3C7'
+                            : b.status === 'CANCELLED'
+                            ? '#F3F4F6'
+                            : '#FEE2E2',
+                        color:
+                          b.status === 'APPROVED'
+                            ? '#065F46'
+                            : b.status === 'PENDING'
+                            ? '#92400E'
+                            : b.status === 'CANCELLED'
+                            ? '#374151'
+                            : '#991B1B',
+                      }}
+                    >
+                      {b.status}
+                    </span>
+                  }
                   attributes={[
                     { label: 'Resident', value: `${b.residentName} (${b.flatNumber})` },
-                    { label: 'Guests', value: b.guestsCount }
+                    { label: 'Guests', value: b.guestsCount },
                   ]}
                 />
               )}
             />
           </div>
-
+        </div>
       </div>
+
+      {/* Amenity Detail & Management Modal */}
+      {selectedDetailAmenity && (
+        <Modal
+          isOpen={!!selectedDetailAmenity}
+          onClose={() => setSelectedDetailAmenity(null)}
+          title={`Facility Control: ${selectedDetailAmenity.name}`}
+        >
+          <div className="space-y-4">
+            {/* Banner Image */}
+            {selectedDetailAmenity.imageUrl ? (
+              <div className="h-44 w-full rounded-xl overflow-hidden relative">
+                <img
+                  src={selectedDetailAmenity.imageUrl}
+                  alt={selectedDetailAmenity.name}
+                  className="w-full h-full object-cover"
+                />
+                <div style={{ position: 'absolute', top: 8, right: 8, background: 'var(--aarizo-navy, #083B56)', color: '#ffffff', fontSize: '0.75rem', padding: '0.2rem 0.6rem', borderRadius: 20, fontWeight: 800 }}>
+                  {selectedDetailAmenity.type.replace(/_/g, ' ')}
+                </div>
+              </div>
+            ) : null}
+
+            {/* Quick Specs */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', padding: '0.75rem', background: 'var(--aarizo-card-blue, #F4FAFE)', borderRadius: '12px', border: '1px solid var(--aarizo-border, #DCE8EF)', fontSize: '0.75rem' }}>
+              <div>
+                <span style={{ color: 'var(--aarizo-text-secondary, #657785)', display: 'block', fontWeight: 600 }}>Timings</span>
+                <span style={{ fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                  <Clock size={14} color="var(--aarizo-coral, #F06543)" /> {selectedDetailAmenity.openTime} - {selectedDetailAmenity.closeTime}
+                </span>
+              </div>
+              <div>
+                <span style={{ color: 'var(--aarizo-text-secondary, #657785)', display: 'block', fontWeight: 600 }}>Slot Capacity</span>
+                <span style={{ fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                  <Users size={14} color="#059669" /> Max {selectedDetailAmenity.capacityPerSlot} Pax / slot
+                </span>
+              </div>
+              <div>
+                <span style={{ color: 'var(--aarizo-text-secondary, #657785)', display: 'block', fontWeight: 600 }}>Location</span>
+                <span style={{ fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                  <Building size={14} color="var(--aarizo-navy, #083B56)" /> {selectedDetailAmenity.location}
+                </span>
+              </div>
+              <div>
+                <span style={{ color: 'var(--aarizo-text-secondary, #657785)', display: 'block', fontWeight: 600 }}>Booking Fee</span>
+                <span style={{ fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                  {selectedDetailAmenity.bookingFee && selectedDetailAmenity.bookingFee > 0
+                    ? `₹${selectedDetailAmenity.bookingFee}`
+                    : 'Complimentary / Free'}
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <h4 style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>
+                Description
+              </h4>
+              <p style={{ fontSize: '0.75rem', color: 'var(--aarizo-text-secondary, #657785)', margin: 0 }}>{selectedDetailAmenity.description}</p>
+            </div>
+
+            {/* Active Blackouts */}
+            {selectedDetailAmenity.blackoutDates.length > 0 && (
+              <div style={{ background: '#FEE2E2', border: '1px solid #FCA5A5', padding: '0.75rem', borderRadius: '12px', fontSize: '0.75rem', color: '#991B1B' }}>
+                <span style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Ban size={14} color="#DC2626" /> Blackout Dates Scheduled:
+                </span>
+                {selectedDetailAmenity.blackoutDates.map(b => (
+                  <div key={b.id} style={{ fontSize: '0.75rem', paddingLeft: '1.25rem', marginTop: 2 }}>
+                    • {b.startDate} to {b.endDate}: <i>{b.reason}</i>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Active Maintenance */}
+            {selectedDetailAmenity.maintenanceSchedules.length > 0 && (
+              <div style={{ background: '#FEF3C7', border: '1px solid #FCD34D', padding: '0.75rem', borderRadius: '12px', fontSize: '0.75rem', color: '#92400E' }}>
+                <span style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Wrench size={14} color="#D97706" /> Maintenance Scheduled:
+                </span>
+                {selectedDetailAmenity.maintenanceSchedules.map(m => (
+                  <div key={m.id} style={{ fontSize: '0.75rem', paddingLeft: '1.25rem', marginTop: 2 }}>
+                    • {m.title} ({m.startDate} - {m.endDate})
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Secretary Admin Actions Bar */}
+            <div style={{ paddingTop: '0.75rem', borderTop: '1px solid var(--aarizo-border, #DCE8EF)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+              <button
+                type="button"
+                style={{ padding: '0.5rem', background: '#FEE2E2', border: '1px solid #FCA5A5', color: '#991B1B', fontWeight: 800, fontSize: '0.75rem', borderRadius: '10px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, cursor: 'pointer' }}
+                onClick={() => {
+                  setSelectedAmenity(selectedDetailAmenity);
+                  setShowBlackoutModal(true);
+                }}
+              >
+                <Ban size={15} /> Block Dates
+              </button>
+              <button
+                type="button"
+                style={{ padding: '0.5rem', background: '#FEF3C7', border: '1px solid #FCD34D', color: '#92400E', fontWeight: 800, fontSize: '0.75rem', borderRadius: '10px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, cursor: 'pointer' }}
+                onClick={() => {
+                  setSelectedAmenity(selectedDetailAmenity);
+                  setShowMaintenanceModal(true);
+                }}
+              >
+                <Wrench size={15} /> Maintenance
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {/* Modal: Create Amenity */}
       <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create Society Amenity">
@@ -492,7 +995,7 @@ export const AdminAmenityManagementPage: React.FC = () => {
           </div>
           <div className="pt-4 flex justify-end gap-2">
             <button type="button" onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 text-sm font-semibold rounded-lg">Cancel</button>
-            <button type="submit" className="px-4 py-2 bg-[#083B56] hover:bg-[#176B91] text-white text-sm font-semibold rounded-lg">Create Amenity</button>
+            <button type="submit" className="px-4 py-2 bg-[#F06543] hover:bg-[#D85332] text-white text-sm font-semibold rounded-lg">Create Amenity</button>
           </div>
         </form>
       </Modal>
@@ -592,4 +1095,3 @@ export const AdminAmenityManagementPage: React.FC = () => {
     </div>
   );
 };
-

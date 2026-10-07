@@ -1,5 +1,6 @@
 import type { EmergencyIncidentItem, EmergencyCategory, ChildProfileItem, PickupRecord, AuthorizedPickupPerson } from '../types/index';
 import { realTimeSync } from '../../../services/realTimeSync';
+import { childSafetyService } from '../../../services/childSafetyService';
 
 const cleanEncoding = (str: string): string => {
   return str
@@ -272,7 +273,27 @@ class SafetyCommandEngine {
 
   // --- CHILD SAFETY API ---
   public getChildren(): ChildProfileItem[] {
-    return this.getStoredChildren();
+    const canonicalChildren = childSafetyService.getChildren('soc-gvs');
+    return canonicalChildren.map(c => ({
+      id: c.id,
+      societyId: c.societyId,
+      childName: c.fullName,
+      flatCode: c.flatNumber,
+      guardianName: c.guardians[0]?.name || 'Guardian',
+      guardianPhone: c.guardians[0]?.phone || '+91 98765 43210',
+      authorizedPickups: c.authorizedPickups.map(ap => ({
+        id: ap.id,
+        name: ap.name,
+        phone: ap.phone,
+        relationship: ap.relationship,
+        idProofType: ap.idProofType,
+        idProofNumber: ap.idProofNumber,
+        photoUrl: ap.photoUrl,
+        isApproved: ap.status === 'ACTIVE',
+      })),
+      qrPassCode: `QR-CHILD-${c.fullName.toUpperCase().replace(/\s+/g, '')}-${c.flatNumber}`,
+      createdAt: c.createdAt,
+    }));
   }
 
   public getPickupRecords(): PickupRecord[] {

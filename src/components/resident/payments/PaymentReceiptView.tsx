@@ -40,7 +40,7 @@ export const PaymentReceiptView: React.FC<PaymentReceiptViewProps> = ({ payment,
       <div className="res-receipt-paper">
         <div className="res-receipt-paper-header">
           <div>
-            <span className="receipt-brand-title">CommunityOS</span>
+            <span className="receipt-brand-title">Safegate</span>
             <h3 style={{ fontSize: '13px', fontWeight: 700, margin: '2px 0 0 0', color: 'var(--color-text)' }}>
               Lakeview Residency RWA
             </h3>

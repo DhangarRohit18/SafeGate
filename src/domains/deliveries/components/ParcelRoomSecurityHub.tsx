@@ -35,7 +35,6 @@ export const ParcelRoomSecurityHub: React.FC = () => {
   useEffect(() => {
     loadParcels();
 
-    // Real-time listener: Update view dynamically when delivery status changes
     const unsubscribe = realtimeService.subscribe('DELIVERY_STATUS', () => {
       loadParcels();
     });
@@ -89,92 +88,126 @@ export const ParcelRoomSecurityHub: React.FC = () => {
   });
 
   return (
-    <div className="p-4 md:p-6 space-y-4 md:space-y-6 max-w-7xl mx-auto pb-24">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      {/* Action Header Banner */}
+      <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '16px', padding: '1.25rem', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Security Parcel & Delivery Room Hub</h1>
-          <p className="text-sm text-slate-500">Register incoming courier parcels, assign storage, and verify resident OTP/QR pickups</p>
+          <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#083B56' }}>Security Parcel Holding Hub</h2>
+          <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.82rem', color: '#52788D' }}>
+            Log incoming courier parcels, assign rack storage, and verify resident OTP pickups
+          </p>
         </div>
-        <div className="mt-3 md:mt-0 flex gap-2">
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-sm"
-          >
-            <Plus size={16} /> Register Incoming Parcel
-          </button>
-        </div>
+        <button
+          onClick={() => setShowAddModal(true)}
+          style={{
+            padding: '0.7rem 1.25rem',
+            background: '#F06543',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '10px',
+            fontWeight: 700,
+            fontSize: '0.88rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            boxShadow: '0 3px 12px rgba(240, 101, 67, 0.28)',
+          }}
+        >
+          <Plus size={18} /> Register Incoming Parcel
+        </button>
       </div>
 
       {/* Metrics Row */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '0.85rem' }}>
+        <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '12px', padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#ECFDF5', border: '1px solid #6EE7B7', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Package size={20} />
+          </div>
           <div>
-            <p className="text-xs text-slate-500 font-medium">Ready For Pickup</p>
-            <h3 className="text-2xl font-bold text-emerald-600 mt-1">
+            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#52788D', textTransform: 'uppercase' }}>Ready For Pickup</div>
+            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#059669' }}>
               {parcels.filter((p) => p.status === 'READY_FOR_PICKUP' || p.status === 'STORED').length}
-            </h3>
-          </div>
-          <div className="p-3 bg-emerald-50 rounded-lg text-emerald-600">
-            <Package size={24} />
+            </div>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '12px', padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#FFFBEB', border: '1px solid #FDE68A', color: '#D97706', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Clock size={20} />
+          </div>
           <div>
-            <p className="text-xs text-slate-500 font-medium">Uncollected (&gt;24 Hours)</p>
-            <h3 className="text-2xl font-bold text-amber-600 mt-1">
+            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#52788D', textTransform: 'uppercase' }}>Uncollected (&gt;24 Hours)</div>
+            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#D97706' }}>
               {parcels.filter((p) => p.isFlagged24h).length}
-            </h3>
-          </div>
-          <div className="p-3 bg-amber-50 rounded-lg text-amber-600">
-            <Clock size={24} />
+            </div>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '12px', padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#DC2626', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <AlertTriangle size={20} />
+          </div>
           <div>
-            <p className="text-xs text-slate-500 font-medium">Overdue (&gt;48 Hours)</p>
-            <h3 className="text-2xl font-bold text-rose-600 mt-1">
+            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#52788D', textTransform: 'uppercase' }}>Overdue (&gt;48 Hours)</div>
+            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#DC2626' }}>
               {parcels.filter((p) => p.isFlagged48h).length}
-            </h3>
-          </div>
-          <div className="p-3 bg-rose-50 rounded-lg text-rose-600">
-            <AlertTriangle size={24} />
+            </div>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-xs text-slate-500 font-medium">Collected Today</p>
-            <h3 className="text-2xl font-bold text-slate-800 mt-1">
-              {parcels.filter((p) => p.status === 'COLLECTED').length}
-            </h3>
+        <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '12px', padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#F4FAFE', border: '1px solid #DCE8EF', color: '#083B56', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <ShieldCheck size={20} />
           </div>
-          <div className="p-3 bg-[#EAF6FC] rounded-lg text-[#176B91]">
-            <ShieldCheck size={24} />
+          <div>
+            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#52788D', textTransform: 'uppercase' }}>Collected Today</div>
+            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#083B56' }}>
+              {parcels.filter((p) => p.status === 'COLLECTED').length}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
-        <div className="relative flex-1 w-full">
-          <Search size={16} className="absolute left-3 top-3 text-slate-400" />
+      <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '14px', padding: '1rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ position: 'relative', flex: 1, minWidth: '260px' }}>
+          <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
           <input
             type="text"
             placeholder="Search by Resident Name, Flat Code, Courier, or Tracking ID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border rounded-xl text-xs border-slate-200 focus:outline-none focus:border-emerald-500"
+            style={{
+              width: '100%',
+              padding: '0.6rem 1rem 0.6rem 2.3rem',
+              borderRadius: '10px',
+              border: '1px solid #CBD5E1',
+              fontSize: '0.85rem',
+              outline: 'none',
+              background: '#F8FAFC',
+              color: '#083B56',
+              fontWeight: 600,
+              boxSizing: 'border-box',
+            }}
           />
         </div>
-        <div className="flex items-center gap-2 w-full md:w-auto">
-          <Filter size={16} className="text-slate-400" />
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Filter size={16} style={{ color: '#52788D' }} />
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-3 py-2 border rounded-xl text-xs border-slate-200 bg-white"
+            style={{
+              padding: '0.6rem 1rem',
+              borderRadius: '10px',
+              border: '1px solid #CBD5E1',
+              fontSize: '0.85rem',
+              background: '#ffffff',
+              color: '#083B56',
+              fontWeight: 700,
+              outline: 'none',
+            }}
           >
             <option value="ALL">All Statuses</option>
             <option value="READY_FOR_PICKUP">Ready For Pickup</option>
@@ -186,8 +219,8 @@ export const ParcelRoomSecurityHub: React.FC = () => {
         </div>
       </div>
 
-      {/* Parcels List / Table */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+      {/* Parcels Table / List Container */}
+      <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '16px', padding: '1.25rem' }}>
         <DataTable
           columns={[
             {
@@ -195,8 +228,8 @@ export const ParcelRoomSecurityHub: React.FC = () => {
               header: 'Parcel ID & Courier',
               render: (p: any) => (
                 <div>
-                  <div className="font-bold text-slate-800">{p.courierCompany}</div>
-                  <div className="text-[10px] text-slate-400">Track: {p.trackingNumber}</div>
+                  <div style={{ fontWeight: 800, color: '#083B56' }}>{p.courierCompany}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#52788D', fontFamily: 'monospace' }}>Track: {p.trackingNumber}</div>
                 </div>
               )
             },
@@ -205,8 +238,8 @@ export const ParcelRoomSecurityHub: React.FC = () => {
               header: 'Resident & Flat',
               render: (p: any) => (
                 <div>
-                  <div className="font-semibold text-slate-800">{p.residentName}</div>
-                  <div className="text-[10px] text-slate-500">{p.flatCode}</div>
+                  <div style={{ fontWeight: 700, color: '#083B56' }}>{p.residentName}</div>
+                  <div style={{ fontSize: '0.78rem', color: '#52788D' }}>{p.flatCode}</div>
                 </div>
               )
             },
@@ -214,7 +247,7 @@ export const ParcelRoomSecurityHub: React.FC = () => {
               key: 'location',
               header: 'Storage Location',
               render: (p: any) => (
-                <span className="px-2 py-1 bg-slate-100 font-bold text-slate-700 rounded text-[11px]">
+                <span style={{ padding: '3px 8px', background: '#F4FAFE', border: '1px solid #DCE8EF', fontWeight: 700, color: '#083B56', borderRadius: '6px', fontSize: '0.78rem' }}>
                   {p.storageLocation}
                 </span>
               )
@@ -224,8 +257,8 @@ export const ParcelRoomSecurityHub: React.FC = () => {
               header: 'Arrival Time & Age',
               render: (p: any) => (
                 <div>
-                  <div>{new Date(p.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                  <div className="text-[10px] text-slate-400">{p.ageHours} hrs ago</div>
+                  <div style={{ fontWeight: 600, color: '#083B56', fontSize: '0.85rem' }}>{new Date(p.arrivalTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#94A3B8' }}>{p.ageHours} hrs ago</div>
                 </div>
               )
             },
@@ -233,20 +266,26 @@ export const ParcelRoomSecurityHub: React.FC = () => {
               key: 'status',
               header: 'Status',
               render: (p: any) => (
-                <div className="flex flex-col gap-1 items-start">
-                  <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold ${
-                    p.status === 'COLLECTED' ? 'bg-[#EAF6FC] text-[#083B56]' :
-                    p.status === 'READY_FOR_PICKUP' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-800'
-                  }`}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                  <span
+                    style={{
+                      padding: '3px 8px',
+                      borderRadius: '6px',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      background: p.status === 'COLLECTED' ? '#F4FAFE' : p.status === 'READY_FOR_PICKUP' ? '#ECFDF5' : '#F1F5F9',
+                      color: p.status === 'COLLECTED' ? '#083B56' : p.status === 'READY_FOR_PICKUP' ? '#059669' : '#475569',
+                    }}
+                  >
                     {p.status}
                   </span>
                   {p.isFlagged48h && (
-                    <span className="px-1.5 py-0.5 bg-rose-100 text-rose-800 font-extrabold text-[9px] rounded flex items-center gap-0.5">
+                    <span style={{ padding: '2px 6px', background: '#FEF2F2', color: '#DC2626', fontWeight: 800, fontSize: '0.7rem', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
                       <AlertTriangle size={10} /> 48h Overdue
                     </span>
                   )}
                   {p.isFlagged24h && !p.isFlagged48h && (
-                    <span className="px-1.5 py-0.5 bg-amber-100 text-amber-800 font-extrabold text-[9px] rounded flex items-center gap-0.5">
+                    <span style={{ padding: '2px 6px', background: '#FFFBEB', color: '#D97706', fontWeight: 800, fontSize: '0.7rem', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
                       <Clock size={10} /> 24h Aging
                     </span>
                   )}
@@ -263,12 +302,24 @@ export const ParcelRoomSecurityHub: React.FC = () => {
                       setSelectedParcel(p);
                       setShowVerifyModal(true);
                     }}
-                    className="px-3 py-1 bg-[#083B56] hover:bg-[#176B91] text-white rounded font-bold text-[11px] flex items-center gap-1"
+                    style={{
+                      padding: '0.45rem 0.85rem',
+                      background: '#083B56',
+                      color: '#ffffff',
+                      borderRadius: '8px',
+                      fontWeight: 700,
+                      fontSize: '0.8rem',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
                   >
-                    <QrCode size={12} /> Verify OTP
+                    <QrCode size={13} /> Verify OTP
                   </button>
                 ) : (
-                  <span className="text-[11px] font-medium text-emerald-600 flex items-center gap-1">
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#059669', display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <ShieldCheck size={14} /> Collected by {p.collectedBy}
                   </span>
                 )
@@ -283,16 +334,22 @@ export const ParcelRoomSecurityHub: React.FC = () => {
               title={`${p.courierCompany} • ${p.flatCode}`}
               subtitle={`Track: ${p.trackingNumber} • Resident: ${p.residentName}`}
               status={
-                <div className="flex flex-col gap-1 items-end">
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                    p.status === 'COLLECTED' ? 'bg-[#EAF6FC] text-[#083B56]' :
-                    p.status === 'READY_FOR_PICKUP' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-800'
-                  }`}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>
+                  <span
+                    style={{
+                      padding: '3px 8px',
+                      borderRadius: '6px',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      background: p.status === 'COLLECTED' ? '#F4FAFE' : p.status === 'READY_FOR_PICKUP' ? '#ECFDF5' : '#F1F5F9',
+                      color: p.status === 'COLLECTED' ? '#083B56' : p.status === 'READY_FOR_PICKUP' ? '#059669' : '#475569',
+                    }}
+                  >
                     {p.status}
                   </span>
                   {p.isFlagged48h && (
-                    <span className="px-1.5 py-0.5 bg-rose-100 text-rose-800 font-extrabold text-[9px] rounded flex items-center gap-0.5">
-                      <AlertTriangle size={10} /> 48h Overdue
+                    <span style={{ padding: '2px 6px', background: '#FEF2F2', color: '#DC2626', fontWeight: 800, fontSize: '0.7rem', borderRadius: '4px' }}>
+                      48h Overdue
                     </span>
                   )}
                 </div>
@@ -309,9 +366,23 @@ export const ParcelRoomSecurityHub: React.FC = () => {
                       setSelectedParcel(p);
                       setShowVerifyModal(true);
                     }}
-                    className="w-full py-1.5 bg-[#083B56] hover:bg-[#176B91] text-white font-bold text-xs rounded-lg min-h-[44px] flex items-center justify-center gap-1.5"
+                    style={{
+                      width: '100%',
+                      padding: '0.65rem',
+                      background: '#083B56',
+                      color: '#ffffff',
+                      fontWeight: 700,
+                      fontSize: '0.85rem',
+                      borderRadius: '8px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                    }}
                   >
-                    <QrCode size={14} /> Verify OTP & Release Package
+                    <QrCode size={15} /> Verify OTP & Release Package
                   </button>
                 ) : undefined
               }
@@ -328,34 +399,34 @@ export const ParcelRoomSecurityHub: React.FC = () => {
         subtitle="Log parcel details into secure holding and issue resident OTP"
         maxWidth="500px"
       >
-        <form onSubmit={handleRegisterParcel} className="space-y-4 pt-1">
+        <form onSubmit={handleRegisterParcel} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingTop: '0.5rem' }}>
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">Resident Name *</label>
+            <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#083B56', marginBottom: '0.35rem' }}>Resident Name *</label>
             <input
               type="text"
               value={residentName}
               onChange={(e) => setResidentName(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#176B91]/20 focus:border-[#176B91]"
+              style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '10px', border: '1px solid #CBD5E1', fontSize: '0.88rem', background: '#F8FAFC', color: '#083B56', fontWeight: 600, boxSizing: 'border-box' }}
               required
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">Flat Code *</label>
+            <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#083B56', marginBottom: '0.35rem' }}>Flat Code *</label>
             <input
               type="text"
               value={flatCode}
               onChange={(e) => setFlatCode(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#176B91]/20 focus:border-[#176B91]"
+              style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '10px', border: '1px solid #CBD5E1', fontSize: '0.88rem', background: '#F8FAFC', color: '#083B56', fontWeight: 600, boxSizing: 'border-box' }}
               required
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">Courier Partner</label>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#083B56', marginBottom: '0.35rem' }}>Courier Partner</label>
               <select
                 value={courierCompany}
                 onChange={(e) => setCourierCompany(e.target.value)}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#176B91]/20 focus:border-[#176B91]"
+                style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '10px', border: '1px solid #CBD5E1', fontSize: '0.88rem', background: '#F8FAFC', color: '#083B56', fontWeight: 600, boxSizing: 'border-box' }}
               >
                 <option value="Amazon">Amazon</option>
                 <option value="Flipkart">Flipkart</option>
@@ -368,11 +439,11 @@ export const ParcelRoomSecurityHub: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">Storage Location</label>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#083B56', marginBottom: '0.35rem' }}>Storage Location</label>
               <select
                 value={storageLocation}
                 onChange={(e) => setStorageLocation(e.target.value)}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#176B91]/20 focus:border-[#176B91]"
+                style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '10px', border: '1px solid #CBD5E1', fontSize: '0.88rem', background: '#F8FAFC', color: '#083B56', fontWeight: 600, boxSizing: 'border-box' }}
               >
                 <option value="Rack A-1">Rack A-1</option>
                 <option value="Rack A-2">Rack A-2</option>
@@ -384,26 +455,26 @@ export const ParcelRoomSecurityHub: React.FC = () => {
             </div>
           </div>
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">Tracking Number / AWB</label>
+            <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#083B56', marginBottom: '0.35rem' }}>Tracking Number / AWB</label>
             <input
               type="text"
               placeholder="Optional AWB tracking number"
               value={trackingNumber}
               onChange={(e) => setTrackingNumber(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#176B91]/20 focus:border-[#176B91]"
+              style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '10px', border: '1px solid #CBD5E1', fontSize: '0.88rem', background: '#F8FAFC', color: '#083B56', fontWeight: 600, boxSizing: 'border-box' }}
             />
           </div>
-          <div className="flex justify-end gap-2.5 pt-4 border-t border-slate-100">
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', paddingTop: '1rem', borderTop: '1px solid #E2E8F0' }}>
             <button
               type="button"
               onClick={() => setShowAddModal(false)}
-              className="px-4 py-2.5 border border-slate-200 hover:bg-slate-100 text-slate-600 font-bold rounded-xl text-xs transition"
+              style={{ padding: '0.65rem 1.25rem', border: '1px solid #CBD5E1', background: '#ffffff', color: '#52788D', fontWeight: 700, borderRadius: '10px', cursor: 'pointer' }}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-md transition"
+              style={{ padding: '0.65rem 1.4rem', background: '#F06543', color: '#ffffff', fontWeight: 700, borderRadius: '10px', border: 'none', cursor: 'pointer', boxShadow: '0 3px 12px rgba(240, 101, 67, 0.28)' }}
             >
               Save &amp; Generate OTP
             </button>
@@ -423,21 +494,32 @@ export const ParcelRoomSecurityHub: React.FC = () => {
         subtitle={selectedParcel ? `Parcel #${selectedParcel.id} for ${selectedParcel.residentName} (${selectedParcel.flatCode})` : 'Verify Pickup OTP'}
         maxWidth="440px"
       >
-        <form onSubmit={handleVerifyPickup} className="space-y-4 pt-1">
+        <form onSubmit={handleVerifyPickup} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingTop: '0.5rem' }}>
           <input
             type="text"
             placeholder="Enter 6-digit OTP"
             value={verifyOtpInput}
             onChange={(e) => setVerifyOtpInput(e.target.value)}
-            className="w-full py-3.5 text-center tracking-[0.3em] text-2xl font-black border-2 rounded-2xl border-[#176B91] focus:ring-4 focus:ring-[#176B91]/15 focus:outline-none"
+            style={{
+              width: '100%',
+              padding: '0.85rem',
+              textAlign: 'center',
+              letterSpacing: '0.3em',
+              fontSize: '1.5rem',
+              fontWeight: 900,
+              border: '2px solid #083B56',
+              borderRadius: '12px',
+              color: '#083B56',
+              boxSizing: 'border-box',
+            }}
             required
           />
           {verifyResult.message && (
-            <div className={`p-3 rounded-xl text-xs text-center font-bold ${verifyResult.success ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
+            <div style={{ padding: '0.75rem', borderRadius: '10px', fontSize: '0.82rem', textAlign: 'center', fontWeight: 700, background: verifyResult.success ? '#ECFDF5' : '#FEF2F2', color: verifyResult.success ? '#059669' : '#DC2626' }}>
               {verifyResult.message}
             </div>
           )}
-          <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #E2E8F0' }}>
             <button
               type="button"
               onClick={() => {
@@ -445,13 +527,13 @@ export const ParcelRoomSecurityHub: React.FC = () => {
                 setVerifyOtpInput('');
                 setVerifyResult({});
               }}
-              className="px-4 py-2.5 border border-slate-200 hover:bg-slate-100 text-slate-600 font-bold rounded-xl text-xs transition"
+              style={{ padding: '0.65rem 1.25rem', border: '1px solid #CBD5E1', background: '#ffffff', color: '#52788D', fontWeight: 700, borderRadius: '10px', cursor: 'pointer' }}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 bg-[#083B56] hover:bg-[#176B91] text-white font-bold rounded-xl text-xs shadow-md transition"
+              style={{ padding: '0.65rem 1.4rem', background: '#083B56', color: '#ffffff', fontWeight: 700, borderRadius: '10px', border: 'none', cursor: 'pointer' }}
             >
               Confirm Pickup
             </button>
@@ -461,4 +543,3 @@ export const ParcelRoomSecurityHub: React.FC = () => {
     </div>
   );
 };
-

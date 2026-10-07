@@ -18,11 +18,11 @@ import {
   ShieldCheck,
   Building2,
   RefreshCw,
-  X,
   CreditCard,
   CheckCircle2,
 } from 'lucide-react';
 import { societyServicesEngine } from '../services/societyServicesEngine';
+import { Modal } from '../../../components/ui/Modal';
 import type { ServiceCategory, VendorPartner, ServiceItem, ServiceBookingOrder, RecurringScheduleType, OrderStatus } from '../types';
 import { useAuth } from '../../../context/AuthContext';
 import { realTimeSync } from '../../../services/realTimeSync';
@@ -209,67 +209,59 @@ export const SocietyServicesHub: React.FC<SocietyServicesHubProps> = ({ userRole
   });
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-24">
-      {/* Header Banner */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg, var(--aarizo-navy, #083B56) 0%, #0D4767 100%)',
-          borderRadius: '16px',
-          padding: '1.25rem 1.25rem',
-          color: '#FFFFFF',
-          boxShadow: '0 4px 16px rgba(8, 59, 86, 0.08)',
-        }}
-        className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
-      >
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span style={{ padding: '6px', background: 'rgba(255,255,255,0.12)', color: 'var(--aarizo-sky, #83CBEA)', borderRadius: '8px', display: 'flex', alignItems: 'center' }}>
-              <Wrench size={22} />
-            </span>
-            <h2 style={{ color: '#FFFFFF', fontWeight: 800, fontSize: '1.25rem', margin: 0, letterSpacing: '-0.02em' }}>
-              Society Services & Recurring Subscriptions
-            </h2>
+    <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.25rem', paddingBottom: '6rem', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+      {/* Subheader Bar */}
+      <div style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #DCE8EF', padding: '1rem 1.25rem', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#F4FAFE', border: '1px solid #BAE6FD', color: '#0284C7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Wrench size={20} />
           </div>
-          <p style={{ color: 'var(--aarizo-sky, #83CBEA)', fontSize: '0.8125rem', margin: '4px 0 0' }}>
-            15 Service Categories, verified vendors, one-time & weekly/monthly recurring subscriptions.
-          </p>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#083B56' }}>
+                Society Services &amp; Recurring Subscriptions
+              </h2>
+              <span style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#059669', fontSize: '0.72rem', fontWeight: 700, padding: '2px 8px', borderRadius: '12px' }}>
+                LIVE CATALOG
+              </span>
+            </div>
+            <p style={{ margin: '0.15rem 0 0', fontSize: '0.8rem', color: '#52788D' }}>
+              15 Service Categories, verified vendors, one-time &amp; weekly/monthly recurring subscriptions
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          {isVendor && (
-            <button
-              onClick={() => setModalMode('ADD_ITEM')}
-              style={{
-                background: 'var(--aarizo-blue, #176B91)',
-                color: '#FFFFFF',
-                borderRadius: '10px',
-                padding: '0.625rem 1rem',
-                fontWeight: 600,
-                fontSize: '0.8125rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                cursor: 'pointer',
-              }}
-            >
-              <PlusCircle size={16} /> Add Catalog Service
-            </button>
-          )}
-        </div>
+        {isVendor && (
+          <button
+            onClick={() => setModalMode('ADD_ITEM')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '0.5rem 1rem',
+              borderRadius: '10px',
+              background: '#F06543',
+              color: '#ffffff',
+              fontSize: '0.82rem',
+              fontWeight: 700,
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 3px 12px rgba(240, 101, 67, 0.28)',
+            }}
+          >
+            <PlusCircle size={16} /> Add Catalog Service
+          </button>
+        )}
       </div>
 
-      {/* Tabs */}
+      {/* Navigation Tabs */}
       <div
         style={{
-          background: '#EBF3F7',
-          borderRadius: '16px',
-          padding: '0.375rem',
           display: 'flex',
-          gap: '0.375rem',
+          gap: '0.4rem',
           overflowX: 'auto',
           scrollbarWidth: 'none',
-          boxShadow: 'inset 0 1px 3px rgba(8, 59, 86, 0.06)',
-          marginBottom: '1rem',
+          paddingBottom: '0.25rem',
         }}
       >
         {[
@@ -288,21 +280,21 @@ export const SocietyServicesHub: React.FC<SocietyServicesHubProps> = ({ userRole
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.45rem',
-                padding: '0.6rem 1rem',
-                borderRadius: '12px',
-                border: isActive ? 'none' : '1px solid #DCE8EF',
-                background: isActive ? 'var(--aarizo-navy, #083B56)' : '#FFFFFF',
-                color: isActive ? '#FFFFFF' : '#475569',
-                fontWeight: 700,
-                fontSize: '0.8125rem',
+                padding: '0.5rem 0.95rem',
+                borderRadius: '10px',
+                border: isActive ? '1px solid #F06543' : '1px solid #DCE8EF',
+                background: isActive ? '#F06543' : '#FFFFFF',
+                color: isActive ? '#FFFFFF' : '#083B56',
+                fontWeight: 800,
+                fontSize: '0.82rem',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
                 transition: 'all 0.15s ease',
-                boxShadow: isActive ? '0 3px 10px rgba(8, 59, 86, 0.25)' : '0 1px 3px rgba(0,0,0,0.04)',
+                boxShadow: isActive ? '0 2px 8px rgba(240, 101, 67, 0.25)' : 'none',
                 flexShrink: 0,
               }}
             >
-              <Icon size={15} color={isActive ? 'var(--aarizo-sky, #83CBEA)' : 'var(--aarizo-blue, #176B91)'} />
+              <Icon size={15} color={isActive ? '#FFFFFF' : '#083B56'} />
               <span>{tab.label}</span>
             </button>
           );
@@ -313,19 +305,20 @@ export const SocietyServicesHub: React.FC<SocietyServicesHubProps> = ({ userRole
       {activeTab === 'MARKETPLACE' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {/* Category Filter Pills */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', overflowX: 'auto', paddingBottom: '0.35rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', overflowX: 'auto', paddingBottom: '0.35rem' }}>
             <button
               onClick={() => setSelectedCategory('ALL')}
               style={{
-                padding: '0.35rem 0.75rem',
+                padding: '0.4rem 0.85rem',
                 borderRadius: '20px',
-                fontSize: '0.72rem',
-                fontWeight: 700,
+                fontSize: '0.75rem',
+                fontWeight: 800,
                 whiteSpace: 'nowrap',
-                border: selectedCategory === 'ALL' ? 'none' : '1px solid #DCE8EF',
-                background: selectedCategory === 'ALL' ? 'var(--aarizo-blue, #176B91)' : '#ffffff',
-                color: selectedCategory === 'ALL' ? '#ffffff' : '#657785',
+                border: selectedCategory === 'ALL' ? '1px solid #F06543' : '1px solid #DCE8EF',
+                background: selectedCategory === 'ALL' ? '#F06543' : '#ffffff',
+                color: selectedCategory === 'ALL' ? '#ffffff' : '#52788D',
                 cursor: 'pointer',
+                transition: 'all 0.15s ease',
               }}
             >
               All Services
@@ -350,6 +343,7 @@ export const SocietyServicesHub: React.FC<SocietyServicesHubProps> = ({ userRole
               ] as ServiceCategory[]
             ).map((cat) => {
               const Icon = CATEGORY_ICONS[cat] || Package;
+              const isCatActive = selectedCategory === cat;
               return (
                 <button
                   key={cat}
@@ -357,19 +351,20 @@ export const SocietyServicesHub: React.FC<SocietyServicesHubProps> = ({ userRole
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '0.3rem',
-                    padding: '0.35rem 0.65rem',
+                    gap: '0.35rem',
+                    padding: '0.4rem 0.8rem',
                     borderRadius: '20px',
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
+                    fontSize: '0.75rem',
+                    fontWeight: 800,
                     whiteSpace: 'nowrap',
-                    border: selectedCategory === cat ? 'none' : '1px solid #DCE8EF',
-                    background: selectedCategory === cat ? 'var(--aarizo-blue, #176B91)' : '#ffffff',
-                    color: selectedCategory === cat ? '#ffffff' : '#657785',
+                    border: isCatActive ? '1px solid #F06543' : '1px solid #DCE8EF',
+                    background: isCatActive ? '#F06543' : '#ffffff',
+                    color: isCatActive ? '#ffffff' : '#52788D',
                     cursor: 'pointer',
+                    transition: 'all 0.15s ease',
                   }}
                 >
-                  <Icon size={12} />
+                  <Icon size={13} />
                   {cat.replace('_', ' ')}
                 </button>
               );
@@ -377,51 +372,86 @@ export const SocietyServicesHub: React.FC<SocietyServicesHubProps> = ({ userRole
           </div>
 
           {/* Search Bar */}
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center">
-            <div className="relative flex-1 max-w-md">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <div style={{ background: '#ffffff', padding: '0.85rem 1rem', borderRadius: '12px', border: '1px solid #DCE8EF', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+            <div style={{ position: 'relative', flex: 1, maxWidth: '420px' }}>
+              <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
               <input
                 type="text"
                 placeholder="Search plumbing, AC repair, pest control..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 border rounded-lg text-xs"
+                style={{
+                  width: '100%',
+                  padding: '0.45rem 0.75rem 0.45rem 2.5rem',
+                  borderRadius: '8px',
+                  border: '1px solid #DCE8EF',
+                  fontSize: '0.85rem',
+                  background: '#F8FAFC',
+                  color: '#083B56',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
               />
             </div>
-            <button onClick={loadData} className="text-xs text-slate-500 flex items-center gap-1">
+            <button
+              onClick={loadData}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                color: '#52788D',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
               <RefreshCw size={13} /> Refresh
             </button>
           </div>
 
           {/* Catalog Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
             {filteredItems.map((item) => {
               const vendor = vendors.find((v) => v.id === item.vendorId);
               const Icon = CATEGORY_ICONS[item.category] || Package;
               return (
-                <div key={item.id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3 flex flex-col justify-between">
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-start">
-                      <span className="p-2 bg-[#EAF6FC] text-[#083B56] rounded-xl">
-                        <Icon size={20} />
+                <div
+                  key={item.id}
+                  style={{
+                    background: '#ffffff',
+                    borderRadius: '16px',
+                    border: '1px solid #DCE8EF',
+                    padding: '1.25rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    gap: '1rem',
+                  }}
+                >
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ padding: '8px', borderRadius: '10px', background: '#F4FAFE', border: '1px solid #DCE8EF', color: '#083B56', display: 'flex', alignItems: 'center' }}>
+                        <Icon size={18} />
                       </span>
-                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                      <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '2px 8px', borderRadius: '6px', background: '#F4FAFE', border: '1px solid #DCE8EF', color: '#083B56', fontFamily: 'monospace' }}>
                         {item.category}
                       </span>
                     </div>
 
-                    <h4 className="font-bold text-slate-900 text-base">{item.title}</h4>
-                    <p className="text-xs text-slate-500">{item.description}</p>
+                    <h4 style={{ margin: 0, fontWeight: 800, color: '#083B56', fontSize: '1rem' }}>{item.title}</h4>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#52788D', lineHeight: 1.4 }}>{item.description}</p>
 
-                    <div className="text-xs text-slate-400 pt-1">
-                      Provided by: <strong className="text-slate-800">{vendor?.businessName || 'Verified Partner'}</strong>
+                    <div style={{ fontSize: '0.78rem', color: '#657785', paddingTop: '0.25rem' }}>
+                      Provided by: <strong style={{ color: '#083B56' }}>{vendor?.businessName || 'Verified Partner'}</strong>
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t flex items-center justify-between">
+                  <div style={{ paddingTop: '0.75rem', borderTop: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div>
-                      <span className="text-base font-extrabold text-slate-900">₹{item.price}</span>
-                      <span className="text-[10px] text-slate-400"> / {item.unit}</span>
+                      <span style={{ fontSize: '1.15rem', fontWeight: 800, color: '#083B56' }}>₹{item.price}</span>
+                      <span style={{ fontSize: '0.72rem', color: '#52788D' }}> / {item.unit}</span>
                     </div>
 
                     <button
@@ -429,7 +459,17 @@ export const SocietyServicesHub: React.FC<SocietyServicesHubProps> = ({ userRole
                         setSelectedItemForBook(item);
                         setModalMode('BOOK');
                       }}
-                      className="px-4 py-2 bg-[#176B91] hover:bg-[#125877] text-white text-xs font-semibold rounded-xl shadow-sm transition"
+                      style={{
+                        padding: '0.45rem 0.9rem',
+                        background: '#F06543',
+                        color: '#ffffff',
+                        fontSize: '0.8rem',
+                        fontWeight: 700,
+                        borderRadius: '10px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        boxShadow: '0 3px 12px rgba(240, 101, 67, 0.25)',
+                      }}
                     >
                       Book / Subscribe
                     </button>
@@ -443,47 +483,61 @@ export const SocietyServicesHub: React.FC<SocietyServicesHubProps> = ({ userRole
 
       {/* Tab 2: MY ORDERS */}
       {activeTab === 'MY_ORDERS' && (
-        <div className="space-y-4">
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center">
-            <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wider">My Service Bookings & Subscriptions</h3>
-            <button onClick={loadData} className="text-xs text-slate-500 flex items-center gap-1">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ background: '#ffffff', padding: '0.85rem 1.25rem', borderRadius: '12px', border: '1px solid #DCE8EF', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+            <h3 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#083B56', textTransform: 'uppercase', letterSpacing: '0.04em' }}>My Service Bookings &amp; Subscriptions</h3>
+            <button onClick={loadData} style={{ fontSize: '0.8rem', fontWeight: 700, color: '#52788D', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
               <RefreshCw size={13} /> Refresh
             </button>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm divide-y divide-slate-100">
-            {orders.map((order) => (
-              <div key={order.id} className="p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="space-y-1.5 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold text-[#083B56] bg-[#EAF6FC] px-2 py-0.5 rounded">
-                      {order.orderNumber}
+          <div style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #DCE8EF', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            {orders.map((order, idx) => (
+              <div
+                key={order.id}
+                style={{
+                  padding: '1.25rem',
+                  borderBottom: idx === orders.length - 1 ? 'none' : '1px solid #E2E8F0',
+                  display: 'flex',
+                  flexDirection: 'row',
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '1rem',
+                }}
+              >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <span style={{ fontFamily: 'monospace', fontSize: '0.75rem', fontWeight: 800, color: '#083B56', background: '#F4FAFE', border: '1px solid #DCE8EF', padding: '2px 8px', borderRadius: '6px' }}>
+                      #{order.orderNumber}
                     </span>
-                    <h4 className="font-bold text-slate-900 text-base">{order.serviceTitle}</h4>
-                    <span className="text-xs text-slate-500">({order.category})</span>
+                    <h4 style={{ margin: 0, fontWeight: 800, color: '#083B56', fontSize: '1rem' }}>{order.serviceTitle}</h4>
+                    <span style={{ fontSize: '0.75rem', color: '#52788D', fontWeight: 600 }}>({order.category})</span>
                   </div>
 
-                  <div className="text-xs text-slate-600">
-                    Vendor: <strong className="text-slate-800">{order.vendorName}</strong> · Date: {order.scheduledDate} · Amount: ₹{order.price}
+                  <div style={{ fontSize: '0.8rem', color: '#52788D' }}>
+                    Vendor: <strong style={{ color: '#083B56' }}>{order.vendorName}</strong> · Date: {order.scheduledDate} · Amount: <strong style={{ color: '#083B56' }}>₹{order.price}</strong>
                   </div>
 
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="text-slate-400">Schedule:</span>
-                    <span className="font-bold text-[#083B56] bg-[#EAF6FC] px-2 py-0.5 rounded">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem' }}>
+                    <span style={{ color: '#657785' }}>Schedule:</span>
+                    <span style={{ fontWeight: 800, color: '#083B56', background: '#F4FAFE', border: '1px solid #DCE8EF', padding: '2px 8px', borderRadius: '6px' }}>
                       {order.recurringSchedule}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex flex-col items-end gap-2">
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
                   <span
-                    className={`px-3 py-1 text-xs font-bold rounded-full ${
-                      order.status === 'COMPLETED'
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : order.status === 'IN_PROGRESS'
-                        ? 'bg-amber-100 text-amber-800'
-                        : 'bg-slate-100 text-slate-700'
-                    }`}
+                    style={{
+                      padding: '3px 10px',
+                      borderRadius: '12px',
+                      fontSize: '0.72rem',
+                      fontWeight: 800,
+                      background: order.status === 'COMPLETED' ? '#ECFDF5' : order.status === 'IN_PROGRESS' ? '#FFFBEB' : '#F1F5F9',
+                      color: order.status === 'COMPLETED' ? '#059669' : order.status === 'IN_PROGRESS' ? '#D97706' : '#475569',
+                      border: `1px solid ${order.status === 'COMPLETED' ? '#A7F3D0' : order.status === 'IN_PROGRESS' ? '#FDE68A' : '#CBD5E1'}`,
+                    }}
                   >
                     {order.status}
                   </span>
@@ -495,18 +549,18 @@ export const SocietyServicesHub: React.FC<SocietyServicesHubProps> = ({ userRole
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.35rem',
-                        padding: '0.35rem 0.75rem',
-                        borderRadius: '0.5rem',
+                        padding: '0.4rem 0.85rem',
+                        borderRadius: '8px',
                         background: '#059669',
                         color: '#fff',
-                        fontSize: '0.75rem',
+                        fontSize: '0.78rem',
                         fontWeight: 700,
                         border: 'none',
                         cursor: 'pointer',
                         boxShadow: '0 2px 6px rgba(5, 150, 105, 0.2)',
                       }}
                     >
-                      <CreditCard size={13} /> Pay ₹{order.price}
+                      <CreditCard size={14} /> Pay ₹{order.price}
                     </button>
                   )}
 
@@ -516,7 +570,19 @@ export const SocietyServicesHub: React.FC<SocietyServicesHubProps> = ({ userRole
                         setSelectedOrderForRate(order);
                         setModalMode('RATE');
                       }}
-                      className="px-3 py-1 bg-amber-50 text-amber-800 hover:bg-amber-100 text-xs font-semibold rounded-lg flex items-center gap-1"
+                      style={{
+                        padding: '0.35rem 0.75rem',
+                        background: '#FFFBEB',
+                        border: '1px solid #FDE68A',
+                        color: '#D97706',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                      }}
                     >
                       <Star size={13} /> Rate Service
                     </button>
@@ -525,7 +591,16 @@ export const SocietyServicesHub: React.FC<SocietyServicesHubProps> = ({ userRole
                   {isVendor && order.status === 'PENDING' && (
                     <button
                       onClick={() => handleUpdateStatus(order.id, 'ACCEPTED')}
-                      className="px-3 py-1 bg-[#083B56] hover:bg-[#176B91] text-white text-xs font-semibold rounded-lg"
+                      style={{
+                        padding: '0.4rem 0.85rem',
+                        background: '#F06543',
+                        color: '#ffffff',
+                        fontSize: '0.78rem',
+                        fontWeight: 700,
+                        borderRadius: '8px',
+                        border: 'none',
+                        cursor: 'pointer',
+                      }}
                     >
                       Accept Booking
                     </button>
@@ -534,7 +609,16 @@ export const SocietyServicesHub: React.FC<SocietyServicesHubProps> = ({ userRole
                   {isVendor && order.status === 'ACCEPTED' && (
                     <button
                       onClick={() => handleUpdateStatus(order.id, 'COMPLETED')}
-                      className="px-3 py-1 bg-emerald-600 text-white text-xs font-semibold rounded-lg"
+                      style={{
+                        padding: '0.4rem 0.85rem',
+                        background: '#059669',
+                        color: '#ffffff',
+                        fontSize: '0.78rem',
+                        fontWeight: 700,
+                        borderRadius: '8px',
+                        border: 'none',
+                        cursor: 'pointer',
+                      }}
                     >
                       Mark Completed
                     </button>
@@ -548,19 +632,36 @@ export const SocietyServicesHub: React.FC<SocietyServicesHubProps> = ({ userRole
 
       {/* Tab 3: VENDOR DIRECTORY */}
       {activeTab === 'VENDOR_DIRECTORY' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
           {vendors.map((v) => (
-            <div key={v.id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-              <div className="flex justify-between items-start">
+            <div
+              key={v.id}
+              style={{
+                background: '#ffffff',
+                borderRadius: '16px',
+                border: '1px solid #DCE8EF',
+                padding: '1.25rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.75rem',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                 <div>
-                  <h4 className="font-bold text-slate-900 text-base">{v.businessName}</h4>
-                  <p className="text-xs text-slate-500">Contact: {v.contactPerson} ({v.phone})</p>
+                  <h4 style={{ margin: 0, fontWeight: 800, color: '#083B56', fontSize: '1rem' }}>{v.businessName}</h4>
+                  <p style={{ margin: '0.2rem 0 0', fontSize: '0.78rem', color: '#52788D' }}>Contact: {v.contactPerson} ({v.phone})</p>
                 </div>
 
                 <span
-                  className={`px-2.5 py-0.5 text-xs font-bold rounded-full ${
-                    v.approvalStatus === 'APPROVED' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-                  }`}
+                  style={{
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    fontSize: '0.7rem',
+                    fontWeight: 800,
+                    background: v.approvalStatus === 'APPROVED' ? '#ECFDF5' : '#FEF2F2',
+                    color: v.approvalStatus === 'APPROVED' ? '#059669' : '#DC2626',
+                    border: `1px solid ${v.approvalStatus === 'APPROVED' ? '#A7F3D0' : '#FCA5A5'}`,
+                  }}
                 >
                   {v.approvalStatus}
                 </span>
@@ -620,255 +721,227 @@ export const SocietyServicesHub: React.FC<SocietyServicesHubProps> = ({ userRole
       )}
 
       {/* Rate Modal */}
-      {modalMode === 'RATE' && selectedOrderForRate && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-4 md:p-6 shadow-2xl space-y-4">
-            <div className="flex justify-between items-center border-b pb-3">
-              <h3 className="font-bold text-slate-900 text-base">Rate Service Experience</h3>
-              <button
-                type="button"
-                onClick={() => setModalMode(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-                title="Close"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <form onSubmit={handleRateSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Rating (1 to 5 Stars)</label>
-                <div className="flex gap-2 text-amber-500 my-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setRatingVal(star)}
-                      className={`text-xl ${ratingVal >= star ? 'opacity-100' : 'opacity-30'}`}
-                    >
-                      ★
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Review Notes</label>
-                <textarea
-                  rows={3}
-                  value={reviewNotes}
-                  onChange={(e) => setReviewNotes(e.target.value)}
-                  placeholder="Tell us about the service quality, punctuality, and behavior..."
-                  className="w-full px-3 py-2 border rounded-lg text-xs"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3 border-t">
-                <button
-                  type="button"
-                  onClick={() => setModalMode(null)}
-                  style={{ background: '#F1F5F9', color: '#334155' }}
-                  className="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-200 hover:bg-slate-200 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  style={{ background: 'var(--aarizo-blue, #176B91)', color: '#FFFFFF' }}
-                  className="px-5 py-2 text-xs font-bold rounded-lg shadow-md hover:brightness-110 transition-all"
-                >
-                  Submit Rating
-                </button>
-              </div>
-            </form>
+      <Modal
+        isOpen={modalMode === 'RATE' && !!selectedOrderForRate}
+        onClose={() => setModalMode(null)}
+        title="Rate Service Experience"
+        subtitle="Share feedback on service quality and vendor behavior"
+        icon={<Star size={20} className="text-amber-500" />}
+        maxWidth="460px"
+        footer={
+          <div className="flex justify-end gap-2 w-full">
+            <button
+              type="button"
+              onClick={() => setModalMode(null)}
+              className="px-4 py-2.5 text-xs font-bold rounded-xl border border-slate-200 bg-slate-100 text-slate-700"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const form = document.getElementById('rate-service-form') as HTMLFormElement;
+                if (form) form.requestSubmit();
+              }}
+              className="px-5 py-2.5 text-xs font-extrabold rounded-xl shadow-md bg-[#F06543] text-white"
+            >
+              Submit Rating
+            </button>
           </div>
-        </div>
-      )}
+        }
+      >
+        <form id="rate-service-form" onSubmit={handleRateSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-extrabold text-slate-700 mb-1">Rating (1 to 5 Stars)</label>
+            <div className="flex gap-2 text-amber-500 my-2">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setRatingVal(star)}
+                  className={`text-2xl transition-transform hover:scale-110 ${ratingVal >= star ? 'opacity-100' : 'opacity-30'}`}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-extrabold text-slate-700 mb-1">Review Notes</label>
+            <textarea
+              rows={3}
+              value={reviewNotes}
+              onChange={(e) => setReviewNotes(e.target.value)}
+              placeholder="Tell us about the service quality, punctuality, and behavior..."
+              className="w-full px-3.5 py-2.5 border rounded-xl text-xs font-medium"
+            />
+          </div>
+        </form>
+      </Modal>
 
       {/* Book Modal */}
-      {modalMode === 'BOOK' && selectedItemForBook && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(8, 59, 86, 0.6)', backdropFilter: 'blur(4px)', zIndex: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div style={{ background: '#ffffff', borderRadius: '20px', maxWidth: '420px', width: '100%', padding: '1.5rem', boxShadow: '0 20px 40px rgba(8, 59, 86, 0.2)', border: '1px solid #DCE8EF' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #E2E8F0', paddingBottom: '0.75rem', marginBottom: '1rem' }}>
-              <div>
-                <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--aarizo-blue, #176B91)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Service Booking</span>
-                <h3 style={{ margin: 0, fontWeight: 800, color: '#083B56', fontSize: '1.125rem' }}>{selectedItemForBook.title}</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setModalMode(null)}
-                style={{ background: '#F1F5F9', border: 'none', borderRadius: '8px', padding: '0.35rem', cursor: 'pointer', color: '#64748B', display: 'flex', alignItems: 'center' }}
-                title="Close"
+      <Modal
+        isOpen={modalMode === 'BOOK' && !!selectedItemForBook}
+        onClose={() => setModalMode(null)}
+        title={selectedItemForBook?.title || 'Service Booking'}
+        subtitle="Schedule service order and confirm booking details"
+        icon={<ShoppingBag size={20} />}
+        maxWidth="480px"
+        footer={
+          <div className="flex justify-between items-center w-full">
+            <div>
+              <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Total Estimate</span>
+              <span className="text-lg font-black text-[#083B56]">₹{selectedItemForBook?.price}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                const form = document.getElementById('book-service-form') as HTMLFormElement;
+                if (form) form.requestSubmit();
+              }}
+              className="px-5 py-2.5 text-xs font-extrabold rounded-xl shadow-md bg-[#F06543] text-white cursor-pointer"
+            >
+              Confirm &amp; Dispatch Order
+            </button>
+          </div>
+        }
+      >
+        {selectedItemForBook && (
+          <form id="book-service-form" onSubmit={handleBookSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-extrabold text-slate-700 mb-1">
+                Booking / Subscription Schedule
+              </label>
+              <select
+                value={bookForm.recurringSchedule}
+                onChange={(e) => setBookForm({ ...bookForm, recurringSchedule: e.target.value as any })}
+                className="w-full p-3 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 bg-white"
               >
-                <X size={18} />
-              </button>
+                <option value="ONE_TIME">One-Time Booking</option>
+                <option value="WEEKLY">Weekly Recurring (Maid, Laundry, Car Wash)</option>
+                <option value="MONTHLY">Monthly Recurring (Pest Control, Maintenance)</option>
+                <option value="CUSTOM_SCHEDULE">Custom Schedule</option>
+              </select>
             </div>
 
-            <form onSubmit={handleBookSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#203746', marginBottom: '0.35rem' }}>
-                  Booking / Subscription Schedule
-                </label>
-                <select
-                  value={bookForm.recurringSchedule}
-                  onChange={(e) => setBookForm({ ...bookForm, recurringSchedule: e.target.value as any })}
-                  style={{ width: '100%', padding: '0.55rem 0.75rem', border: '1px solid #DCE8EF', borderRadius: '10px', fontSize: '0.75rem', background: '#ffffff', color: '#203746', fontWeight: 600 }}
-                >
-                  <option value="ONE_TIME">One-Time Booking</option>
-                  <option value="WEEKLY">Weekly Recurring (Maid, Laundry, Car Wash)</option>
-                  <option value="MONTHLY">Monthly Recurring (Pest Control, Maintenance)</option>
-                  <option value="CUSTOM_SCHEDULE">Custom Schedule</option>
-                </select>
-              </div>
+            <div>
+              <label className="block text-xs font-extrabold text-slate-700 mb-1">
+                Scheduled Start Date
+              </label>
+              <input
+                type="date"
+                required
+                value={bookForm.scheduledDate}
+                onChange={(e) => setBookForm({ ...bookForm, scheduledDate: e.target.value })}
+                className="w-full p-3 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 bg-white"
+              />
+            </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#203746', marginBottom: '0.35rem' }}>
-                  Scheduled Start Date
-                </label>
-                <input
-                  type="date"
-                  required
-                  value={bookForm.scheduledDate}
-                  onChange={(e) => setBookForm({ ...bookForm, scheduledDate: e.target.value })}
-                  style={{ width: '100%', padding: '0.55rem 0.75rem', border: '1px solid #DCE8EF', borderRadius: '10px', fontSize: '0.75rem', background: '#ffffff', color: '#203746' }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#203746', marginBottom: '0.35rem' }}>
-                  Custom Notes / Preferred Time
-                </label>
-                <textarea
-                  rows={2}
-                  placeholder="e.g. Please arrive between 10 AM and 11 AM."
-                  value={bookForm.customNotes}
-                  onChange={(e) => setBookForm({ ...bookForm, customNotes: e.target.value })}
-                  style={{ width: '100%', padding: '0.55rem 0.75rem', border: '1px solid #DCE8EF', borderRadius: '10px', fontSize: '0.75rem', background: '#ffffff', color: '#203746', outline: 'none' }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid #E2E8F0', marginTop: '0.5rem' }}>
-                <div>
-                  <span style={{ fontSize: '0.6875rem', color: '#657785', display: 'block' }}>Total Estimate</span>
-                  <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#083B56' }}>₹{selectedItemForBook.price}</span>
-                </div>
-                <button
-                  type="submit"
-                  style={{
-                    background: 'var(--aarizo-blue, #176B91)',
-                    color: '#FFFFFF',
-                    border: 'none',
-                    padding: '0.625rem 1.25rem',
-                    fontSize: '0.8125rem',
-                    fontWeight: 700,
-                    borderRadius: '12px',
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 12px rgba(23, 107, 145, 0.25)',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  Confirm &amp; Dispatch Order
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            <div>
+              <label className="block text-xs font-extrabold text-slate-700 mb-1">
+                Custom Notes / Preferred Time
+              </label>
+              <textarea
+                rows={2}
+                placeholder="e.g. Please arrive between 10 AM and 11 AM."
+                value={bookForm.customNotes}
+                onChange={(e) => setBookForm({ ...bookForm, customNotes: e.target.value })}
+                className="w-full p-3 border border-slate-300 rounded-xl text-xs font-medium text-slate-800 bg-white"
+              />
+            </div>
+          </form>
+        )}
+      </Modal>
 
       {/* Add Item Modal */}
-      {modalMode === 'ADD_ITEM' && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-4 md:p-6 shadow-2xl space-y-4">
-            <div className="flex justify-between items-center border-b pb-3">
-              <h3 className="font-bold text-slate-900 text-base">Add Service to Catalog</h3>
-              <button
-                type="button"
-                onClick={() => setModalMode(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-                title="Close"
-              >
-                <X size={18} />
-              </button>
+      <Modal
+        isOpen={modalMode === 'ADD_ITEM'}
+        onClose={() => setModalMode(null)}
+        title="Add Service to Catalog"
+        subtitle="Register new service offering and rate sheet details"
+        icon={<PlusCircle size={20} />}
+        maxWidth="480px"
+        footer={
+          <div className="flex justify-end gap-2 w-full">
+            <button
+              type="button"
+              onClick={() => setModalMode(null)}
+              className="px-4 py-2.5 text-xs font-bold rounded-xl border border-slate-200 bg-slate-100 text-slate-700"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const form = document.getElementById('add-catalog-item-form') as HTMLFormElement;
+                if (form) form.requestSubmit();
+              }}
+              className="px-5 py-2.5 text-xs font-extrabold rounded-xl shadow-md bg-[#F06543] text-white"
+            >
+              Add Service
+            </button>
+          </div>
+        }
+      >
+        <form id="add-catalog-item-form" onSubmit={handleAddItemSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-extrabold text-slate-700 mb-1">Service Title</label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Deep Sofa Cleaning"
+              value={newItemForm.title}
+              onChange={(e) => setNewItemForm({ ...newItemForm, title: e.target.value })}
+              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-bold"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-extrabold text-slate-700 mb-1">Price (₹)</label>
+              <input
+                type="number"
+                required
+                value={newItemForm.price}
+                onChange={(e) => setNewItemForm({ ...newItemForm, price: Number(e.target.value) })}
+                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-bold"
+              />
             </div>
 
-            <form onSubmit={handleAddItemSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Service Title</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Deep Sofa Cleaning"
-                  value={newItemForm.title}
-                  onChange={(e) => setNewItemForm({ ...newItemForm, title: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg text-xs"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Price (₹)</label>
-                  <input
-                    type="number"
-                    required
-                    value={newItemForm.price}
-                    onChange={(e) => setNewItemForm({ ...newItemForm, price: Number(e.target.value) })}
-                    className="w-full px-3 py-2 border rounded-lg text-xs"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Unit</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="per service"
-                    value={newItemForm.unit}
-                    onChange={(e) => setNewItemForm({ ...newItemForm, unit: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg text-xs"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Service Photo / Rate Sheet (Optional)
-                </label>
-                <FileUpload
-                  category="general"
-                  label=""
-                  onUploadSuccess={(url: string) => {
-                    setNewItemForm((prev) => ({ ...prev, imageUrl: url }));
-                  }}
-                />
-                {newItemForm.imageUrl && (
-                  <div className="mt-2 text-xs text-emerald-700 flex items-center gap-1.5 font-medium">
-                    <CheckCircle2 size={13} />
-                    <span>Photo attached successfully</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3 border-t">
-                <button
-                  type="button"
-                  onClick={() => setModalMode(null)}
-                  style={{ background: '#F1F5F9', color: '#334155' }}
-                  className="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-200 hover:bg-slate-200 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  style={{ background: 'var(--aarizo-blue, #176B91)', color: '#FFFFFF' }}
-                  className="px-5 py-2 text-xs font-bold rounded-lg shadow-md hover:brightness-110 transition-all"
-                >
-                  Save Service
-                </button>
-              </div>
-            </form>
+            <div>
+              <label className="block text-xs font-extrabold text-slate-700 mb-1">Unit</label>
+              <input
+                type="text"
+                required
+                placeholder="per service"
+                value={newItemForm.unit}
+                onChange={(e) => setNewItemForm({ ...newItemForm, unit: e.target.value })}
+                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-bold"
+              />
+            </div>
           </div>
-        </div>
-      )}
+
+          <div>
+            <label className="block text-xs font-extrabold text-slate-700 mb-1">
+              Service Photo / Rate Sheet (Optional)
+            </label>
+            <FileUpload
+              category="general"
+              label=""
+              onUploadSuccess={(url: string) => {
+                setNewItemForm((prev) => ({ ...prev, imageUrl: url }));
+              }}
+            />
+            {newItemForm.imageUrl && (
+              <div className="mt-2 text-xs text-emerald-700 flex items-center gap-1.5 font-medium">
+                <CheckCircle2 size={13} />
+                <span>Photo attached successfully</span>
+              </div>
+            )}
+          </div>
+        </form>
+      </Modal>
 
       {/* Razorpay Online Payment Checkout */}
       {checkoutOrder && (

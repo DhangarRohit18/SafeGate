@@ -65,35 +65,19 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setThemeState] = useState<ThemeId>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('aarizo_theme') as ThemeId;
-      if (saved && ['classic', 'coral', 'emerald', 'luxury'].includes(saved)) {
-        return saved;
-      }
-    }
-    return 'classic';
-  });
+  const [theme, setThemeState] = useState<ThemeId>('classic');
 
-  const setTheme = (newTheme: ThemeId) => {
-    setThemeState(newTheme);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('aarizo_theme', newTheme);
-      if (newTheme === 'classic') {
-        document.documentElement.removeAttribute('data-theme');
-      } else {
-        document.documentElement.setAttribute('data-theme', newTheme);
-      }
-    }
+  const setTheme = (_newTheme?: ThemeId) => {
+    // Locked single-theme brand identity
+    setThemeState('classic');
   };
 
   useEffect(() => {
-    if (theme === 'classic') {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('aarizo_theme');
       document.documentElement.removeAttribute('data-theme');
-    } else {
-      document.documentElement.setAttribute('data-theme', theme);
     }
-  }, [theme]);
+  }, []);
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme, themes: THEME_OPTIONS }}>

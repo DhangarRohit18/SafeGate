@@ -9,7 +9,7 @@ export type AmenityType =
   | 'KIDS_PLAY_AREA'
   | 'VISITOR_LOUNGE';
 
-export type BookingStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'COMPLETED';
+export type BookingStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'COMPLETED' | 'CONFIRMED';
 
 export type RSVPStatus = 'GOING' | 'MAYBE' | 'NOT_GOING';
 

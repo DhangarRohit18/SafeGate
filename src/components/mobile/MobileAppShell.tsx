@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, LogOut, X, ChevronRight, Bell, ChevronDown, Plus, Palette } from 'lucide-react';
+import { Menu, LogOut, X, ChevronRight, Bell, ChevronDown, Plus } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { App } from '@capacitor/app';
 import { triggerHaptic, useVirtualKeyboard } from '../../utils/nativeMobile';
+import { QuickActionSheet } from './QuickActionSheet';
 
 export interface NavItem {
   icon: LucideIcon | React.ElementType;
@@ -36,6 +37,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({
 }) => {
   const { currentUser, logout } = useAuth();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isQuickActionOpen, setIsQuickActionOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const mainRef = useRef<HTMLElement | null>(null);
@@ -54,6 +56,9 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({
   const isActive = (path: string) => {
     if (path === '/' && location.pathname !== '/') return false;
     if (location.pathname === path) return true;
+    if (['/committee', '/admin', '/resident', '/vendor', '/security', '/facility'].includes(path)) {
+      return location.pathname === path;
+    }
     return location.pathname.startsWith(path + '/');
   };
 
@@ -123,7 +128,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({
         position: 'relative',
       }}
     >
-      {/* ── Screenshot-Matched Deep Navy Header (#083B56) ── */}
+      {/* ── Screenshot-Matched Deep Espresso Header (#231715) ── */}
       <header
         style={{
           padding: '0 1.25rem',
@@ -131,7 +136,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({
           height: 'calc(64px + env(safe-area-inset-top, 0px))',
           display: 'flex',
           alignItems: 'center',
-          background: 'var(--aarizo-navy, #083B56)',
+          background: 'var(--aarizo-espresso, #231715)',
           zIndex: 40,
           flexShrink: 0,
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
@@ -140,7 +145,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({
         <div
           style={{
             width: '100%',
-            maxWidth: '1280px',
+            maxWidth: '1440px',
             margin: '0 auto',
             display: 'flex',
             alignItems: 'center',
@@ -177,7 +182,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({
                 <span style={{ fontSize: '0.9375rem', fontWeight: 800, letterSpacing: '-0.01em' }}>
                   {currentUser?.societyName || societyName}
                 </span>
-                <ChevronDown size={14} style={{ opacity: 0.8 }} />
+                <ChevronDown size={14} style={{ color: 'var(--aarizo-gold, #E5B842)', opacity: 0.9 }} />
               </div>
               <p style={{ fontSize: '0.6875rem', color: 'rgba(255, 255, 255, 0.72)', margin: 0, fontWeight: 600 }}>
                 {roleTitle} Portal
@@ -203,49 +208,20 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({
                     fontSize: '0.8125rem',
                     fontWeight: active ? 700 : 500,
                     textDecoration: 'none',
-                    color: active ? '#ffffff' : 'rgba(255, 255, 255, 0.75)',
+                    color: active ? '#ffffff' : 'rgba(255, 255, 255, 0.78)',
                     background: active ? 'rgba(255, 255, 255, 0.18)' : 'transparent',
                     transition: 'all 0.15s ease',
                   }}
                 >
-                  <Icon size={16} />
+                  <Icon size={16} style={{ color: active ? 'var(--aarizo-gold, #E5B842)' : 'inherit' }} />
                   <span>{item.label}</span>
                 </Link>
               );
             })}
           </nav>
 
-          {/* Top Right Actions: Theme + Notification + Logout */}
+          {/* Top Right Actions: Notification + Logout */}
           <div style={{ display: 'flex', gap: '0.45rem', alignItems: 'center' }}>
-            <button
-              onClick={() => {
-                triggerHaptic('light');
-                const themeBtn = document.querySelector('button[title="Try 4 Color Themes"]') as HTMLButtonElement | null;
-                if (themeBtn) {
-                  themeBtn.click();
-                }
-              }}
-              aria-label="Switch Theme Palette"
-              title="Switch Theme Palette (4 Themes)"
-              style={{
-                height: 34,
-                padding: '0 0.65rem',
-                borderRadius: '17px',
-                background: 'rgba(255, 255, 255, 0.15)',
-                color: '#ffffff',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.35rem',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                cursor: 'pointer',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-              }}
-            >
-              <Palette size={14} style={{ color: 'var(--aarizo-sky, #83CBEA)' }} />
-              <span className="hidden sm:inline">Theme</span>
-            </button>
-
             {topRightActions || (
               <button
                 onClick={() => navigate('/notifications')}
@@ -505,30 +481,18 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({
         })}
 
         {/* Center Floating Action Button (FAB) */}
-        {showFab && (
+        {showFab && !location.pathname.endsWith('/reports') && !location.pathname.endsWith('/profile') && (
           <div style={{ position: 'relative', width: 56, display: 'flex', justifyContent: 'center' }}>
             <button
               onClick={() => {
                 triggerHaptic('medium');
                 if (onFabClick) {
                   onFabClick();
-                } else if (location.pathname.startsWith('/security')) {
-                  navigate('/security/verify');
-                } else if (location.pathname.startsWith('/admin')) {
-                  navigate('/admin/requests');
-                } else if (location.pathname.startsWith('/committee')) {
-                  navigate('/committee/approvals');
-                } else if (location.pathname.startsWith('/facility')) {
-                  navigate('/facility/maintenance');
-                } else if (location.pathname.startsWith('/vendor')) {
-                  navigate('/vendor/portal');
-                } else if (location.pathname.startsWith('/super-admin')) {
-                  navigate('/super-admin/societies');
                 } else {
-                  navigate('/resident/visitors');
+                  setIsQuickActionOpen(true);
                 }
               }}
-              aria-label="Create New Action"
+              aria-label="Quick Action Launcher"
               style={{
                 width: 48,
                 height: 48,
@@ -581,6 +545,9 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({
           );
         })}
       </nav>
+
+      {/* Quick Action Sheet Modal */}
+      <QuickActionSheet isOpen={isQuickActionOpen} onClose={() => setIsQuickActionOpen(false)} />
     </div>
   );
 };

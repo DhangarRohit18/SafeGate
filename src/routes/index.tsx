@@ -1,5 +1,6 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { trackActiveRoute, getRestoredOrRoleDefaultRoute } from '../utils/sessionRouteTracker';
 import { LoginPage } from '../pages/auth/LoginPage';
 import { OnboardingPage } from '../pages/auth/OnboardingPage';
 import { UnauthorizedPage } from '../pages/unauthorized/UnauthorizedPage';
@@ -50,6 +51,7 @@ import { AdminGuestStayPage } from '../pages/dashboard/admin/AdminGuestStayPage'
 import { ResidentGuestStayPage } from '../pages/dashboard/resident/ResidentGuestStayPage';
 import { GuestStayScannerPage } from '../pages/dashboard/security/GuestStayScannerPage';
 import { ServiceProviderTaskPage } from '../pages/dashboard/serviceProvider/ServiceProviderTaskPage';
+import { VendorProfilePage } from '../pages/dashboard/vendor/VendorProfilePage';
 import { VendorDashboard } from '../pages/dashboard/VendorDashboard';
 import { ServiceProviderDashboard } from '../pages/dashboard/ServiceProviderDashboard';
 import { NotificationCenterPage } from '../pages/dashboard/NotificationCenterPage';
@@ -62,9 +64,15 @@ import { AdminExpensePage } from '../pages/dashboard/admin/AdminExpensePage';
 import { CommitteeDashboard } from '../pages/dashboard/CommitteeDashboard';
 import { FacilityManagerDashboard } from '../pages/dashboard/FacilityManagerDashboard';
 import { FacilityProfilePage } from '../pages/dashboard/facility/FacilityProfilePage';
+import { FacilityMaintenanceTasksPage } from '../pages/dashboard/facility/FacilityMaintenanceTasksPage';
+import { FacilityStaffShiftsPage } from '../pages/dashboard/facility/FacilityStaffShiftsPage';
+import { FacilityAMCContractsPage } from '../pages/dashboard/facility/FacilityAMCContractsPage';
+import { FacilityCleaningOpsPage } from '../pages/dashboard/facility/FacilityCleaningOpsPage';
+import { FacilityUtilitiesPage } from '../pages/dashboard/facility/FacilityUtilitiesPage';
 import { DomesticWorkerDashboard } from '../pages/dashboard/DomesticWorkerDashboard';
 import { UnifiedRequestCenter } from '../domains/requests/components/UnifiedRequestCenter';
 import { AdminAdvertisementsPage } from '../pages/dashboard/admin/AdminAdvertisementsPage';
+import { AdminNGOManagementPage } from '../pages/dashboard/admin/AdminNGOManagementPage';
 import { VendorOnboardingPage } from '../pages/dashboard/vendor/VendorOnboardingPage';
 import {
   SuperAdminLayout,
@@ -83,26 +91,42 @@ import { DeveloperDatabaseStudio } from '../components/dev/DeveloperDatabaseStud
 
 export const AppRoutes: React.FC = () => {
   const { status, currentUser } = useAuth();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (status === 'AUTHENTICATED' && currentUser) {
+      trackActiveRoute(currentUser.role, location.pathname + location.search);
+    }
+  }, [location, status, currentUser]);
 
   const getDefaultRoute = () => {
     const role = (currentUser?.role || '').toLowerCase();
+    let def = '/resident';
     switch (role) {
       case 'admin':
-        return '/super-admin';
+        def = '/super-admin';
+        break;
       case 'secretary':
-        return '/admin';
+        def = '/admin';
+        break;
       case 'guard':
-        return '/security';
+        def = '/security';
+        break;
       case 'committee':
-        return '/committee';
+        def = '/committee';
+        break;
       case 'facility_manager':
-        return '/facility';
+        def = '/facility';
+        break;
       case 'vendor':
-        return '/vendor';
+        def = '/vendor';
+        break;
       case 'resident':
       default:
-        return '/resident';
+        def = '/resident';
+        break;
     }
+    return getRestoredOrRoleDefaultRoute(role, def);
   };
 
   return (
@@ -120,7 +144,7 @@ export const AppRoutes: React.FC = () => {
       <Route
         path="/"
         element={
-          status === 'AUTHENTICATED' ? <Navigate to={getDefaultRoute()} replace /> : <Navigate to="/onboarding" replace />
+          status === 'AUTHENTICATED' ? <Navigate to={getDefaultRoute()} replace /> : <Navigate to="/login" replace />
         }
       />
 
@@ -184,6 +208,7 @@ export const AppRoutes: React.FC = () => {
           <Route path="/admin/compliance" element={<AdminCompliancePage />} />
           <Route path="/admin/move-renovation" element={<AdminMoveRenovationPage />} />
           <Route path="/admin/expenses" element={<AdminExpensePage />} />
+          <Route path="/admin/ngos" element={<AdminNGOManagementPage />} />
           <Route path="/admin/advertisements" element={<AdminAdvertisementsPage />} />
           <Route path="/admin/operations" element={<RealtimeOperationsHubPage />} />
           <Route path="/admin/community" element={<ResidentCommunityHubPage />} />
@@ -234,6 +259,7 @@ export const AppRoutes: React.FC = () => {
       <Route element={<ProtectedRoute allowedRoles={['vendor', 'secretary', 'admin']} />}>
         <Route element={<VendorLayout />}>
           <Route path="/vendor" element={<VendorDashboard />} />
+          <Route path="/vendor/profile" element={<VendorProfilePage />} />
           <Route path="/vendor/portal" element={<VendorPortalPage />} />
           <Route path="/vendor/onboarding" element={<VendorOnboardingPage />} />
           <Route path="/vendor/*" element={<VendorDashboard />} />
@@ -258,6 +284,8 @@ export const AppRoutes: React.FC = () => {
           <Route path="/committee/compliance" element={<CommitteeDashboard />} />
           <Route path="/committee/health" element={<CommitteeDashboard />} />
           <Route path="/committee/governance" element={<CommitteeDashboard />} />
+          <Route path="/committee/reports" element={<CommitteeDashboard />} />
+          <Route path="/committee/profile" element={<CommitteeDashboard />} />
           <Route path="/committee/*" element={<CommitteeDashboard />} />
         </Route>
       </Route>
@@ -266,12 +294,12 @@ export const AppRoutes: React.FC = () => {
       <Route element={<ProtectedRoute allowedRoles={['facility_manager', 'secretary', 'admin']} />}>
         <Route element={<FacilityManagerLayout />}>
           <Route path="/facility" element={<FacilityManagerDashboard />} />
-          <Route path="/facility/tasks" element={<FacilityManagerDashboard />} />
-          <Route path="/facility/maintenance" element={<FacilityManagerDashboard />} />
-          <Route path="/facility/shifts" element={<FacilityManagerDashboard />} />
-          <Route path="/facility/amc" element={<FacilityManagerDashboard />} />
-          <Route path="/facility/cleaning" element={<FacilityManagerDashboard />} />
-          <Route path="/facility/utilities" element={<FacilityManagerDashboard />} />
+          <Route path="/facility/tasks" element={<FacilityMaintenanceTasksPage />} />
+          <Route path="/facility/maintenance" element={<FacilityMaintenanceTasksPage />} />
+          <Route path="/facility/shifts" element={<FacilityStaffShiftsPage />} />
+          <Route path="/facility/amc" element={<FacilityAMCContractsPage />} />
+          <Route path="/facility/cleaning" element={<FacilityCleaningOpsPage />} />
+          <Route path="/facility/utilities" element={<FacilityUtilitiesPage />} />
           <Route path="/facility/profile" element={<FacilityProfilePage />} />
           <Route path="/facility/*" element={<FacilityManagerDashboard />} />
         </Route>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { childSafetyService } from '../../../services/childSafetyService';
 import { realtimeService } from '../../../services/realtimeService';
@@ -8,10 +9,13 @@ import {
   ShieldAlert,
   CheckCircle2,
   XCircle,
-  UserCheck
+  UserCheck,
+  ArrowLeft,
+  Scan,
 } from 'lucide-react';
 
 export const ChildGateScannerPage: React.FC = () => {
+  const navigate = useNavigate();
   const { currentUser } = useAuth();
   const societyId = (currentUser as any)?.societyId || 'soc-gvs';
 
@@ -82,166 +86,289 @@ export const ChildGateScannerPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-4 md:p-6">
-      {/* Active Missing Child Critical Alert Banner */}
-      {activeAlerts.length > 0 && (
-        <div className="bg-rose-600 text-white p-5 rounded-2xl shadow-lg border-2 border-rose-400 animate-pulse flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <ShieldAlert className="w-8 h-8 text-white shrink-0 mt-0.5" />
-            <div>
-              <h2 className="text-xl font-extrabold tracking-wide uppercase">🚨 CRITICAL MISSING CHILD LOCKDOWN ACTIVE</h2>
-              <div className="mt-1 space-y-1 text-sm font-medium">
-                {activeAlerts.map(alert => (
-                  <div key={alert.id} className="flex items-center gap-2">
-                    <span>{alert.message}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+    <div style={{ minHeight: '100vh', background: 'var(--aarizo-page, #F7FBFE)', paddingBottom: '2.5rem' }}>
+      {/* ── Subheader / Top Bar ── */}
+      <div
+        style={{
+          background: '#ffffff',
+          borderBottom: '1px solid var(--aarizo-border, #DCE8EF)',
+          padding: '0.875rem 1rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '0.75rem',
+          boxShadow: '0 1px 3px rgba(8, 59, 86, 0.03)',
+          marginBottom: '1.25rem',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
           <button
-            onClick={() => handleResolveAlert(activeAlerts[0].id)}
-            className="px-4 py-2 bg-white text-rose-700 font-extrabold text-xs rounded-xl shadow hover:bg-rose-50 shrink-0"
+            type="button"
+            onClick={() => navigate(-1)}
+            aria-label="Go Back"
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              background: 'var(--aarizo-card-blue, #F4FAFE)',
+              border: '1px solid var(--aarizo-border, #DCE8EF)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--aarizo-navy, #083B56)',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
           >
-            Mark Child Safe / Resolve Alert
+            <ArrowLeft size={18} />
           </button>
-        </div>
-      )}
-
-      {/* Header */}
-      <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="p-2 bg-[#EAF6FC] text-[#083B56] rounded-xl">
-              <QrCode className="w-5 h-5" />
-            </span>
-            <h1 className="text-2xl font-bold text-slate-900">Child Security & Gate Scanner</h1>
+          <div>
+            <h1 style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', margin: 0, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              Child Security &amp; Gate Scanner
+              <span style={{ fontSize: '0.65rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '12px', background: '#ECFDF5', color: '#059669', border: '1px solid #A7F3D0' }}>
+                Terminal Online
+              </span>
+            </h1>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--aarizo-text-secondary, #657785)', margin: 0, marginTop: 2 }}>
+              Green Valley Society · Verify pickup QR passes &amp; enforce missing child gate lockdowns
+            </p>
           </div>
-          <p className="text-slate-500 text-sm mt-1">
-            Scan Child Pickup QR gate passes, verify authorized pickup caretakers, and enforce missing child gate lockdowns.
-          </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Scanner Terminal */}
-        <div className="flex flex-col gap-6">
-          {/* QR Terminal Box */}
-          <div className="dark-hero-banner bg-slate-900 text-white p-4 md:p-6 rounded-2xl shadow-xl flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold flex items-center gap-2">
-                <QrCode className="w-5 h-5 text-[#83CBEA]" /> Security Gate Scanner Terminal
-              </h2>
-              <span className="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-semibold rounded-full border border-emerald-500/30">
-                Gate Terminal Active
-              </span>
+      <div className="max-w-7xl mx-auto w-full px-3 sm:px-4 space-y-4">
+        {/* Active Missing Child Critical Alert Banner */}
+        {activeAlerts.length > 0 && (
+          <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '16px', padding: '1rem 1.25rem', boxShadow: '0 4px 16px rgba(220, 38, 38, 0.12)' }} className="animate-pulse flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <ShieldAlert className="w-7 h-7 text-[#DC2626] shrink-0 mt-0.5" />
+              <div>
+                <h2 style={{ fontSize: '1rem', fontWeight: 900, color: '#DC2626', margin: 0 }}>🚨 CRITICAL MISSING CHILD LOCKDOWN ACTIVE</h2>
+                <div style={{ fontSize: '0.75rem', color: '#991B1B', marginTop: 4 }} className="space-y-1">
+                  {activeAlerts.map(alert => (
+                    <div key={alert.id} className="flex items-center gap-2">
+                      <span>{alert.message}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleResolveAlert(activeAlerts[0].id)}
+              style={{ padding: '0.5rem 1rem', borderRadius: '10px', background: '#DC2626', color: '#ffffff', fontWeight: 800, fontSize: '0.75rem', border: 'none', cursor: 'pointer', boxShadow: '0 2px 8px rgba(220, 38, 38, 0.25)' }}
+            >
+              Mark Child Safe / Resolve Alert
+            </button>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Scanner Terminal Column */}
+          <div className="flex flex-col gap-4">
+            {/* QR Terminal Box */}
+            <div
+              style={{
+                background: '#ffffff',
+                borderRadius: '16px',
+                border: '1px solid #DCE8EF',
+                padding: '1.25rem',
+                boxShadow: '0 2px 8px rgba(8, 59, 86, 0.04)',
+              }}
+              className="flex flex-col gap-4"
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <h2 style={{ fontSize: '1rem', fontWeight: 800, color: '#083B56', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <QrCode size={18} color="#083B56" /> Security Gate Scanner Terminal
+                </h2>
+                <span style={{ fontSize: '0.65rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '12px', background: '#ECFDF5', color: '#059669', border: '1px solid #A7F3D0' }}>
+                  Gate Terminal Active
+                </span>
+              </div>
+
+              <p style={{ fontSize: '0.75rem', color: '#657785', margin: 0 }}>
+                Scan barcode/QR code from caretaker's mobile or paste QR code string below to verify pickup permission.
+              </p>
+
+              <form
+                onSubmit={e => {
+                  e.preventDefault();
+                  handleScanQR(qrInput);
+                }}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                <input
+                  type="text"
+                  placeholder="Scan or Enter QR Code (e.g. CP-QR-172...)"
+                  value={qrInput}
+                  onChange={e => setQrInput(e.target.value)}
+                  style={{
+                    flex: 1,
+                    padding: '0.65rem 0.875rem',
+                    borderRadius: '12px',
+                    border: '1px solid #DCE8EF',
+                    fontSize: '0.8125rem',
+                    fontFamily: 'monospace',
+                    background: '#F4FAFE',
+                    color: '#083B56',
+                    fontWeight: 700,
+                    outline: 'none',
+                  }}
+                />
+                <button
+                  type="submit"
+                  style={{
+                    padding: '0.65rem 1.25rem',
+                    background: 'var(--aarizo-coral, #F06543)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontWeight: 800,
+                    fontSize: '0.8125rem',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(240, 101, 67, 0.25)',
+                    whiteSpace: 'nowrap',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                  }}
+                >
+                  <Scan size={15} /> Scan Pass
+                </button>
+              </form>
+
+              {/* Quick Demo Passes Buttons */}
+              {activeQRs.length > 0 && (
+                <div style={{ paddingTop: '0.5rem', borderTop: '1px solid #DCE8EF' }}>
+                  <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#657785', display: 'block', marginBottom: 6 }}>
+                    Active Society QR Passes (Click to test scan):
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {activeQRs.slice(0, 4).map(qr => (
+                      <button
+                        key={qr.id}
+                        type="button"
+                        onClick={() => handleScanQR(qr.qrCode)}
+                        style={{
+                          padding: '0.35rem 0.65rem',
+                          borderRadius: '8px',
+                          background: '#F4FAFE',
+                          border: '1px solid #DCE8EF',
+                          color: '#083B56',
+                          fontSize: '0.6875rem',
+                          fontFamily: 'monospace',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {qr.childName} ({qr.pickupPersonName})
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            <p className="text-xs text-slate-400">
-              Scan barcode/QR code from caretaker's mobile or paste QR code string below to verify pickup permission.
-            </p>
-
-            <form
-              onSubmit={e => {
-                e.preventDefault();
-                handleScanQR(qrInput);
-              }}
-              className="flex items-center gap-2"
-            >
-              <input
-                type="text"
-                placeholder="Scan or Enter QR Code (e.g. CP-QR-172...)"
-                value={qrInput}
-                onChange={e => setQrInput(e.target.value)}
-                className="flex-1 px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#83CBEA]"
-              />
-              <button
-                type="submit"
-                style={{ background: 'var(--aarizo-blue, #176B91)', color: '#FFFFFF' }}
-                className="px-5 py-3 text-white text-sm font-bold rounded-xl transition-all shadow flex items-center gap-1.5 hover:opacity-95"
+            {/* Validation Result Box */}
+            {scanResult && (
+              <div
+                style={{
+                  background: scanResult.allowed ? '#ECFDF5' : '#FEF2F2',
+                  border: `1px solid ${scanResult.allowed ? '#A7F3D0' : '#FECACA'}`,
+                  borderRadius: '16px',
+                  padding: '1.25rem',
+                  boxShadow: '0 4px 12px rgba(8, 59, 86, 0.05)',
+                }}
               >
-                Scan Pass
-              </button>
-            </form>
+                <div className="flex items-start gap-3.5">
+                  {scanResult.allowed ? (
+                    <CheckCircle2 size={36} color="#059669" className="shrink-0" />
+                  ) : (
+                    <XCircle size={36} color="#DC2626" className="shrink-0" />
+                  )}
+                  <div className="space-y-2 flex-1">
+                    <h3 style={{ fontSize: '1.125rem', fontWeight: 900, color: scanResult.allowed ? '#065F46' : '#991B1B', margin: 0 }}>
+                      {scanResult.allowed ? 'PICKUP AUTHORIZED & PERMITTED' : 'PICKUP DENIED / BLOCKED'}
+                    </h3>
+                    <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: scanResult.allowed ? '#047857' : '#DC2626', margin: 0 }}>
+                      {scanResult.message}
+                    </p>
 
-            {/* Quick Demo Passes Buttons */}
-            {activeQRs.length > 0 && (
-              <div className="pt-2">
-                <span className="text-[11px] text-slate-400 font-medium block mb-1.5">Active Society QR Passes (Click to test scan):</span>
-                <div className="flex flex-wrap gap-2">
-                  {activeQRs.slice(0, 4).map(qr => (
-                    <button
-                      key={qr.id}
-                      onClick={() => handleScanQR(qr.qrCode)}
-                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs text-[#83CBEA] font-mono"
-                    >
-                      {qr.childName} ({qr.pickupPersonName})
-                    </button>
-                  ))}
+                    {scanResult.child && (
+                      <div style={{ padding: '0.875rem', background: '#ffffff', borderRadius: '12px', border: '1px solid #DCE8EF', fontSize: '0.75rem', color: '#083B56' }} className="space-y-1">
+                        <p style={{ margin: 0 }}><strong>Child Name:</strong> {scanResult.child.fullName} (Flat {scanResult.child.flatNumber})</p>
+                        <p style={{ margin: 0 }}><strong>Pickup Person:</strong> {scanResult.pickupPersonName || 'N/A'}</p>
+                        <p style={{ margin: 0 }}><strong>Primary Guardian Phone:</strong> {scanResult.child.guardians[0]?.phone || 'N/A'}</p>
+                        {scanResult.child.medicalNotes && (
+                          <p style={{ margin: 0, color: '#DC2626' }}><strong>Medical Warning:</strong> {scanResult.child.medicalNotes}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Validation Result Box */}
-          {scanResult && (
-            <div className={`p-6 rounded-2xl border shadow-lg ${
-              scanResult.allowed ? 'bg-emerald-50 border-emerald-300 text-emerald-900' : 'bg-rose-50 border-rose-300 text-rose-900'
-            }`}>
-              <div className="flex items-start gap-4">
-                {scanResult.allowed ? (
-                  <CheckCircle2 className="w-10 h-10 text-emerald-600 shrink-0" />
+          {/* Right Column: Gate Logs */}
+          <div className="flex flex-col gap-4">
+            <div
+              style={{
+                background: '#ffffff',
+                borderRadius: '16px',
+                border: '1px solid #DCE8EF',
+                padding: '1.25rem',
+                boxShadow: '0 2px 8px rgba(8, 59, 86, 0.04)',
+              }}
+              className="flex flex-col gap-3"
+            >
+              <h3 style={{ fontSize: '0.9375rem', fontWeight: 800, color: '#083B56', margin: 0 }} className="flex items-center gap-2">
+                <UserCheck size={18} color="#083B56" /> Recent Gate Verification Logs
+              </h3>
+
+              <div className="flex flex-col gap-2.5 max-h-[420px] overflow-y-auto">
+                {pickupLogs.length === 0 ? (
+                  <p style={{ fontSize: '0.75rem', color: '#657785', textAlign: 'center', padding: '2rem 0', margin: 0 }}>
+                    No recent child pickup events recorded
+                  </p>
                 ) : (
-                  <XCircle className="w-10 h-10 text-rose-600 shrink-0" />
+                  pickupLogs.map(log => (
+                    <div
+                      key={log.id}
+                      style={{
+                        padding: '0.75rem 0.875rem',
+                        background: '#F4FAFE',
+                        border: '1px solid #DCE8EF',
+                        borderRadius: '12px',
+                        fontSize: '0.75rem',
+                      }}
+                      className="space-y-1"
+                    >
+                      <div className="flex items-center justify-between">
+                        <strong style={{ color: '#083B56' }}>{log.childName} (Flat {log.flatNumber})</strong>
+                        <span
+                          style={{
+                            padding: '0.15rem 0.5rem',
+                            fontSize: '0.65rem',
+                            fontWeight: 800,
+                            borderRadius: '10px',
+                            background: log.status === 'ALLOWED' ? '#ECFDF5' : '#FEF2F2',
+                            color: log.status === 'ALLOWED' ? '#059669' : '#DC2626',
+                            border: `1px solid ${log.status === 'ALLOWED' ? '#A7F3D0' : '#FECACA'}`,
+                          }}
+                        >
+                          {log.status}
+                        </span>
+                      </div>
+                      <p style={{ color: '#657785', margin: 0 }}>Caretaker: {log.pickupPersonName}</p>
+                      <p style={{ color: '#657785', fontSize: '0.6875rem', fontFamily: 'monospace', margin: 0 }}>
+                        {new Date(log.timestamp).toLocaleString()} · {log.gateId}
+                      </p>
+                    </div>
+                  ))
                 )}
-                <div className="space-y-2 flex-1">
-                  <h3 className="text-xl font-bold">
-                    {scanResult.allowed ? 'PICKUP AUTHORIZED & PERMITTED' : 'PICKUP DENIED / BLOCKED'}
-                  </h3>
-                  <p className="text-sm font-medium">{scanResult.message}</p>
-
-                  {scanResult.child && (
-                    <div className="mt-3 p-4 bg-white/80 rounded-xl border text-xs text-slate-800 space-y-1">
-                      <p><strong>Child Name:</strong> {scanResult.child.fullName} (Flat {scanResult.child.flatNumber})</p>
-                      <p><strong>Pickup Person:</strong> {scanResult.pickupPersonName || 'N/A'}</p>
-                      <p><strong>Primary Guardian Phone:</strong> {scanResult.child.guardians[0]?.phone || 'N/A'}</p>
-                      {scanResult.child.medicalNotes && (
-                        <p className="text-rose-700"><strong>Medical Warning:</strong> {scanResult.child.medicalNotes}</p>
-                      )}
-                    </div>
-                  )}
-                </div>
               </div>
-            </div>
-          )}
-        </div>
-
-        {/* Right Column: Gate Logs */}
-        <div className="flex flex-col gap-6">
-          <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col gap-4">
-            <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
-              <UserCheck className="w-4 h-4 text-[#083B56]" /> Recent Gate Verification Logs
-            </h3>
-
-            <div className="flex flex-col gap-3 max-h-[400px] overflow-y-auto">
-              {pickupLogs.length === 0 ? (
-                <p className="text-xs text-slate-400 text-center py-6">No recent child pickup events recorded</p>
-              ) : (
-                pickupLogs.map(log => (
-                  <div key={log.id} className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs space-y-1">
-                    <div className="flex items-center justify-between">
-                      <strong className="text-slate-900">{log.childName} (Flat {log.flatNumber})</strong>
-                      <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${
-                        log.status === 'ALLOWED' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-                      }`}>
-                        {log.status}
-                      </span>
-                    </div>
-                    <p className="text-slate-500">Caretaker: {log.pickupPersonName}</p>
-                    <p className="text-slate-400 text-[11px]">{new Date(log.timestamp).toLocaleString()} · {log.gateId}</p>
-                  </div>
-                ))
-              )}
             </div>
           </div>
         </div>
@@ -250,3 +377,4 @@ export const ChildGateScannerPage: React.FC = () => {
   );
 };
 
+export default ChildGateScannerPage;

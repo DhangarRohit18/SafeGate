@@ -5,34 +5,44 @@ import {
   AlertTriangle,
   Flame,
   Zap,
-  Droplet,
   Users,
   CheckCircle2,
-  RefreshCw,
   Radio,
   QrCode,
   UserPlus,
   Lock,
-  X,
+  Clock,
+  Phone,
+  IdCard,
+  Trash2,
+  Info,
+  Shield,
 } from 'lucide-react';
 import { safetyCommandEngine } from '../services/safetyCommandEngine';
-import type { EmergencyIncidentItem, IncidentStatus, EmergencyCategory, ChildProfileItem, PickupRecord, AuthorizedPickupPerson } from '../types/index';
+import type { EmergencyIncidentItem, EmergencyCategory, ChildProfileItem, AuthorizedPickupPerson } from '../types/index';
 import { useAuth } from '../../../context/AuthContext';
 import { realTimeSync } from '../../../services/realTimeSync';
+import { Modal } from '../../../components/ui/Modal';
 
-export const SafetyCommandHub: React.FC = () => {
+interface SafetyCommandHubProps {
+  initialTab?: 'ONE_TAP_SOS' | 'CHILD_SAFETY';
+}
+
+export const SafetyCommandHub: React.FC<SafetyCommandHubProps> = ({ initialTab = 'ONE_TAP_SOS' }) => {
   const { currentUser } = useAuth();
   const activeRole = (currentUser?.role || '').toLowerCase();
+  const flatNumber = (currentUser as any)?.flatNumber || (currentUser as any)?.flatDetails || 'B-1204';
 
   const isAdminOrSecurity = ['admin', 'secretary', 'guard'].includes(activeRole);
 
-  const [activeTab, setActiveTab] = useState<'ONE_TAP_SOS' | 'COMMAND_CONSOLE' | 'CHILD_SAFETY' | 'GATE_VERIFIER'>('ONE_TAP_SOS');
+  const [activeTab, setActiveTab] = useState<'ONE_TAP_SOS' | 'COMMAND_CONSOLE' | 'CHILD_SAFETY' | 'GATE_VERIFIER'>(initialTab);
   const [incidents, setIncidents] = useState<EmergencyIncidentItem[]>(() => safetyCommandEngine.getIncidents());
   const [children, setChildren] = useState<ChildProfileItem[]>(() => safetyCommandEngine.getChildren());
-  const [_pickups, setPickups] = useState<PickupRecord[]>(() => safetyCommandEngine.getPickupRecords());
 
   const [selectedIncident, setSelectedIncident] = useState<EmergencyIncidentItem | null>(null);
-  const [modalMode, setModalMode] = useState<'ASSIGN_RESPONDER' | 'TIMELINE' | 'ADD_CHILD' | 'ADD_PICKUP' | null>(null);
+  const [selectedEscortForDetail, setSelectedEscortForDetail] = useState<AuthorizedPickupPerson | null>(null);
+  const [modalMode, setModalMode] = useState<'ASSIGN_RESPONDER' | 'ADD_CHILD' | 'ADD_PICKUP' | 'GENERATE_PASS' | 'MISSING_ALERT' | null>(null);
+  const [selectedEscortId, setSelectedEscortId] = useState<string>('');
 
   // Forms
   const [responderForm, setResponderForm] = useState({
@@ -40,29 +50,22 @@ export const SafetyCommandHub: React.FC = () => {
     responderRole: 'Head Security',
   });
 
-  const [childForm, setChildForm] = useState({
-    childName: 'Aarav Malhotra',
-    flatCode: 'A-101',
-    guardianName: currentUser?.name || 'Siddharth Malhotra',
-    guardianPhone: currentUser?.phone || '+91 98765 00000',
-  });
-
   const [pickupForm, setPickupForm] = useState({
-    name: 'Rohan Nanny',
-    phone: '+91 98765 99887',
-    relationship: 'Nanny',
-    idProofType: 'Aadhaar',
-    idProofNumber: 'XXXX-XXXX-9900',
+    name: 'Radha Bai',
+    phone: '+91 98199 88776',
+    relationship: 'Trusted Family Maid / Nanny',
+    idProofType: 'Aadhaar Card',
+    idProofNumber: 'XXXX-XXXX-9901',
   });
 
   const [scanChildInput, setScanChildInput] = useState('');
   const [scanPickupInput, setScanPickupInput] = useState('');
   const [gateResult, setGateResult] = useState<{ isValid: boolean; child?: ChildProfileItem; reason?: string } | null>(null);
+  const [alertSuccess, setAlertSuccess] = useState<string | null>(null);
 
   const loadData = () => {
     setIncidents(safetyCommandEngine.getIncidents());
     setChildren(safetyCommandEngine.getChildren());
-    setPickups(safetyCommandEngine.getPickupRecords());
   };
 
   useEffect(() => {
@@ -80,12 +83,13 @@ export const SafetyCommandHub: React.FC = () => {
       category,
       currentUser?.id || 'res-1',
       currentUser?.name || 'Siddharth Malhotra',
-      'A-101',
+      flatNumber,
       currentUser?.phone || '+91 98765 00000',
-      'Tower A, Flat 101'
+      `Tower B, Flat ${flatNumber}`
     );
     loadData();
-    alert(`ONE-TAP ${category} SOS DISPATCHED! Security Command Console & Family notified.`);
+    setAlertSuccess(`ONE-TAP ${category} SOS DISPATCHED! Security Command Console & Guard Terminal notified.`);
+    setTimeout(() => setAlertSuccess(null), 5000);
   };
 
   const handleAcknowledge = (id: string) => {
@@ -113,21 +117,23 @@ export const SafetyCommandHub: React.FC = () => {
     loadData();
   };
 
-  const handleAddChildSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    safetyCommandEngine.addChildProfile(childForm.childName, childForm.flatCode, childForm.guardianName, childForm.guardianPhone);
-    setModalMode(null);
-    loadData();
-    alert('Child safety profile registered.');
-  };
-
   const handleAddPickupSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!children[0]) return;
     safetyCommandEngine.addAuthorizedPickup(children[0].id, pickupForm);
     setModalMode(null);
     loadData();
-    alert('Authorized pickup person added.');
+    setAlertSuccess('Authorized pickup person added.');
+    setTimeout(() => setAlertSuccess(null), 4000);
+  };
+
+  const handleRemoveEscort = (escortId: string) => {
+    if (!children[0]) return;
+    const child = children[0];
+    child.authorizedPickups = child.authorizedPickups.filter(p => p.id !== escortId);
+    loadData();
+    setAlertSuccess('Escort authorization removed.');
+    setTimeout(() => setAlertSuccess(null), 4000);
   };
 
   const handleGateVerifySubmit = (e: React.FormEvent) => {
@@ -141,317 +147,850 @@ export const SafetyCommandHub: React.FC = () => {
     loadData();
   };
 
-  const getCategoryIcon = (cat: EmergencyCategory) => {
-    switch (cat) {
-      case 'MEDICAL':
-        return <ShieldAlert className="text-rose-600" size={24} />;
-      case 'FIRE':
-        return <Flame className="text-amber-600" size={24} />;
-      case 'SECURITY':
-        return <ShieldCheck className="text-[#083B56]" size={24} />;
-      case 'CHILD_SAFETY':
-        return <Users className="text-[#083B56]" size={24} />;
-      case 'LIFT':
-        return <AlertTriangle className="text-[#176B91]" size={24} />;
-      case 'ELECTRICAL':
-        return <Zap className="text-yellow-600" size={24} />;
-      case 'WATER':
-        return <Droplet className="text-[#176B91]" size={24} />;
-      default:
-        return <AlertTriangle className="text-slate-600" size={24} />;
-    }
-  };
-
-  const getStatusBadge = (status: IncidentStatus) => {
-    switch (status) {
-      case 'TRIGGERED':
-        return <span className="px-3 py-1 bg-rose-600 text-white font-extrabold text-xs rounded-full animate-ping">TRIGGERED</span>;
-      case 'ACKNOWLEDGED':
-        return <span className="px-3 py-1 bg-amber-500 text-white font-bold text-xs rounded-full">ACKNOWLEDGED</span>;
-      case 'RESPONDING':
-        return <span className="px-3 py-1 bg-[#176B91] text-white font-bold text-xs rounded-full">RESPONDING</span>;
-      case 'RESOLVED':
-        return <span className="px-3 py-1 bg-emerald-600 text-white font-bold text-xs rounded-full">RESOLVED</span>;
-      case 'CLOSED':
-        return <span className="px-3 py-1 bg-slate-600 text-white font-bold text-xs rounded-full">CLOSED</span>;
-    }
-  };
-
   const activeIncidents = incidents.filter((i) => i.status !== 'RESOLVED' && i.status !== 'CLOSED');
+  const currentChild = children[0];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-4 pb-24">
-      {/* Header Banner */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg, var(--aarizo-navy, #083B56) 0%, #0D4767 100%)',
-          borderRadius: '16px',
-          padding: '1.25rem 1.25rem',
-          color: '#FFFFFF',
-          boxShadow: '0 4px 16px rgba(8, 59, 86, 0.08)',
-        }}
-        className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
-      >
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span style={{ padding: '6px', background: 'rgba(217, 83, 91, 0.2)', color: '#FF7B82', borderRadius: '8px', display: 'flex', alignItems: 'center' }}>
-              <ShieldAlert size={22} className="animate-pulse" />
-            </span>
-            <h2 style={{ color: '#FFFFFF', fontWeight: 800, fontSize: '1.25rem', margin: 0, letterSpacing: '-0.02em' }}>
-              Safety Command Center & Emergency Dispatch
-            </h2>
-          </div>
-          <p style={{ color: 'var(--aarizo-sky, #83CBEA)', fontSize: '0.8125rem', margin: '4px 0 0' }}>
-            One-Tap Emergency SOS, real-time command console, child pickup authorization & guardian alerts.
-          </p>
-        </div>
+    <div className="max-w-7xl mx-auto space-y-5 pb-24 font-sans">
+      {/* Segmented Experience Switcher Shell */}
+      <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: '0.25rem' }}>
+        <button
+          type="button"
+          onClick={() => setActiveTab('ONE_TAP_SOS')}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.375rem',
+            background: activeTab === 'ONE_TAP_SOS' ? 'var(--aarizo-coral, #F06543)' : '#ffffff',
+            border: '1px solid var(--aarizo-border, #DCE8EF)',
+            borderRadius: '10px',
+            padding: '0.45rem 0.875rem',
+            fontSize: '0.75rem',
+            fontWeight: 700,
+            color: activeTab === 'ONE_TAP_SOS' ? '#ffffff' : 'var(--aarizo-text, #203746)',
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          <ShieldAlert size={14} color={activeTab === 'ONE_TAP_SOS' ? '#ffffff' : 'var(--aarizo-coral, #F06543)'} />
+          <span>One-Tap SOS</span>
+        </button>
 
-        <div className="flex items-center gap-2">
-          {activeIncidents.length > 0 && (
-            <span style={{ background: 'var(--aarizo-danger, #D9535B)', color: '#FFFFFF' }} className="px-3.5 py-1.5 text-xs font-extrabold rounded-xl shadow-md animate-pulse flex items-center gap-1.5">
-              <Radio size={14} /> {activeIncidents.length} ACTIVE INCIDENTS
-            </span>
-          )}
-        </div>
+        <button
+          type="button"
+          onClick={() => setActiveTab('CHILD_SAFETY')}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.375rem',
+            background: activeTab === 'CHILD_SAFETY' ? 'var(--aarizo-coral, #F06543)' : '#ffffff',
+            border: '1px solid var(--aarizo-border, #DCE8EF)',
+            borderRadius: '10px',
+            padding: '0.45rem 0.875rem',
+            fontSize: '0.75rem',
+            fontWeight: 700,
+            color: activeTab === 'CHILD_SAFETY' ? '#ffffff' : 'var(--aarizo-text, #203746)',
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          <Users size={14} color={activeTab === 'CHILD_SAFETY' ? '#ffffff' : 'var(--aarizo-coral, #F06543)'} />
+          <span>Child Safety</span>
+        </button>
+
+        {isAdminOrSecurity && (
+          <button
+            type="button"
+            onClick={() => setActiveTab('COMMAND_CONSOLE')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.375rem',
+              background: activeTab === 'COMMAND_CONSOLE' ? 'var(--aarizo-coral, #F06543)' : '#ffffff',
+              border: '1px solid var(--aarizo-border, #DCE8EF)',
+              borderRadius: '10px',
+              padding: '0.45rem 0.875rem',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              color: activeTab === 'COMMAND_CONSOLE' ? '#ffffff' : 'var(--aarizo-text, #203746)',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <Radio size={14} color={activeTab === 'COMMAND_CONSOLE' ? '#ffffff' : 'var(--aarizo-coral, #F06543)'} />
+            <span>Console ({activeIncidents.length})</span>
+          </button>
+        )}
+
+        {isAdminOrSecurity && (
+          <button
+            type="button"
+            onClick={() => setActiveTab('GATE_VERIFIER')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.375rem',
+              background: activeTab === 'GATE_VERIFIER' ? 'var(--aarizo-coral, #F06543)' : '#ffffff',
+              border: '1px solid var(--aarizo-border, #DCE8EF)',
+              borderRadius: '10px',
+              padding: '0.45rem 0.875rem',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              color: activeTab === 'GATE_VERIFIER' ? '#ffffff' : 'var(--aarizo-text, #203746)',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <QrCode size={14} color={activeTab === 'GATE_VERIFIER' ? '#ffffff' : 'var(--aarizo-coral, #F06543)'} />
+            <span>Gate Verifier</span>
+          </button>
+        )}
       </div>
 
-      {/* Tabs */}
-      <div
-        style={{
-          background: '#EBF3F7',
-          borderRadius: '16px',
-          padding: '0.375rem',
-          display: 'flex',
-          gap: '0.375rem',
-          overflowX: 'auto',
-          scrollbarWidth: 'none',
-          boxShadow: 'inset 0 1px 3px rgba(8, 59, 86, 0.06)',
-        }}
-      >
-        {[
-          { key: 'ONE_TAP_SOS', label: 'One-Tap Emergency SOS', icon: ShieldAlert },
-          ...(isAdminOrSecurity ? [{ key: 'COMMAND_CONSOLE', label: `Command Console (${activeIncidents.length} Active)`, icon: Radio }] : []),
-          { key: 'CHILD_SAFETY', label: 'Child Safety & Pickups', icon: Users },
-          ...(isAdminOrSecurity ? [{ key: 'GATE_VERIFIER', label: 'Gate Child Verification', icon: QrCode }] : []),
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.key;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key as any)}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.45rem',
-                padding: '0.6rem 1rem',
-                borderRadius: '12px',
-                border: 'none',
-                background: isActive ? 'var(--aarizo-navy, #083B56)' : '#FFFFFF',
-                color: isActive ? '#FFFFFF' : '#475569',
-                fontWeight: 700,
-                fontSize: '0.8125rem',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                transition: 'all 0.15s ease',
-                boxShadow: isActive ? '0 3px 10px rgba(8, 59, 86, 0.25)' : '0 1px 3px rgba(0,0,0,0.04)',
-                flexShrink: 0,
-              }}
-            >
-              <Icon size={16} color={isActive ? 'var(--aarizo-sky, #83CBEA)' : 'var(--aarizo-blue, #176B91)'} />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      {/* Success Banner */}
+      {alertSuccess && (
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-2xl text-xs font-bold flex items-center gap-2.5 shadow-2xs animate-in fade-in duration-200">
+          <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
+          <span>{alertSuccess}</span>
+        </div>
+      )}
 
-      {/* Tab 1: ONE-TAP SOS */}
+      {/* ───────────────────────────────────────────────────────────── */}
+      {/* EXPERIENCE 1: ONE-TAP EMERGENCY SOS                           */}
+      {/* ───────────────────────────────────────────────────────────── */}
       {activeTab === 'ONE_TAP_SOS' && (
-        <div className="space-y-6">
-          <div className="p-4 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-center gap-2">
-            <Lock size={16} className="text-amber-700 flex-shrink-0" />
+        <div className="space-y-4 animate-in fade-in duration-200">
+          {/* SOS Clean Header Banner */}
+          <div
+            style={{
+              background: '#ffffff',
+              border: '1px solid var(--aarizo-border-soft, #E8F1F5)',
+              borderRadius: '16px',
+              padding: '1rem 1.25rem',
+              boxShadow: '0 2px 10px rgba(8, 59, 86, 0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '1rem',
+              flexWrap: 'wrap',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: '12px',
+                  background: '#FEF2F2',
+                  border: '1px solid #FECACA',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#DC2626',
+                  flexShrink: 0,
+                }}
+              >
+                <ShieldAlert size={22} color="var(--aarizo-coral, #F06543)" />
+              </div>
+              <div>
+                <h1 style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', margin: 0, letterSpacing: '-0.02em' }}>
+                  Safety Command &amp; Emergency Dispatch
+                </h1>
+                <p style={{ fontSize: '0.75rem', color: 'var(--aarizo-text-secondary, #657785)', margin: 0, marginTop: '0.125rem' }}>
+                  One-Tap Emergency SOS, real-time command console, child pickup authorization &amp; guardian alerts.
+                </p>
+              </div>
+            </div>
+
+            {activeIncidents.length > 0 && (
+              <div
+                style={{
+                  background: '#FEF2F2',
+                  border: '1px solid #FECACA',
+                  color: '#DC2626',
+                  fontSize: '0.75rem',
+                  fontWeight: 800,
+                  padding: '0.35rem 0.75rem',
+                  borderRadius: '9999px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                }}
+              >
+                <Radio size={13} color="#DC2626" />
+                <span>{activeIncidents.length} ACTIVE INCIDENT(S)</span>
+              </div>
+            )}
+          </div>
+
+          {/* AI Boundary Notice Card */}
+          <div
+            style={{
+              padding: '0.625rem 0.875rem',
+              background: '#FFFBEB',
+              borderRadius: '12px',
+              border: '1px solid #FDE68A',
+              fontSize: '0.75rem',
+              color: '#92400E',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+            }}
+          >
+            <Lock size={15} color="#D97706" style={{ flexShrink: 0 }} />
             <span>
-              <strong>Strict AI Boundary Rule:</strong> AI is strictly prohibited from independently making child-safety or gate entry decisions. All authorizations remain guardian-verified.
+              <strong style={{ fontWeight: 800, color: '#78350F' }}>Strict AI Boundary Rule:</strong> AI is strictly prohibited from independently making child-safety or gate entry decisions. All authorizations remain guardian-verified.
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {(
-              [
-                { category: 'MEDICAL', title: 'Medical Emergency', desc: 'Ambulance & Doctor Alert' },
-                { category: 'FIRE', title: 'Fire Alert', desc: 'Fire System & Evacuation' },
-                { category: 'SECURITY', title: 'Security Threat', desc: 'Intruder / Security Alert' },
-                { category: 'CHILD_SAFETY', title: 'Child Safety SOS', desc: 'Missing / Unsafe Alert' },
-                { category: 'LIFT', title: 'Lift Trapped', desc: 'Elevator Emergency Trap' },
-                { category: 'ELECTRICAL', title: 'Electrical Hazard', desc: 'Spark / Power Threat' },
-                { category: 'WATER', title: 'Severe Water Leak', desc: 'Burst Pipe Emergency' },
-              ] as { category: EmergencyCategory; title: string; desc: string }[]
-            ).map((sos) => (
-              <div
-                key={sos.category}
-                onClick={() => handleTriggerSOS(sos.category)}
-                className="bg-white p-5 rounded-2xl border-2 border-rose-100 hover:border-rose-500 shadow-sm hover:shadow-xl transition-all cursor-pointer space-y-3 flex flex-col justify-between"
-              >
-                <div className="space-y-2">
-                  <div className="p-3 bg-rose-50 rounded-xl w-fit">{getCategoryIcon(sos.category)}</div>
-                  <h4 className="font-extrabold text-slate-900 text-base">{sos.title}</h4>
-                  <p className="text-xs text-slate-500">{sos.desc}</p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleTriggerSOS(sos.category);
+          {/* SOS Incident Action Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {[
+              { category: 'MEDICAL' as const, title: 'Medical Emergency', desc: 'Ambulance & Doctor Alert', bg: '#FEF2F2', border: '#FECACA', text: '#DC2626', icon: ShieldAlert },
+              { category: 'FIRE' as const, title: 'Fire Alert', desc: 'Fire System & Evacuation', bg: '#FFF7ED', border: '#FFEDD5', text: '#EA580C', icon: Flame },
+              { category: 'SECURITY' as const, title: 'Security Threat', desc: 'Intruder / Security Alert', bg: '#F0F9FF', border: '#BAE6FD', text: 'var(--aarizo-navy, #083B56)', icon: ShieldCheck },
+              { category: 'CHILD_SAFETY' as const, title: 'Child Safety SOS', desc: 'Missing / Unsafe Alert', bg: '#ECFDF5', border: '#A7F3D0', text: '#059669', icon: Users },
+              { category: 'LIFT' as const, title: 'Lift Trapped', desc: 'Elevator Emergency Trap', bg: '#F3E8FF', border: '#E9D5FF', text: '#7E22CE', icon: AlertTriangle },
+              { category: 'ELECTRICAL' as const, title: 'Electrical Hazard', desc: 'Spark / Power Threat', bg: '#FEF3C7', border: '#FDE68A', text: '#D97706', icon: Zap },
+            ].map((sos) => {
+              const IconComp = sos.icon;
+              return (
+                <div
+                  key={sos.category}
+                  onClick={() => handleTriggerSOS(sos.category)}
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid var(--aarizo-border-soft, #E8F1F5)',
+                    borderRadius: '16px',
+                    padding: '0.875rem 1rem',
+                    boxShadow: '0 2px 10px rgba(8, 59, 86, 0.04)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    gap: '0.75rem',
+                    cursor: 'pointer',
                   }}
-                  style={{ background: '#E11D48', color: '#FFFFFF' }}
-                  className="w-full py-2.5 text-white font-extrabold text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 hover:brightness-110 active:scale-95 transition-all mt-3"
                 >
-                  <Radio size={14} className="animate-pulse" /> TAP TO DISPATCH SOS
-                </button>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                    <div
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: '10px',
+                        background: sos.bg,
+                        border: `1px solid ${sos.border}`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: sos.text,
+                      }}
+                    >
+                      <IconComp size={18} color={sos.text} />
+                    </div>
+                    <div style={{ fontSize: '0.9375rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', marginTop: '0.25rem' }}>
+                      {sos.title}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--aarizo-text-secondary, #657785)' }}>
+                      {sos.desc}
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleTriggerSOS(sos.category);
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '0.45rem',
+                      borderRadius: '10px',
+                      background: 'var(--aarizo-coral, #F06543)',
+                      color: '#ffffff',
+                      fontWeight: 800,
+                      fontSize: '0.75rem',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.35rem',
+                      boxShadow: '0 2px 6px rgba(240, 101, 67, 0.2)',
+                    }}
+                  >
+                    <Radio size={13} color="#ffffff" />
+                    <span>Tap for SOS</span>
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Recent Emergency Activity Timeline Section */}
+          <div
+            style={{
+              background: '#ffffff',
+              border: '1px solid var(--aarizo-border-soft, #E8F1F5)',
+              borderRadius: '16px',
+              padding: '1rem 1.25rem',
+              boxShadow: '0 2px 10px rgba(8, 59, 86, 0.04)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.875rem',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Clock size={16} color="var(--aarizo-coral, #F06543)" />
+                <span style={{ fontSize: '0.9375rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)' }}>Recent Emergency Activity</span>
               </div>
-            ))}
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--aarizo-coral, #F06543)', cursor: 'pointer' }}>View All</span>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {incidents.slice(0, 3).map((inc) => (
+                <div
+                  key={inc.id}
+                  style={{
+                    padding: '0.625rem 0.875rem',
+                    borderRadius: '12px',
+                    border: '1px solid var(--aarizo-border, #DCE8EF)',
+                    background: 'var(--aarizo-pale-blue, #F4FAFE)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '0.75rem',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                    <div
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: '8px',
+                        background: '#FEF2F2',
+                        border: '1px solid #FECACA',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#DC2626',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <ShieldAlert size={16} color="#DC2626" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.8125rem', fontWeight: 800, color: 'var(--aarizo-text, #203746)' }}>{inc.title}</div>
+                      <div style={{ fontSize: '0.6875rem', color: 'var(--aarizo-text-secondary, #657785)' }}>
+                        {inc.location} · {new Date(inc.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    </div>
+                  </div>
+
+                  <span
+                    style={{
+                      fontSize: '0.625rem',
+                      fontWeight: 800,
+                      color: inc.status === 'RESOLVED' ? '#059669' : inc.status === 'TRIGGERED' ? '#DC2626' : '#D97706',
+                      background: inc.status === 'RESOLVED' ? '#ECFDF5' : inc.status === 'TRIGGERED' ? '#FEF2F2' : '#FFFBEB',
+                      border: `1px solid ${inc.status === 'RESOLVED' ? '#A7F3D0' : inc.status === 'TRIGGERED' ? '#FECACA' : '#FDE68A'}`,
+                      padding: '0.2rem 0.5rem',
+                      borderRadius: '9999px',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    {inc.status}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Tab 2: COMMAND CONSOLE */}
+      {/* ───────────────────────────────────────────────────────────── */}
+      {/* EXPERIENCE 2: CHILD SAFETY PASS                                */}
+      {/* ───────────────────────────────────────────────────────────── */}
+      {activeTab === 'CHILD_SAFETY' && (
+        <div className="space-y-4 animate-in fade-in duration-200">
+          {/* Child Safety Header Banner */}
+          <div
+            style={{
+              background: '#ffffff',
+              border: '1px solid var(--aarizo-border-soft, #E8F1F5)',
+              borderRadius: '16px',
+              padding: '1rem 1.25rem',
+              boxShadow: '0 2px 10px rgba(8, 59, 86, 0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '1rem',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: '12px',
+                  background: 'var(--aarizo-pale-blue, #F4FAFE)',
+                  border: '1px solid var(--aarizo-border, #DCE8EF)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--aarizo-navy, #083B56)',
+                  flexShrink: 0,
+                }}
+              >
+                <Shield size={22} color="var(--aarizo-navy, #083B56)" />
+              </div>
+              <div>
+                <h1 style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', margin: 0, letterSpacing: '-0.02em' }}>
+                  CHILD SAFETY
+                </h1>
+                <p style={{ fontSize: '0.75rem', color: 'var(--aarizo-text-secondary, #657785)', margin: 0, marginTop: '0.125rem' }}>
+                  Children registered in your family · Gate authorization &amp; security escorts
+                </p>
+              </div>
+            </div>
+
+            <ShieldCheck size={28} color="var(--aarizo-coral, #F06543)" />
+          </div>
+
+          {/* Canonical Source Info Callout */}
+          <div
+            style={{
+              background: 'var(--aarizo-light-blue, #EAF6FC)',
+              border: '1px solid var(--aarizo-border, #DCE8EF)',
+              borderRadius: '12px',
+              padding: '0.75rem 1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+            }}
+          >
+            <Info size={18} color="var(--aarizo-navy, #083B56)" className="shrink-0" />
+            <span style={{ fontSize: '0.75rem', color: 'var(--aarizo-navy, #083B56)', fontWeight: 600, lineHeight: 1.4 }}>
+              Integrated Household Data: Children are automatically loaded from your Household Family Registration (My Flat). No duplicate child registration needed.
+            </span>
+          </div>
+
+          {/* Section Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 0.25rem' }}>
+            <h3 style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Children registered in your family ({children.length})
+            </h3>
+          </div>
+
+          {/* SECTION A: Eligible Children Cards Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1rem' }}>
+            {children.map((child) => (
+              <div
+                key={child.id}
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid var(--aarizo-border-soft, #E8F1F5)',
+                  borderRadius: '16px',
+                  padding: '1.25rem',
+                  boxShadow: '0 2px 10px rgba(8, 59, 86, 0.05)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  gap: '1rem',
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                    <span
+                      style={{
+                        fontSize: '0.625rem',
+                        fontWeight: 800,
+                        color: 'var(--aarizo-navy, #083B56)',
+                        background: 'var(--aarizo-light-blue, #EAF6FC)',
+                        border: '1px solid var(--aarizo-border, #DCE8EF)',
+                        padding: '0.2rem 0.5rem',
+                        borderRadius: '9999px',
+                        letterSpacing: '0.04em',
+                      }}
+                    >
+                      PROTECTED CHILD PASS
+                    </span>
+                    <span
+                      style={{
+                        fontSize: '0.625rem',
+                        fontWeight: 800,
+                        color: '#059669',
+                        background: '#ECFDF5',
+                        border: '1px solid #A7F3D0',
+                        padding: '0.2rem 0.5rem',
+                        borderRadius: '9999px',
+                      }}
+                    >
+                      SAFE ON PREMISES
+                    </span>
+                  </div>
+
+                  {/* Profile Row */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+                    <div
+                      style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: '50%',
+                        background: 'var(--aarizo-pale-blue, #F4FAFE)',
+                        border: '1px solid var(--aarizo-border, #DCE8EF)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'var(--aarizo-navy, #083B56)',
+                        fontWeight: 800,
+                        fontSize: '1.125rem',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {child.childName.charAt(0).toUpperCase()}
+                    </div>
+
+                    <div>
+                      <h2 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--aarizo-text, #203746)', margin: 0 }}>
+                        {child.childName}
+                      </h2>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--aarizo-text-secondary, #657785)', margin: 0, marginTop: '0.125rem' }}>
+                        Flat {child.flatCode} · Child · DOB 14 May 2018
+                      </p>
+                      <p style={{ fontSize: '0.6875rem', color: 'var(--aarizo-blue, #176B91)', margin: 0, marginTop: '0.25rem', fontWeight: 600 }}>
+                        Guardian: {child.guardianName} ({child.guardianPhone})
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons Row */}
+                <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid var(--aarizo-border, #DCE8EF)' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedEscortId(child.authorizedPickups[0]?.id || '');
+                      setModalMode('GENERATE_PASS');
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: '0.55rem 0.75rem',
+                      borderRadius: '10px',
+                      background: 'var(--aarizo-coral, #F06543)',
+                      color: '#ffffff',
+                      fontWeight: 800,
+                      fontSize: '0.725rem',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.35rem',
+                      boxShadow: '0 2px 8px rgba(240, 101, 67, 0.2)',
+                    }}
+                  >
+                    <QrCode size={14} color="#ffffff" />
+                    <span>Exit Pass</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setModalMode('MISSING_ALERT')}
+                    style={{
+                      flex: 1,
+                      padding: '0.55rem 0.75rem',
+                      borderRadius: '10px',
+                      background: '#FEF2F2',
+                      border: '1px solid #FECACA',
+                      color: '#DC2626',
+                      fontWeight: 800,
+                      fontSize: '0.725rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.35rem',
+                    }}
+                  >
+                    <AlertTriangle size={14} color="#DC2626" />
+                    <span>Report Missing</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* SECTION B: Authorized Pickups & Escorts */}
+          <div
+            style={{
+              background: '#ffffff',
+              border: '1px solid var(--aarizo-border-soft, #E8F1F5)',
+              borderRadius: '16px',
+              padding: '1.25rem',
+              boxShadow: '0 2px 10px rgba(8, 59, 86, 0.05)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <h3 style={{ fontSize: '0.9375rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', margin: 0 }}>
+                  Authorized Pickups &amp; Escorts
+                </h3>
+                <p style={{ fontSize: '0.75rem', color: 'var(--aarizo-text-secondary, #657785)', margin: 0, marginTop: '0.125rem' }}>
+                  Verified caretakers authorized for gate pickup.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setModalMode('ADD_PICKUP')}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  padding: '0.4rem 0.75rem',
+                  borderRadius: '8px',
+                  background: 'var(--aarizo-light-blue, #EAF6FC)',
+                  border: '1px solid var(--aarizo-border, #DCE8EF)',
+                  color: 'var(--aarizo-navy, #083B56)',
+                  fontWeight: 800,
+                  fontSize: '0.75rem',
+                  cursor: 'pointer',
+                }}
+              >
+                <UserPlus size={14} color="var(--aarizo-coral, #F06543)" />
+                <span>+ Add Escort</span>
+              </button>
+            </div>
+
+            {/* Escort Cards */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+              {(children[0]?.authorizedPickups || [
+                {
+                  id: 'pic-1',
+                  name: 'Radha Bai',
+                  phone: '+91 98199 88776',
+                  relationship: 'Trusted Family Maid / Nanny',
+                  idProofType: 'Aadhaar Card',
+                  idProofNumber: 'XXXX-XXXX-9901',
+                  isApproved: true,
+                },
+                {
+                  id: 'pic-2',
+                  name: 'Santosh Yadav',
+                  phone: '+91 98333 22110',
+                  relationship: 'School Bus Driver (Route 12)',
+                  idProofType: 'Commercial Driving License',
+                  idProofNumber: 'DL-MH02-2018-9182',
+                  isApproved: true,
+                }
+              ]).map((escort) => (
+                <div
+                  key={escort.id}
+                  onClick={() => setSelectedEscortForDetail(escort)}
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid var(--aarizo-border, #DCE8EF)',
+                    borderRadius: '12px',
+                    padding: '0.75rem 1rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '0.75rem',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: '50%',
+                        background: 'var(--aarizo-pale-blue, #F4FAFE)',
+                        border: '1px solid var(--aarizo-border, #DCE8EF)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'var(--aarizo-navy, #083B56)',
+                        fontWeight: 800,
+                        fontSize: '0.875rem',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {escort.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--aarizo-text, #203746)' }}>
+                        {escort.name} <span style={{ fontSize: '0.6875rem', color: 'var(--aarizo-text-secondary, #657785)', fontWeight: 600 }}>({escort.relationship})</span>
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--aarizo-text-secondary, #657785)' }}>
+                        📞 {escort.phone} · {escort.idProofType}: {escort.idProofNumber}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedEscortId(escort.id);
+                      setModalMode('GENERATE_PASS');
+                    }}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.25rem',
+                      padding: '0.35rem 0.625rem',
+                      borderRadius: '8px',
+                      background: 'var(--aarizo-coral, #F06543)',
+                      color: '#ffffff',
+                      fontWeight: 800,
+                      fontSize: '0.6875rem',
+                      border: 'none',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <QrCode size={12} color="#ffffff" />
+                    <span>Pass</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ───────────────────────────────────────────────────────────── */}
+      {/* EXPERIENCE 3: COMMAND CONSOLE (ADMIN/SECURITY)                 */}
+      {/* ───────────────────────────────────────────────────────────── */}
       {activeTab === 'COMMAND_CONSOLE' && (
-        <div className="space-y-4">
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center">
-            <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wider">Live Incident Feed & Response Console</h3>
-            <button onClick={loadData} className="text-xs text-slate-500 flex items-center gap-1">
-              <RefreshCw size={13} /> Refresh
+        <div className="space-y-4 animate-in fade-in duration-200">
+          <div
+            style={{
+              background: '#ffffff',
+              border: '1px solid var(--aarizo-border-soft, #E8F1F5)',
+              borderRadius: '16px',
+              padding: '0.875rem 1.25rem',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              boxShadow: '0 2px 10px rgba(8, 59, 86, 0.04)',
+            }}
+          >
+            <h3 style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Live Incident Feed &amp; Response Console
+            </h3>
+            <button onClick={loadData} style={{ background: 'none', border: 'none', fontSize: '0.75rem', fontWeight: 700, color: 'var(--aarizo-coral, #F06543)', cursor: 'pointer' }}>
+              Refresh
             </button>
           </div>
 
-          <div className="space-y-3">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {incidents.map((inc) => (
-              <div key={inc.id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded">
+              <div
+                key={inc.id}
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid var(--aarizo-border-soft, #E8F1F5)',
+                  borderRadius: '16px',
+                  padding: '1rem 1.25rem',
+                  boxShadow: '0 2px 10px rgba(8, 59, 86, 0.05)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.75rem',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '0.625rem', fontWeight: 800, color: '#DC2626', background: '#FEF2F2', border: '1px solid #FECACA', padding: '0.15rem 0.5rem', borderRadius: '6px' }}>
                       {inc.category}
                     </span>
-                    <h4 className="font-bold text-slate-900 text-base">{inc.title}</h4>
+                    <h4 style={{ fontSize: '0.9375rem', fontWeight: 800, color: 'var(--aarizo-text, #203746)', margin: 0 }}>
+                      {inc.title}
+                    </h4>
                   </div>
-                  <div>{getStatusBadge(inc.status)}</div>
-                </div>
-
-                <div className="text-xs text-slate-600 space-y-1">
-                  <div>
-                    Resident: <strong className="text-slate-900">{inc.residentName}</strong> ({inc.flatCode}) · Phone:{' '}
-                    {inc.phone}
-                  </div>
-                  <div>Location: {inc.location}</div>
-                  {inc.responderName && (
-                    <div className="text-[#083B56] font-bold">
-                      Assigned Responder: {inc.responderName} ({inc.responderRole})
-                    </div>
-                  )}
-                </div>
-
-                {/* Response Actions */}
-                <div className="flex flex-wrap items-center justify-between pt-3 border-t gap-2">
-                  <div className="text-[11px] text-slate-400">Triggered: {new Date(inc.createdAt).toLocaleString()}</div>
-
-                  <div className="flex items-center gap-2">
-                    {isAdminOrSecurity && inc.status === 'TRIGGERED' && (
-                      <button
-                        onClick={() => handleAcknowledge(inc.id)}
-                        className="px-3 py-1.5 bg-amber-600 text-white text-xs font-semibold rounded-lg shadow-sm"
-                      >
-                        Acknowledge Alert
-                      </button>
-                    )}
-
-                    {isAdminOrSecurity && (inc.status === 'TRIGGERED' || inc.status === 'ACKNOWLEDGED') && (
-                      <button
-                        onClick={() => {
-                          setSelectedIncident(inc);
-                          setModalMode('ASSIGN_RESPONDER');
-                        }}
-                        className="px-3 py-1.5 bg-[#083B56] hover:bg-[#176B91] text-white text-xs font-semibold rounded-lg shadow-sm transition"
-                      >
-                        Assign Responder
-                      </button>
-                    )}
-
-                    {isAdminOrSecurity && inc.status !== 'RESOLVED' && inc.status !== 'CLOSED' && (
-                      <button
-                        onClick={() => handleResolve(inc.id)}
-                        className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-lg shadow-sm"
-                      >
-                        Mark Resolved
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Tab 3: CHILD SAFETY */}
-      {activeTab === 'CHILD_SAFETY' && (
-        <div className="space-y-6">
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center">
-            <div>
-              <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wider">Guardian-Authorized Child Safety Roster</h3>
-              <p className="text-xs text-slate-500">Authorized pickup persons & time-bound QR passes.</p>
-            </div>
-            <button
-              onClick={() => setModalMode('ADD_CHILD')}
-              className="px-4 py-2 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-md hover:opacity-95"
-              style={{ background: 'var(--aarizo-blue, #176B91)' }}
-            >
-              <UserPlus size={15} /> Add Child Profile
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {children.map((child) => (
-              <div key={child.id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-base">{child.childName}</h4>
-                    <p className="text-xs text-slate-500">
-                      Flat {child.flatCode} · Guardian: <strong className="text-slate-800">{child.guardianName}</strong>
-                    </p>
-                  </div>
-                  <span className="font-mono text-xs text-[#083B56] font-bold bg-[#EAF6FC] px-2.5 py-1 rounded-md">
-                    {child.qrPassCode}
+                  <span
+                    style={{
+                      fontSize: '0.625rem',
+                      fontWeight: 800,
+                      color: inc.status === 'RESOLVED' ? '#059669' : '#DC2626',
+                      background: inc.status === 'RESOLVED' ? '#ECFDF5' : '#FEF2F2',
+                      border: `1px solid ${inc.status === 'RESOLVED' ? '#A7F3D0' : '#FECACA'}`,
+                      padding: '0.2rem 0.5rem',
+                      borderRadius: '9999px',
+                    }}
+                  >
+                    {inc.status}
                   </span>
                 </div>
 
-                <div className="space-y-2 pt-2 border-t">
-                  <div className="flex justify-between items-center">
-                    <h5 className="text-xs font-bold text-slate-700">Authorized Pickup Persons ({child.authorizedPickups.length})</h5>
+                <div style={{ fontSize: '0.75rem', color: 'var(--aarizo-text-secondary, #657785)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                  <div>
+                    Resident: <strong style={{ color: 'var(--aarizo-text, #203746)' }}>{inc.residentName}</strong> ({inc.flatCode}) · Phone: {inc.phone}
+                  </div>
+                  <div>Location: {inc.location} · Triggered: {new Date(inc.createdAt).toLocaleString()}</div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid var(--aarizo-border, #DCE8EF)', flexWrap: 'wrap' }}>
+                  {isAdminOrSecurity && inc.status === 'TRIGGERED' && (
+                    <button
+                      onClick={() => handleAcknowledge(inc.id)}
+                      style={{
+                        padding: '0.35rem 0.75rem',
+                        background: '#FFFBEB',
+                        border: '1px solid #FDE68A',
+                        color: '#D97706',
+                        fontSize: '0.75rem',
+                        fontWeight: 800,
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Acknowledge Alert
+                    </button>
+                  )}
+
+                  {isAdminOrSecurity && (inc.status === 'TRIGGERED' || inc.status === 'ACKNOWLEDGED') && (
                     <button
                       onClick={() => {
-                        setSelectedIncident(null);
-                        setModalMode('ADD_PICKUP');
+                        setSelectedIncident(inc);
+                        setModalMode('ASSIGN_RESPONDER');
                       }}
-                      className="px-2.5 py-1 bg-sky-50 border border-sky-200 text-[#176B91] font-bold text-xs rounded-lg hover:bg-sky-100 transition inline-flex items-center gap-1"
+                      style={{
+                        padding: '0.35rem 0.75rem',
+                        background: 'var(--aarizo-navy, #083B56)',
+                        color: '#ffffff',
+                        fontSize: '0.75rem',
+                        fontWeight: 800,
+                        borderRadius: '8px',
+                        border: 'none',
+                        cursor: 'pointer',
+                      }}
                     >
-                      + Add Authorized Person
+                      Assign Responder
                     </button>
-                  </div>
+                  )}
 
-                  <div className="space-y-1">
-                    {child.authorizedPickups.map((_p: AuthorizedPickupPerson) => (
-                      <div key={_p.id} className="p-2.5 bg-slate-50 rounded-lg flex justify-between items-center text-xs">
-                        <div>
-                          <span className="font-semibold text-slate-800">{_p.name}</span>
-                          <span className="text-slate-400 text-[10px]"> ({_p.relationship})</span>
-                        </div>
-                        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 font-bold rounded text-[10px]">
-                          APPROVED
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                  {isAdminOrSecurity && inc.status !== 'RESOLVED' && inc.status !== 'CLOSED' && (
+                    <button
+                      onClick={() => handleResolve(inc.id)}
+                      style={{
+                        padding: '0.35rem 0.75rem',
+                        background: '#ECFDF5',
+                        border: '1px solid #A7F3D0',
+                        color: '#059669',
+                        fontSize: '0.75rem',
+                        fontWeight: 800,
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Mark Resolved
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -459,282 +998,437 @@ export const SafetyCommandHub: React.FC = () => {
         </div>
       )}
 
-      {/* Tab 4: GATE VERIFIER */}
+      {/* ───────────────────────────────────────────────────────────── */}
+      {/* EXPERIENCE 4: GATE VERIFIER (ADMIN/SECURITY)                   */}
+      {/* ───────────────────────────────────────────────────────────── */}
       {activeTab === 'GATE_VERIFIER' && (
-        <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-200 shadow-sm max-w-xl mx-auto space-y-4">
-          <div className="text-center space-y-1">
-            <QrCode size={36} className="mx-auto text-[#083B56]" />
-            <h3 className="font-bold text-slate-900 text-lg">Gate Security Child Exit Verifier</h3>
-            <p className="text-xs text-slate-500">Verify child name or QR pass against guardian authorization list.</p>
+        <div
+          style={{
+            background: '#ffffff',
+            border: '1px solid var(--aarizo-border-soft, #E8F1F5)',
+            borderRadius: '16px',
+            padding: '1.5rem',
+            boxShadow: '0 2px 10px rgba(8, 59, 86, 0.05)',
+            maxWidth: '540px',
+            margin: '0 auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem',
+          }}
+        >
+          <div style={{ textAlign: 'center' }}>
+            <QrCode size={36} color="var(--aarizo-navy, #083B56)" style={{ margin: '0 auto 0.5rem' }} />
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', margin: 0 }}>
+              Gate Security Child Exit Verifier
+            </h3>
+            <p style={{ fontSize: '0.75rem', color: 'var(--aarizo-text-secondary, #657785)', margin: '0.25rem 0 0' }}>
+              Verify child name or QR pass against guardian authorization list.
+            </p>
           </div>
 
-          <form onSubmit={handleGateVerifySubmit} className="space-y-4 pt-2">
+          <form onSubmit={handleGateVerifySubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Child Name or Pass Code</label>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--aarizo-text, #203746)', marginBottom: '0.25rem' }}>
+                Child Name or Pass Code
+              </label>
               <input
                 type="text"
                 required
                 placeholder="e.g. Aarav Malhotra"
                 value={scanChildInput}
                 onChange={(e) => setScanChildInput(e.target.value)}
-                className="w-full px-4 py-2.5 border rounded-xl text-sm"
+                style={{
+                  width: '100%',
+                  padding: '0.625rem 0.875rem',
+                  border: '1px solid var(--aarizo-border, #DCE8EF)',
+                  borderRadius: '10px',
+                  fontSize: '0.8125rem',
+                  color: 'var(--aarizo-text, #203746)',
+                  background: '#ffffff',
+                }}
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Pickup Person Name</label>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--aarizo-text, #203746)', marginBottom: '0.25rem' }}>
+                Pickup Person Name
+              </label>
               <input
                 type="text"
                 required
                 placeholder="e.g. Sunita Devi (Nanny)"
                 value={scanPickupInput}
                 onChange={(e) => setScanPickupInput(e.target.value)}
-                className="w-full px-4 py-2.5 border rounded-xl text-sm"
+                style={{
+                  width: '100%',
+                  padding: '0.625rem 0.875rem',
+                  border: '1px solid var(--aarizo-border, #DCE8EF)',
+                  borderRadius: '10px',
+                  fontSize: '0.8125rem',
+                  color: 'var(--aarizo-text, #203746)',
+                  background: '#ffffff',
+                }}
               />
             </div>
 
             <button
               type="submit"
-              className="w-full py-3 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 hover:opacity-95"
-              style={{ background: 'var(--aarizo-blue, #176B91)' }}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                borderRadius: '10px',
+                background: 'var(--aarizo-coral, #F06543)',
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: '0.875rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                boxShadow: '0 2px 8px rgba(240, 101, 67, 0.2)',
+                marginTop: '0.5rem',
+              }}
             >
-              <ShieldCheck size={16} /> Verify Guardian Authorization
+              <ShieldCheck size={18} color="#ffffff" />
+              <span>Verify Guardian Authorization</span>
             </button>
           </form>
 
           {gateResult && (
             <div
-              className={`p-4 rounded-xl border space-y-2 mt-4 ${
-                gateResult.isValid ? 'bg-emerald-50 border-emerald-200' : 'bg-rose-50 border-rose-200'
-              }`}
+              style={{
+                padding: '0.875rem',
+                borderRadius: '12px',
+                marginTop: '1rem',
+                background: gateResult.isValid ? '#ECFDF5' : '#FEF2F2',
+                border: gateResult.isValid ? '1px solid #A7F3D0' : '1px solid #FECACA',
+                color: gateResult.isValid ? '#065F46' : '#991B1B',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+              }}
             >
-              <div className="flex items-center gap-2 font-bold text-sm">
-                {gateResult.isValid ? (
-                  <CheckCircle2 className="text-emerald-600" size={18} />
-                ) : (
-                  <AlertTriangle className="text-rose-600" size={18} />
-                )}
-                <span className={gateResult.isValid ? 'text-emerald-900' : 'text-rose-900'}>
-                  {gateResult.isValid ? 'GATE CLEARED - AUTHORIZED PICKUP' : 'EXIT DENIED'}
-                </span>
-              </div>
-              {gateResult.reason && <p className="text-xs text-slate-700 font-semibold">{gateResult.reason}</p>}
+              {gateResult.reason || (gateResult.isValid ? 'Guardian Authorization Verified!' : 'Authorization Failed')}
             </div>
           )}
         </div>
       )}
 
+      {/* AUTHORIZED ESCORT DETAILS MODAL */}
+      <Modal
+        isOpen={!!selectedEscortForDetail}
+        onClose={() => setSelectedEscortForDetail(null)}
+        title="Authorized Escort Details"
+        subtitle="Security verified escort profile for child pickup"
+        icon={<Users size={20} />}
+        maxWidth="540px"
+      >
+        {selectedEscortForDetail && (
+          <div className="space-y-4">
+            <div className="bg-[#F8FAFC] border border-slate-200/80 p-4 rounded-2xl flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3.5">
+                <img
+                  src={selectedEscortForDetail.photoUrl || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80'}
+                  alt={selectedEscortForDetail.name}
+                  className="w-14 h-14 rounded-2xl object-cover border border-slate-200 shadow-2xs shrink-0"
+                />
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h4 className="font-extrabold text-slate-900 text-base">{selectedEscortForDetail.name}</h4>
+                    <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-slate-200/80 text-slate-700">
+                      {selectedEscortForDetail.relationship}
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#176B91] font-bold flex items-center gap-1">
+                    <Phone size={12} /> {selectedEscortForDetail.phone}
+                  </p>
+                  <p className="text-xs text-slate-500 font-medium flex items-center gap-1">
+                    <IdCard size={12} /> {selectedEscortForDetail.idProofType}: {selectedEscortForDetail.idProofNumber}
+                  </p>
+                </div>
+              </div>
+
+              <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 uppercase shrink-0">
+                APPROVED
+              </span>
+            </div>
+
+            <div className="bg-slate-50/80 border border-slate-200/70 p-4 rounded-2xl space-y-3">
+              <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                <Users className="w-4 h-4 text-[#F06543]" />
+                <span>Escort Information</span>
+              </h4>
+              <div className="space-y-2 text-xs divide-y divide-slate-200/60">
+                <div className="flex justify-between pt-1">
+                  <span className="text-slate-500 font-medium">Relationship:</span>
+                  <strong className="text-slate-900 font-bold">{selectedEscortForDetail.relationship}</strong>
+                </div>
+                <div className="flex justify-between pt-2">
+                  <span className="text-slate-500 font-medium">ID Type:</span>
+                  <strong className="text-slate-900 font-bold">{selectedEscortForDetail.idProofType}</strong>
+                </div>
+                <div className="flex justify-between pt-2">
+                  <span className="text-slate-500 font-medium">ID Number:</span>
+                  <strong className="text-slate-900 font-bold">{selectedEscortForDetail.idProofNumber}</strong>
+                </div>
+                <div className="flex justify-between pt-2">
+                  <span className="text-slate-500 font-medium">Contact Number:</span>
+                  <strong className="text-slate-900 font-bold">{selectedEscortForDetail.phone}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-[#F0F9FF] border border-[#BAE6FD] p-4 rounded-2xl space-y-2">
+              <h4 className="text-xs font-extrabold text-[#0369A1] uppercase tracking-wider flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-[#0284C7]" />
+                <span>Permissions</span>
+              </h4>
+              <ul className="space-y-1.5 text-xs text-slate-700 font-medium">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Authorized to pick up child from gate</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Can generate gate exit passes</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  handleRemoveEscort(selectedEscortForDetail.id);
+                  setSelectedEscortForDetail(null);
+                }}
+                className="flex-1 py-3 px-4 bg-white border border-rose-300 text-rose-600 hover:bg-rose-50 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              >
+                <Trash2 size={15} />
+                <span>Remove Escort</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedEscortId(selectedEscortForDetail.id);
+                  setSelectedEscortForDetail(null);
+                  setModalMode('GENERATE_PASS');
+                }}
+                className="flex-1 py-3 px-4 bg-[#F06543] hover:bg-[#D95333] text-white font-extrabold text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              >
+                <QrCode size={15} />
+                <span>Generate Pass</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
       {/* Modal: Assign Responder */}
-      {modalMode === 'ASSIGN_RESPONDER' && selectedIncident && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-4 md:p-6 shadow-2xl space-y-4">
-            <div className="flex justify-between items-center border-b pb-3">
-              <h3 className="font-bold text-slate-900 text-base">Assign Emergency Responder</h3>
-              <button
-                type="button"
-                onClick={() => setModalMode(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-                title="Close"
-              >
-                <X size={18} />
-              </button>
+      <Modal
+        isOpen={modalMode === 'ASSIGN_RESPONDER' && !!selectedIncident}
+        onClose={() => setModalMode(null)}
+        title="Assign Emergency Responder"
+        subtitle="Dispatch society guard or supervisor to incident location"
+        icon={<Radio size={20} />}
+        maxWidth="460px"
+        footer={
+          <div className="flex justify-end gap-2 w-full">
+            <button
+              type="button"
+              onClick={() => setModalMode(null)}
+              className="px-4 py-2.5 text-xs font-bold rounded-xl border border-slate-200 bg-slate-100 text-slate-700"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const form = document.getElementById('assign-responder-form') as HTMLFormElement;
+                if (form) form.requestSubmit();
+              }}
+              className="px-5 py-2.5 text-xs font-extrabold rounded-xl shadow-md bg-[#083B56] text-white"
+            >
+              Dispatch Responder
+            </button>
+          </div>
+        }
+      >
+        <form id="assign-responder-form" onSubmit={handleAssignSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-extrabold text-slate-700 mb-1">Responder Name</label>
+            <input
+              type="text"
+              required
+              value={responderForm.responderName}
+              onChange={(e) => setResponderForm({ ...responderForm, responderName: e.target.value })}
+              className="w-full px-3.5 py-2.5 border rounded-xl text-xs font-bold"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-extrabold text-slate-700 mb-1">Responder Role</label>
+            <input
+              type="text"
+              required
+              value={responderForm.responderRole}
+              onChange={(e) => setResponderForm({ ...responderForm, responderRole: e.target.value })}
+              className="w-full px-3.5 py-2.5 border rounded-xl text-xs font-bold"
+            />
+          </div>
+        </form>
+      </Modal>
+
+      {/* Modal: Generate Pass */}
+      <Modal
+        isOpen={modalMode === 'GENERATE_PASS'}
+        onClose={() => setModalMode(null)}
+        title="Generate Child Gate Exit Pass"
+        subtitle={`Temporary gate verification pass for ${currentChild?.childName || 'child'}`}
+        icon={<QrCode size={20} />}
+        maxWidth="460px"
+        footer={
+          <div className="flex gap-2 w-full">
+            <button
+              type="button"
+              onClick={() => setModalMode(null)}
+              className="flex-1 py-3 bg-slate-100 text-slate-700 font-bold text-xs rounded-xl border border-slate-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setModalMode(null);
+                setAlertSuccess('Child Gate Exit Pass generated and active for 4 hours!');
+                setTimeout(() => setAlertSuccess(null), 5000);
+              }}
+              className="flex-1 py-3 bg-[#F06543] text-white font-extrabold text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <QrCode size={15} /> Confirm Pass
+            </button>
+          </div>
+        }
+      >
+        <div className="space-y-3.5 text-xs">
+          <p className="text-slate-600 font-medium leading-relaxed">
+            Generating QR gate exit pass for <strong>{currentChild?.childName}</strong> (Flat {flatNumber}).
+          </p>
+          <div className="p-3.5 bg-emerald-50 border border-emerald-200/80 rounded-2xl text-emerald-800 space-y-1 font-medium">
+            <div className="flex justify-between font-bold text-xs">
+              <span>Authorized Escort:</span>
+              <span>{currentChild?.authorizedPickups.find(p => p.id === selectedEscortId)?.name || 'Radha Bai'}</span>
             </div>
-
-            <form onSubmit={handleAssignSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Responder Name</label>
-                <input
-                  type="text"
-                  required
-                  value={responderForm.responderName}
-                  onChange={(e) => setResponderForm({ ...responderForm, responderName: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Responder Role</label>
-                <input
-                  type="text"
-                  required
-                  value={responderForm.responderRole}
-                  onChange={(e) => setResponderForm({ ...responderForm, responderRole: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg text-xs"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3 border-t">
-                <button
-                  type="button"
-                  onClick={() => setModalMode(null)}
-                  style={{ background: '#F1F5F9', color: '#334155' }}
-                  className="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-200 hover:bg-slate-200 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  style={{ background: 'var(--aarizo-blue, #176B91)', color: '#FFFFFF' }}
-                  className="px-5 py-2 text-xs font-bold rounded-lg shadow-md hover:brightness-110 transition-all"
-                >
-                  Dispatch Responder
-                </button>
-              </div>
-            </form>
+            <p className="text-[11px] text-emerald-700">🔒 Gate guard will scan QR and verify escort photo ID before exit.</p>
           </div>
         </div>
-      )}
+      </Modal>
 
-      {/* Modal: Add Child */}
-      {modalMode === 'ADD_CHILD' && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-4 md:p-6 shadow-2xl space-y-4">
-            <div className="flex justify-between items-center border-b pb-3">
-              <h3 className="font-bold text-slate-900 text-base">Add Child Profile</h3>
-              <button
-                type="button"
-                onClick={() => setModalMode(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-                title="Close"
-              >
-                <X size={18} />
-              </button>
+      {/* Modal: Add Escort / Pickup */}
+      <Modal
+        isOpen={modalMode === 'ADD_PICKUP'}
+        onClose={() => setModalMode(null)}
+        title="Add Authorized Escort"
+        subtitle="Register trusted pickup person or escort for child safety"
+        icon={<UserPlus size={20} />}
+        maxWidth="480px"
+        footer={
+          <div className="flex justify-end gap-2 w-full">
+            <button
+              type="button"
+              onClick={() => setModalMode(null)}
+              className="px-4 py-2.5 text-xs font-bold rounded-xl border border-slate-200 bg-slate-100 text-slate-700"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const form = document.getElementById('add-pickup-form') as HTMLFormElement;
+                if (form) form.requestSubmit();
+              }}
+              className="px-5 py-2.5 text-white text-xs font-extrabold rounded-xl shadow-md bg-[#F06543]"
+            >
+              Save Escort
+            </button>
+          </div>
+        }
+      >
+        <form id="add-pickup-form" onSubmit={handleAddPickupSubmit} className="space-y-3.5">
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">Full Name</label>
+            <input
+              type="text"
+              required
+              value={pickupForm.name}
+              onChange={(e) => setPickupForm({ ...pickupForm, name: e.target.value })}
+              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-bold"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">Phone</label>
+              <input
+                type="text"
+                required
+                value={pickupForm.phone}
+                onChange={(e) => setPickupForm({ ...pickupForm, phone: e.target.value })}
+                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-bold"
+              />
             </div>
 
-            <form onSubmit={handleAddChildSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Child Name</label>
-                <input
-                  type="text"
-                  required
-                  value={childForm.childName}
-                  onChange={(e) => setChildForm({ ...childForm, childName: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg text-xs"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Flat Code</label>
-                  <input
-                    type="text"
-                    required
-                    value={childForm.flatCode}
-                    onChange={(e) => setChildForm({ ...childForm, flatCode: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg text-xs"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Guardian Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={childForm.guardianName}
-                    onChange={(e) => setChildForm({ ...childForm, guardianName: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg text-xs"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3 border-t">
-                <button
-                  type="button"
-                  onClick={() => setModalMode(null)}
-                  style={{ background: '#F1F5F9', color: '#334155' }}
-                  className="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-200 hover:bg-slate-200 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 text-white text-xs font-bold rounded-lg shadow-md hover:brightness-110 transition-all"
-                  style={{ background: 'var(--aarizo-blue, #176B91)', color: '#FFFFFF' }}
-                >
-                  Save Profile
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal: Add Pickup */}
-      {modalMode === 'ADD_PICKUP' && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-4 md:p-6 shadow-2xl space-y-4">
-            <div className="flex justify-between items-center border-b pb-3">
-              <h3 className="font-bold text-slate-900 text-base">Add Authorized Pickup Person</h3>
-              <button
-                type="button"
-                onClick={() => setModalMode(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-                title="Close"
-              >
-                <X size={18} />
-              </button>
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">Relationship</label>
+              <input
+                type="text"
+                required
+                value={pickupForm.relationship}
+                onChange={(e) => setPickupForm({ ...pickupForm, relationship: e.target.value })}
+                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-bold"
+              />
             </div>
-
-            <form onSubmit={handleAddPickupSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Person Name</label>
-                <input
-                  type="text"
-                  required
-                  value={pickupForm.name}
-                  onChange={(e) => setPickupForm({ ...pickupForm, name: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg text-xs"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Phone</label>
-                  <input
-                    type="text"
-                    required
-                    value={pickupForm.phone}
-                    onChange={(e) => setPickupForm({ ...pickupForm, phone: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg text-xs"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Relationship</label>
-                  <input
-                    type="text"
-                    required
-                    value={pickupForm.relationship}
-                    onChange={(e) => setPickupForm({ ...pickupForm, relationship: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg text-xs"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3 border-t">
-                <button
-                  type="button"
-                  onClick={() => setModalMode(null)}
-                  style={{ background: '#F1F5F9', color: '#334155' }}
-                  className="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-200 hover:bg-slate-200 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 text-white text-xs font-bold rounded-lg shadow-md hover:brightness-110 transition-all"
-                  style={{ background: 'var(--aarizo-blue, #176B91)', color: '#FFFFFF' }}
-                >
-                  Save Authorized Person
-                </button>
-              </div>
-            </form>
           </div>
-        </div>
-      )}
+        </form>
+      </Modal>
+
+      {/* Modal: Missing Alert */}
+      <Modal
+        isOpen={modalMode === 'MISSING_ALERT'}
+        onClose={() => setModalMode(null)}
+        title="High Priority Security Alarm"
+        subtitle="Immediate security alarm & gate exit lockdown"
+        icon={<AlertTriangle size={20} className="text-rose-600" />}
+        maxWidth="460px"
+        footer={
+          <div className="flex gap-2 w-full">
+            <button
+              type="button"
+              onClick={() => setModalMode(null)}
+              className="flex-1 py-3 bg-slate-100 text-slate-700 font-bold text-xs rounded-xl border border-slate-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setModalMode(null);
+                setAlertSuccess('HIGH PRIORITY CHILD MISSING ALERT DISPATCHED TO MAIN GATE SECURITY TERMINAL!');
+                setTimeout(() => setAlertSuccess(null), 6000);
+              }}
+              className="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer"
+            >
+              DISPATCH ALARM NOW
+            </button>
+          </div>
+        }
+      >
+        <p className="text-xs text-slate-600 font-medium leading-relaxed">
+          This will trigger an immediate audio alarm and gate lockdown notification on all Security Gate Terminals for Flat {flatNumber} ({currentChild?.childName}).
+        </p>
+      </Modal>
     </div>
   );
 };
-
-
-

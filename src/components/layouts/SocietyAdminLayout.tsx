@@ -20,15 +20,13 @@ import {
   HardHat,
   ShieldCheck,
   Baby,
-  Database,
   Megaphone,
 } from 'lucide-react';
 
 const DRAWER_NAV = [
   { label: 'Admin Overview', path: '/admin', icon: LayoutDashboard },
-  { label: 'Developer DB Studio', path: '/dev/database', icon: Database },
   { label: 'Residents Directory', path: '/admin/residents', icon: Users },
-  { label: 'Complaints & NOCs', path: '/admin/requests', icon: CheckSquare },
+  { label: 'Complaints & Requests', path: '/admin/requests', icon: CheckSquare },
   { label: 'Housekeeping Ops', path: '/admin/housekeeping', icon: Sparkles },
   { label: 'Child Safety Desk', path: '/admin/child-safety', icon: Baby },
   { label: 'Safety Command', path: '/admin/safety-command', icon: ShieldCheck },
@@ -42,10 +40,10 @@ const DRAWER_NAV = [
   { label: 'Vendor Management', path: '/admin/vendors', icon: Store },
   { label: 'Advertisements', path: '/admin/advertisements', icon: Megaphone },
   { label: 'Society Expenses', path: '/admin/expenses', icon: DollarSign },
-  { label: 'Billing Engine', path: '/admin/billing', icon: CreditCard },
-  { label: 'Society Intelligence', path: '/admin/intelligence', icon: BarChart3 },
+  { label: 'Billing & Payments', path: '/admin/billing', icon: CreditCard },
+  { label: 'Society Analytics', path: '/admin/intelligence', icon: BarChart3 },
   { label: 'Security & Audit', path: '/admin/security-audit', icon: Lock },
-  { label: 'Realtime Hub', path: '/admin/realtime', icon: Radio },
+  { label: 'Live Operations', path: '/admin/realtime', icon: Radio },
   { label: 'Notifications', path: '/notifications', icon: Bell },
 ];
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Plus, Users, Home, CheckCircle2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Users, Home, CheckCircle2, ArrowLeft, Search } from 'lucide-react';
 import { societyService } from '../../../services/societyService';
 import { realtimeService } from '../../../services/realtimeService';
 import { FileUpload } from '../../../components/ui/FileUpload';
@@ -12,11 +13,14 @@ import { Form, FormField } from '../../../components/ui/Form';
 import { MobileDataCard } from '../../../components/ui/MobileDataCard';
 
 export const StaffManagementPage: React.FC = () => {
+  const navigate = useNavigate();
   const currentSocietyId = 'soc-gvs';
+
   const [staff, setStaff] = useState<Staff[]>([]);
   const [domesticWorkers, setDomesticWorkers] = useState<DomesticWorker[]>([]);
 
   const [activeTab, setActiveTab] = useState<'STAFF' | 'DOMESTIC'>('STAFF');
+  const [searchQuery, setSearchQuery] = useState('');
   const [isAddStaffModalOpen, setIsAddStaffModalOpen] = useState(false);
 
   // New staff form state
@@ -67,6 +71,26 @@ export const StaffManagementPage: React.FC = () => {
     setPhone('');
   };
 
+  const filteredStaff = staff.filter((s) => {
+    const q = searchQuery.toLowerCase();
+    return (
+      s.name.toLowerCase().includes(q) ||
+      s.phone.includes(q) ||
+      s.staffType.toLowerCase().includes(q) ||
+      (s.gateAssigned && s.gateAssigned.toLowerCase().includes(q))
+    );
+  });
+
+  const filteredDomestic = domesticWorkers.filter((dw) => {
+    const q = searchQuery.toLowerCase();
+    return (
+      dw.name.toLowerCase().includes(q) ||
+      dw.phone.includes(q) ||
+      dw.workRole.toLowerCase().includes(q) ||
+      dw.passCode.toLowerCase().includes(q)
+    );
+  });
+
   const staffColumns: Column<Staff>[] = [
     { key: 'name', header: 'Staff Member Name', sortable: true },
     { key: 'phone', header: 'Phone Number' },
@@ -102,128 +126,197 @@ export const StaffManagementPage: React.FC = () => {
   ];
 
   return (
-    <div className="p-3 sm:p-6 max-w-6xl mx-auto font-sans text-slate-800">
-      {/* Aarizo Gradient Header Banner */}
-      <header
+    <div style={{ minHeight: '100%', background: 'var(--aarizo-page, #F7FBFE)', paddingBottom: '2.5rem' }}>
+      {/* ── Subheader Bar matching Residents, NGO & Child Safety tabs ── */}
+      <div
         style={{
-          background: 'linear-gradient(135deg, var(--aarizo-navy, #083B56) 0%, #0D4767 100%)',
-          borderRadius: '16px',
-          padding: '1.25rem 1.5rem',
-          color: '#FFFFFF',
-          boxShadow: '0 4px 16px rgba(8, 59, 86, 0.08)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '1rem 1rem 0.75rem',
+          background: 'var(--aarizo-card-blue, #F4FAFE)',
+          borderBottom: '1px solid var(--aarizo-border, #DCE8EF)',
         }}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6"
       >
-        <div>
-          <div className="flex items-center gap-2">
-            <Shield className="w-6 h-6" style={{ color: 'var(--aarizo-sky, #83CBEA)' }} />
-            <h1 className="text-lg sm:text-xl font-bold text-white">Security Guards & Staff Roster</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+          <button
+            onClick={() => navigate(-1)}
+            aria-label="Back"
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              background: '#ffffff',
+              border: '1px solid var(--aarizo-border, #DCE8EF)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--aarizo-navy, #083B56)',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <div>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', margin: 0, letterSpacing: '-0.02em' }}>
+              Security Guards &amp; Staff Roster
+            </h2>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--aarizo-text-secondary, #657785)', margin: 0, marginTop: 2 }}>
+              Green Valley Society · Security personnel, facility technicians, and domestic helpers
+            </p>
           </div>
-          <p className="text-xs mt-1" style={{ color: 'var(--aarizo-sky, #83CBEA)' }}>
-            Manage security personnel, facility technicians, and domestic household helpers.
-          </p>
         </div>
+
         <button
           onClick={() => setIsAddStaffModalOpen(true)}
           style={{
-            background: 'var(--aarizo-blue, #176B91)',
-            border: '1px solid rgba(255, 255, 255, 0.25)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            padding: '0.45rem 0.875rem',
+            borderRadius: '10px',
+            background: 'var(--aarizo-coral, #F06543)',
+            color: '#ffffff',
+            fontWeight: 800,
+            fontSize: '0.75rem',
+            border: 'none',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(240, 101, 67, 0.25)',
           }}
-          className="flex items-center gap-2 text-white px-4 py-2 rounded-xl font-bold text-xs sm:text-sm shadow-md hover:opacity-95 transition"
         >
-          <Plus size={16} /> Assign Staff
+          <Plus size={15} /> Assign Staff
         </button>
-      </header>
-
-      {/* Tabs */}
-      <div
-        style={{
-          background: '#EBF3F7',
-          borderRadius: '16px',
-          padding: '0.375rem',
-          display: 'flex',
-          gap: '0.375rem',
-          overflowX: 'auto',
-          scrollbarWidth: 'none',
-          boxShadow: 'inset 0 1px 3px rgba(8, 59, 86, 0.06)',
-          marginBottom: '1.25rem',
-        }}
-      >
-        {[
-          { key: 'STAFF', label: `Facility Staff (${staff.length})`, icon: Users },
-          { key: 'DOMESTIC', label: `Domestic Workers (${domesticWorkers.length})`, icon: Home },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.key;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key as any)}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.45rem',
-                padding: '0.6rem 1rem',
-                borderRadius: '12px',
-                border: isActive ? 'none' : '1px solid #DCE8EF',
-                background: isActive ? 'var(--aarizo-navy, #083B56)' : '#FFFFFF',
-                color: isActive ? '#FFFFFF' : '#475569',
-                fontWeight: 700,
-                fontSize: '0.8125rem',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                transition: 'all 0.15s ease',
-                boxShadow: isActive ? '0 3px 10px rgba(8, 59, 86, 0.25)' : '0 1px 3px rgba(0,0,0,0.04)',
-                flexShrink: 0,
-              }}
-            >
-              <Icon size={15} color={isActive ? 'var(--aarizo-sky, #83CBEA)' : 'var(--aarizo-blue, #176B91)'} />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm">
-        {activeTab === 'STAFF' ? (
-          <DataTable
-            columns={staffColumns}
-            data={staff}
-            keyExtractor={(s) => s.id}
-            pageSize={10}
-            mobileRender={(s) => (
-              <MobileDataCard
-                title={s.name}
-                subtitle={s.phone}
-                status={<StatusBadge label={s.status} variant={s.status === 'ON_DUTY' ? 'success' : 'neutral'} />}
-                attributes={[
-                  { label: 'Role', value: s.staffType },
-                  { label: 'Assigned', value: s.gateAssigned }
-                ]}
-              />
-            )}
+      {/* ── Search Bar & Filter Strip ── */}
+      <div className="max-w-7xl mx-auto w-full" style={{ padding: '1rem 1rem 0.5rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.625rem',
+            background: '#ffffff',
+            border: '1px solid var(--aarizo-border, #DCE8EF)',
+            borderRadius: '12px',
+            padding: '0 0.875rem',
+            height: '46px',
+            boxShadow: '0 1px 4px rgba(8, 59, 86, 0.04)',
+          }}
+        >
+          <Search size={18} color="var(--aarizo-text-secondary, #657785)" />
+          <input
+            type="text"
+            placeholder={activeTab === 'STAFF' ? "Search staff name, phone, role, or gate..." : "Search worker name, phone, passcode, or role..."}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              flex: 1,
+              border: 'none',
+              outline: 'none',
+              fontSize: '0.8125rem',
+              color: 'var(--aarizo-text, #203746)',
+              background: 'transparent',
+              minHeight: 'auto',
+            }}
           />
-        ) : (
-          <DataTable
-            columns={domesticColumns}
-            data={domesticWorkers}
-            keyExtractor={(dw) => dw.id}
-            pageSize={10}
-            mobileRender={(dw) => (
-              <MobileDataCard
-                title={dw.name}
-                subtitle={dw.phone}
-                status={<StatusBadge label={dw.status === 'INSIDE' ? 'INSIDE COMPLEX' : 'OUTSIDE'} variant={dw.status === 'INSIDE' ? 'success' : 'neutral'} />}
-                attributes={[
-                  { label: 'Service Role', value: dw.workRole },
-                  { label: 'Passcode', value: dw.passCode }
-                ]}
-              />
-            )}
-          />
-        )}
+        </div>
+
+        {/* Tab Filter Pills */}
+        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', overflowX: 'auto', scrollbarWidth: 'none' }}>
+          {[
+            { key: 'STAFF', label: `Facility Staff (${staff.length})`, icon: Users },
+            { key: 'DOMESTIC', label: `Domestic Workers (${domesticWorkers.length})`, icon: Home },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveTab(tab.key as any)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  background: isActive ? 'var(--aarizo-coral, #F06543)' : '#ffffff',
+                  border: '1px solid var(--aarizo-border, #DCE8EF)',
+                  borderRadius: '10px',
+                  padding: '0.4rem 0.75rem',
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  color: isActive ? '#ffffff' : 'var(--aarizo-text, #203746)',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                <Icon size={14} color={isActive ? '#ffffff' : 'var(--aarizo-coral, #F06543)'} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
+      {/* ── Count Heading ── */}
+      <div className="max-w-7xl mx-auto w-full" style={{ padding: '0.5rem 1rem 0.25rem' }}>
+        <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--aarizo-text-secondary, #657785)' }}>
+          {activeTab === 'STAFF' ? filteredStaff.length : filteredDomestic.length} personnel records found
+        </span>
+      </div>
+
+      {/* ── Main Roster Table / Mobile Data Cards ── */}
+      <div className="max-w-7xl mx-auto w-full px-3 sm:px-4">
+        <div
+          style={{
+            background: '#ffffff',
+            border: '1px solid var(--aarizo-border, #DCE8EF)',
+            borderRadius: '16px',
+            padding: '1rem',
+            boxShadow: '0 2px 10px rgba(8, 59, 86, 0.04)',
+          }}
+        >
+          {activeTab === 'STAFF' ? (
+            <DataTable
+              columns={staffColumns}
+              data={filteredStaff}
+              keyExtractor={(s) => s.id}
+              pageSize={10}
+              mobileRender={(s) => (
+                <MobileDataCard
+                  title={s.name}
+                  subtitle={s.phone}
+                  status={<StatusBadge label={s.status} variant={s.status === 'ON_DUTY' ? 'success' : 'neutral'} />}
+                  attributes={[
+                    { label: 'Role', value: s.staffType },
+                    { label: 'Assigned', value: s.gateAssigned }
+                  ]}
+                />
+              )}
+            />
+          ) : (
+            <DataTable
+              columns={domesticColumns}
+              data={filteredDomestic}
+              keyExtractor={(dw) => dw.id}
+              pageSize={10}
+              mobileRender={(dw) => (
+                <MobileDataCard
+                  title={dw.name}
+                  subtitle={dw.phone}
+                  status={<StatusBadge label={dw.status === 'INSIDE' ? 'INSIDE COMPLEX' : 'OUTSIDE'} variant={dw.status === 'INSIDE' ? 'success' : 'neutral'} />}
+                  attributes={[
+                    { label: 'Service Role', value: dw.workRole },
+                    { label: 'Passcode', value: dw.passCode }
+                  ]}
+                />
+              )}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Modal: Assign Staff */}
       <Modal isOpen={isAddStaffModalOpen} onClose={() => setIsAddStaffModalOpen(false)} title="Assign New Staff Member">
         <Form onSubmit={handleCreateStaff}>
           <div className="space-y-4">
@@ -285,14 +378,14 @@ export const StaffManagementPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsAddStaffModalOpen(false)}
-                className="px-4 py-2 border border-slate-300 bg-white text-slate-700 rounded-xl font-semibold text-xs sm:text-sm hover:bg-slate-50 transition"
+                className="px-4 py-2 border border-slate-300 bg-white text-slate-700 rounded-xl font-semibold text-xs sm:text-sm hover:bg-slate-50 transition cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                style={{ background: 'var(--aarizo-blue, #176B91)' }}
-                className="px-4 py-2 border-none text-white rounded-xl font-bold text-xs sm:text-sm shadow-md hover:opacity-95 transition"
+                style={{ background: 'var(--aarizo-coral, #F06543)' }}
+                className="px-4 py-2 border-none text-white rounded-xl font-bold text-xs sm:text-sm shadow-md hover:opacity-95 transition cursor-pointer"
               >
                 Confirm Assignment
               </button>

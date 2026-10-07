@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Shield,
   Search as SearchIcon,
@@ -11,6 +12,8 @@ import {
   QrCode,
   UserPlus,
   Camera,
+  ArrowLeft,
+  Key,
 } from 'lucide-react';
 import { visitorService } from '../../../services/visitorService';
 import type { SmartVisitorPass, BlacklistEntry, PassValidationResult, VisitorCategory } from '../../../types/visitor';
@@ -23,6 +26,7 @@ import { realtimeService } from '../../../services/realtimeService';
 import { FileUpload } from '../../../components/ui/FileUpload';
 
 export const SecurityTerminalPage: React.FC = () => {
+  const navigate = useNavigate();
   const { currentUser } = useAuth();
   const currentSocietyId = currentUser?.societyId || 'soc-gvs';
   const officerActor = {
@@ -31,9 +35,9 @@ export const SecurityTerminalPage: React.FC = () => {
     role: currentUser?.role?.toUpperCase() || 'SECURITY',
   };
 
-  const [passes, setPasses] = useState<SmartVisitorPass[]>(visitorService.getPasses(currentSocietyId));
-  const [blacklist, setBlacklist] = useState<BlacklistEntry[]>(visitorService.getBlacklist(currentSocietyId));
-  const [lockdown, setLockdown] = useState(visitorService.getLockdownState(currentSocietyId));
+  const [passes, setPasses] = useState<SmartVisitorPass[]>(() => visitorService.getPasses(currentSocietyId));
+  const [blacklist, setBlacklist] = useState<BlacklistEntry[]>(() => visitorService.getBlacklist(currentSocietyId));
+  const [lockdown, setLockdown] = useState(() => visitorService.getLockdownState(currentSocietyId));
 
   const [searchQuery, setSearchQuery] = useState('');
   const [codeInput, setCodeInput] = useState('');
@@ -119,6 +123,7 @@ export const SecurityTerminalPage: React.FC = () => {
   };
 
   const handleValidateCode = (code: string) => {
+    if (!code.trim()) return;
     const res = visitorService.validatePassCode(currentSocietyId, code);
     setValidationResult(res);
   };
@@ -183,112 +188,239 @@ export const SecurityTerminalPage: React.FC = () => {
   const expectedCount = passes.filter((p) => p.status === 'EXPECTED').length;
 
   return (
-    <div style={{ backgroundColor: 'var(--aarizo-page, #F7FBFE)', minHeight: '100%' }}>
-      <div className="max-w-7xl mx-auto p-3 sm:p-6 pb-24 space-y-4">
-        {/* Header */}
-        <div
-          className="rounded-2xl"
-          style={{
-            background: 'linear-gradient(135deg, var(--aarizo-navy, #083B56) 0%, #0D4767 100%)',
-            padding: '1.25rem 1.25rem 1.5rem',
-            position: 'relative',
-            overflow: 'hidden',
-            boxShadow: '0 4px 16px rgba(8, 59, 86, 0.08)',
-          }}
-        >
-          <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-            <Shield size={18} style={{ color: 'var(--aarizo-sky, #83CBEA)' }} />
-            <p style={{ color: 'var(--aarizo-sky, #83CBEA)', fontSize: '0.75rem', margin: 0 }}>Gate Security Terminal</p>
+    <div style={{ backgroundColor: 'var(--aarizo-page, #F7FBFE)', minHeight: '100vh', paddingBottom: '3rem' }}>
+      {/* ── Subheader / Top Bar ── */}
+      <div
+        style={{
+          background: '#ffffff',
+          borderBottom: '1px solid var(--aarizo-border, #DCE8EF)',
+          padding: '0.875rem 1rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '0.75rem',
+          boxShadow: '0 1px 3px rgba(8, 59, 86, 0.03)',
+          marginBottom: '1.25rem',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            aria-label="Go Back"
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              background: 'var(--aarizo-card-blue, #F4FAFE)',
+              border: '1px solid var(--aarizo-border, #DCE8EF)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--aarizo-navy, #083B56)',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <div>
+            <h1 style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', margin: 0, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              Gate Security Terminal
+              <span style={{ fontSize: '0.65rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '12px', background: '#ECFDF5', color: '#059669', border: '1px solid #A7F3D0' }}>
+                Main Gate 1 • Online
+              </span>
+            </h1>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--aarizo-text-secondary, #657785)', margin: 0, marginTop: 2 }}>
+              Green Valley Society · Officer R. Singh (On Duty)
+            </p>
           </div>
-          <h1 style={{ color: '#FFFFFF', fontWeight: 800, fontSize: '1.25rem', margin: '0 0 0.25rem 0' }}>Main Gate 1</h1>
-          <p style={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.6875rem', margin: 0 }}>Officer R. Singh • On Duty</p>
         </div>
 
-        {/* Lockdown Alert */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+          <button
+            type="button"
+            onClick={() => setIsWalkInModalOpen(true)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              padding: '0.45rem 0.875rem',
+              borderRadius: '10px',
+              background: 'var(--aarizo-coral, #F06543)',
+              color: '#ffffff',
+              fontWeight: 800,
+              fontSize: '0.75rem',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(240, 101, 67, 0.25)',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <UserPlus size={15} /> New Walk-in Entry
+          </button>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 space-y-4">
+        {/* Lockdown Alert Banner */}
         {lockdown.isLockdownActive && (
-          <div style={{ background: '#FFF0F1', border: '1px solid #fecaca', borderLeft: '4px solid #D9535B', borderRadius: '0.875rem', padding: '0.875rem', display: 'flex', alignItems: 'flex-start', gap: '0.625rem' }}>
-            <AlertTriangle size={18} style={{ color: '#D9535B', flexShrink: 0, marginTop: 1 }} />
+          <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '14px', padding: '0.875rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 2px 8px rgba(220, 38, 38, 0.08)' }}>
+            <AlertTriangle size={20} style={{ color: '#DC2626', flexShrink: 0 }} />
             <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 700, fontSize: '0.8125rem', color: '#b91c1c' }}>EMERGENCY LOCKDOWN ACTIVE</div>
-              <div style={{ fontSize: '0.75rem', color: '#991b1b', marginTop: '0.125rem' }}>All new visitor entries are restricted.</div>
+              <div style={{ fontWeight: 800, fontSize: '0.875rem', color: '#DC2626' }}>EMERGENCY GATE LOCKDOWN ACTIVE</div>
+              <div style={{ fontSize: '0.75rem', color: '#991B1B', marginTop: 2 }}>All new visitor entries are restricted by security command.</div>
             </div>
+            <button
+              type="button"
+              onClick={handleToggleLockdown}
+              style={{ padding: '0.35rem 0.75rem', borderRadius: '8px', background: '#ffffff', border: '1px solid #FECACA', color: '#DC2626', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer' }}
+            >
+              Deactivate
+            </button>
           </div>
         )}
 
-        <div className="flex flex-col gap-4">
-
-        {/* Stats Row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '0.75rem', marginTop: '0.25rem' }}>
+        {/* ── Stats Summary Grid ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.625rem' }}>
           {[
-            { label: 'Expected', value: expectedCount, color: 'var(--aarizo-blue, #176B91)' },
-            { label: 'Inside', value: insideCount, color: '#3F8F58' },
-            { label: 'Watchlist', value: blacklist.length, color: '#D99A2B' },
-          ].map((stat) => (
-            <div
-              key={stat.label}
-              style={{ padding: '0.875rem', background: '#FFFFFF', borderRadius: '0.875rem', border: '1px solid var(--aarizo-border, #E8F1F5)', textAlign: 'center', boxShadow: '0 1px 3px rgba(8, 59, 86, 0.04)' }}
-            >
-              <div style={{ fontWeight: 800, fontSize: '1.375rem', color: stat.color, lineHeight: 1 }}>{stat.value}</div>
-              <div style={{ fontSize: '0.625rem', fontWeight: 700, color: 'var(--aarizo-text-muted, #657785)', marginTop: '0.25rem' }}>{stat.label}</div>
-            </div>
-          ))}
+            { label: 'Expected Visitors', value: expectedCount, color: '#083B56', bg: '#ffffff', icon: Shield },
+            { label: 'Currently Inside', value: insideCount, color: '#059669', bg: '#ffffff', icon: CheckCircle2 },
+            { label: 'Watchlist Flagged', value: blacklist.length, color: '#D97706', bg: '#ffffff', icon: AlertTriangle },
+          ].map((stat) => {
+            const Icon = stat.icon;
+            return (
+              <div
+                key={stat.label}
+                style={{
+                  padding: '0.875rem 1rem',
+                  background: stat.bg,
+                  borderRadius: '16px',
+                  border: '1px solid #DCE8EF',
+                  boxShadow: '0 2px 6px rgba(8, 59, 86, 0.03)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#657785', textTransform: 'uppercase', letterSpacing: '0.02em' }}>{stat.label}</div>
+                  <div style={{ fontWeight: 900, fontSize: '1.5rem', color: stat.color, lineHeight: 1.1, marginTop: 2 }}>{stat.value}</div>
+                </div>
+                <div style={{ width: 36, height: 36, borderRadius: '10px', background: '#F4FAFE', border: '1px solid #DCE8EF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: stat.color }}>
+                  <Icon size={18} />
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Quick Actions */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '0.75rem' }}>
+        {/* ── Quick Action Grid ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.625rem' }}>
           <button
+            type="button"
             onClick={() => setIsWalkInModalOpen(true)}
-            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.375rem', padding: '0.875rem 0.5rem', borderRadius: '0.875rem', background: '#ecfdf5', border: '1.5px solid #a7f3d0', cursor: 'pointer', minHeight: 80 }}
-            aria-label="Walk-in Entry"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.35rem',
+              padding: '0.75rem 0.5rem',
+              borderRadius: '14px',
+              background: '#ECFDF5',
+              border: '1px solid #A7F3D0',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
           >
-            <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#d1fae5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <UserPlus size={20} style={{ color: '#059669' }} />
-            </div>
-            <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#065f46' }}>Walk-in Entry</span>
+            <UserPlus size={20} color="#059669" />
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#065F46' }}>Walk-in Entry</span>
           </button>
 
           <button
+            type="button"
             onClick={() => setIsScannerOpen(true)}
-            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.375rem', padding: '0.875rem 0.5rem', borderRadius: '0.875rem', background: 'var(--aarizo-blue-light, #EAF6FC)', border: '1px solid var(--aarizo-border, #E8F1F5)', cursor: 'pointer', minHeight: 80 }}
-            aria-label="Scan QR Code"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.35rem',
+              padding: '0.75rem 0.5rem',
+              borderRadius: '14px',
+              background: '#F4FAFE',
+              border: '1px solid #DCE8EF',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
           >
-            <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <QrCode size={20} style={{ color: 'var(--aarizo-blue, #176B91)' }} />
-            </div>
-            <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--aarizo-navy, #083B56)' }}>Scan QR</span>
+            <QrCode size={20} color="#083B56" />
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#083B56' }}>Scan QR</span>
           </button>
 
           <button
+            type="button"
             onClick={() => setIsBlacklistModalOpen(true)}
-            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.375rem', padding: '0.875rem 0.5rem', borderRadius: '0.875rem', background: '#fffbeb', border: '1.5px solid #fde68a', cursor: 'pointer', minHeight: 80 }}
-            aria-label="Watchlist"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.35rem',
+              padding: '0.75rem 0.5rem',
+              borderRadius: '14px',
+              background: '#FFFBEB',
+              border: '1px solid #FDE68A',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
           >
-            <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <AlertTriangle size={20} style={{ color: '#d97706' }} />
-            </div>
-            <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#92400e' }}>Watchlist</span>
+            <AlertTriangle size={20} color="#D97706" />
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#92400E' }}>Watchlist</span>
           </button>
 
           <button
+            type="button"
             onClick={handleToggleLockdown}
-            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.375rem', padding: '0.875rem 0.5rem', borderRadius: '0.875rem', background: lockdown.isLockdownActive ? '#FFF0F1' : '#FFFFFF', border: lockdown.isLockdownActive ? '1px solid #fecaca' : '1px solid var(--aarizo-border, #E8F1F5)', cursor: 'pointer', minHeight: 80 }}
-            aria-label={lockdown.isLockdownActive ? 'Deactivate Lockdown' : 'Emergency Lockdown'}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.35rem',
+              padding: '0.75rem 0.5rem',
+              borderRadius: '14px',
+              background: lockdown.isLockdownActive ? '#FEF2F2' : '#F4FAFE',
+              border: lockdown.isLockdownActive ? '1px solid #FECACA' : '1px solid #DCE8EF',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
           >
-            <div style={{ width: 40, height: 40, borderRadius: '50%', background: lockdown.isLockdownActive ? '#fee2e2' : 'var(--aarizo-page, #F7FBFE)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {lockdown.isLockdownActive ? <Lock size={20} style={{ color: '#D9535B' }} /> : <Unlock size={20} style={{ color: 'var(--aarizo-text-muted, #657785)' }} />}
-            </div>
-            <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: lockdown.isLockdownActive ? '#D9535B' : 'var(--aarizo-text-dark, #203746)' }}>
+            {lockdown.isLockdownActive ? <Lock size={20} color="#DC2626" /> : <Unlock size={20} color="#083B56" />}
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: lockdown.isLockdownActive ? '#DC2626' : '#083B56' }}>
               {lockdown.isLockdownActive ? 'End Lock' : 'Lockdown'}
             </span>
           </button>
         </div>
 
-        {/* Code Verification */}
-        <section>
-          <h2 style={{ fontWeight: 700, fontSize: '0.75rem', color: 'var(--aarizo-text-muted, #657785)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.625rem' }}>
-            Pass Code Verification
-          </h2>
+        {/* ── Pass Code Verification Box ── */}
+        <div
+          style={{
+            background: '#ffffff',
+            borderRadius: '16px',
+            border: '1px solid #DCE8EF',
+            padding: '1.125rem 1.25rem',
+            boxShadow: '0 2px 8px rgba(8, 59, 86, 0.04)',
+          }}
+          className="space-y-3"
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Key size={16} color="#083B56" />
+            <span style={{ fontSize: '0.8125rem', fontWeight: 800, color: '#083B56' }}>Pass Code Verification</span>
+          </div>
+
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <input
               type="text"
@@ -296,79 +428,113 @@ export const SecurityTerminalPage: React.FC = () => {
               value={codeInput}
               onChange={(e) => setCodeInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleValidateCode(codeInput)}
-              style={{ flex: 1, padding: '0.75rem', borderRadius: '0.75rem', border: '1px solid #e8e2d8', fontSize: '0.875rem', fontFamily: 'monospace', background: '#fff', minHeight: 48 }}
+              style={{
+                flex: 1,
+                padding: '0.65rem 0.875rem',
+                borderRadius: '12px',
+                border: '1px solid #DCE8EF',
+                fontSize: '0.8125rem',
+                fontFamily: 'monospace',
+                background: '#F4FAFE',
+                color: '#083B56',
+                fontWeight: 700,
+                outline: 'none',
+              }}
             />
             <button
+              type="button"
               onClick={() => handleValidateCode(codeInput)}
-              style={{ padding: '0.75rem 1.25rem', background: 'var(--aarizo-blue, #176B91)', color: '#fff', border: 'none', borderRadius: '0.75rem', fontWeight: 700, cursor: 'pointer', fontSize: '0.8125rem', minHeight: 48, whiteSpace: 'nowrap' }}
+              style={{
+                padding: '0.65rem 1.25rem',
+                background: 'var(--aarizo-coral, #F06543)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '12px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                fontSize: '0.8125rem',
+                boxShadow: '0 2px 8px rgba(240, 101, 67, 0.25)',
+                whiteSpace: 'nowrap',
+              }}
             >
               Verify Code
             </button>
           </div>
-        </section>
+        </div>
 
-        {/* Live Visitors List */}
-        <section>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.625rem' }}>
-            <h2 style={{ fontWeight: 700, fontSize: '0.75rem', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+        {/* ── Live Gate Log Section ── */}
+        <div className="space-y-3">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <h2 style={{ fontWeight: 800, fontSize: '0.875rem', color: '#083B56', margin: 0, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
               Live Gate Log
             </h2>
-            <span style={{ fontSize: '0.625rem', color: '#a8a29e', fontWeight: 600 }}>{filteredPasses.length} passes</span>
+            <span style={{ fontSize: '0.75rem', color: '#657785', fontWeight: 700 }}>{filteredPasses.length} passes</span>
           </div>
 
-          {/* Search */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#fff', padding: '0.625rem 0.75rem', borderRadius: '0.75rem', border: '1px solid #e8e2d8', marginBottom: '0.75rem' }}>
-            <SearchIcon size={16} style={{ color: '#a8a29e', flexShrink: 0 }} />
+          {/* Search Input Bar */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: '#ffffff',
+              padding: '0.6rem 0.875rem',
+              borderRadius: '12px',
+              border: '1px solid #DCE8EF',
+              boxShadow: '0 1px 4px rgba(8, 59, 86, 0.03)',
+            }}
+          >
+            <SearchIcon size={16} style={{ color: '#083B56', flexShrink: 0 }} />
             <input
               type="text"
-              placeholder="Search visitor, flat, pass..."
+              placeholder="Search visitor, flat, pass code..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: '0.8125rem', width: '100%', color: '#1c1917', minHeight: 28 }}
+              style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: '0.8125rem', width: '100%', color: '#083B56', fontWeight: 600 }}
             />
           </div>
 
-          {/* Visitor Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '0.75rem' }}>
+          {/* Visitor Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {filteredPasses.length === 0 ? (
-              <div style={{ padding: '2rem 1rem', textAlign: 'center', background: '#fff', borderRadius: '0.875rem', border: '1px solid #e8e2d8', gridColumn: '1 / -1' }}>
-                <p style={{ fontSize: '0.8125rem', color: '#a8a29e', margin: 0 }}>No passes found</p>
+              <div style={{ padding: '2.5rem 1rem', textAlign: 'center', background: '#ffffff', borderRadius: '16px', border: '1px solid #DCE8EF', gridColumn: '1 / -1' }}>
+                <p style={{ fontSize: '0.8125rem', color: '#657785', fontWeight: 700, margin: 0 }}>No visitor passes found matching your filter</p>
               </div>
             ) : (
               filteredPasses.map((p) => (
                 <div
                   key={p.id}
                   style={{
-                    padding: '1rem',
-                    background: p.status === 'CHECKED_IN' ? '#f0fdf4' : '#fff',
-                    borderRadius: '1rem',
-                    border: p.status === 'CHECKED_IN' ? '1px solid #bbf7d0' : '1px solid var(--aarizo-border-soft, #E8F1F5)',
+                    padding: '1.125rem',
+                    background: p.status === 'CHECKED_IN' ? '#ECFDF5' : '#ffffff',
+                    borderRadius: '16px',
+                    border: p.status === 'CHECKED_IN' ? '1px solid #A7F3D0' : '1px solid #DCE8EF',
                     boxShadow: '0 2px 8px rgba(8, 59, 86, 0.04)',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
-                    gap: '0.75rem',
+                    gap: '0.875rem',
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', flexWrap: 'wrap' }}>
-                        <span style={{ fontWeight: 700, fontSize: '0.875rem', color: '#1c1917' }}>{p.visitorName}</span>
-                        <span style={{ fontSize: '0.625rem', padding: '0.125rem 0.375rem', borderRadius: '0.25rem', background: '#f1f5f9', fontWeight: 600, color: '#64748b' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <span style={{ fontWeight: 800, fontSize: '0.9375rem', color: '#083B56' }}>{p.visitorName}</span>
+                        <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem', borderRadius: '10px', background: '#EAF6FC', border: '1px solid #DCE8EF', fontWeight: 800, color: '#083B56' }}>
                           {p.category}
                         </span>
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: '#78716c', marginTop: '0.25rem' }}>
-                        <strong>{p.flatCode}</strong> • {p.residentName}
+                      <div style={{ fontSize: '0.75rem', color: '#657785', marginTop: '0.25rem' }}>
+                        <strong style={{ color: '#083B56' }}>{p.flatCode}</strong> • {p.residentName}
                       </div>
-                      <div style={{ fontSize: '0.6875rem', fontFamily: 'monospace', color: '#ef4444', marginTop: '0.125rem' }}>{p.passCode}</div>
+                      <div style={{ fontSize: '0.6875rem', fontFamily: 'monospace', color: '#DC2626', fontWeight: 800, marginTop: '0.15rem' }}>{p.passCode}</div>
                       {p.vehicleNumber && (
-                        <div style={{ fontSize: '0.6875rem', color: '#64748b', marginTop: '0.125rem' }}>
-                          Vehicle: <strong style={{ color: '#1e293b' }}>{p.vehicleNumber}</strong>
+                        <div style={{ fontSize: '0.75rem', color: '#657785', marginTop: '0.15rem' }}>
+                          Vehicle: <strong style={{ color: '#083B56' }}>{p.vehicleNumber}</strong>
                         </div>
                       )}
                       {p.photoUrl && (
-                        <div style={{ marginTop: '0.375rem' }}>
+                        <div style={{ marginTop: '0.4rem' }}>
                           <a
                             href={p.photoUrl}
                             target="_blank"
@@ -376,13 +542,14 @@ export const SecurityTerminalPage: React.FC = () => {
                             style={{
                               display: 'inline-flex',
                               alignItems: 'center',
-                              gap: '0.375rem',
-                              padding: '0.2rem 0.5rem',
-                              borderRadius: '0.375rem',
-                              background: '#e0f2fe',
-                              color: '#0284c7',
+                              gap: '0.35rem',
+                              padding: '0.25rem 0.6rem',
+                              borderRadius: '8px',
+                              background: '#F4FAFE',
+                              border: '1px solid #DCE8EF',
+                              color: '#083B56',
                               fontSize: '0.6875rem',
-                              fontWeight: 600,
+                              fontWeight: 800,
                               textDecoration: 'none',
                             }}
                           >
@@ -400,22 +567,23 @@ export const SecurityTerminalPage: React.FC = () => {
 
                   {p.status === 'EXPECTED' && (
                     <button
+                      type="button"
                       onClick={() => handleCheckIn(p)}
                       style={{
                         width: '100%',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '0.375rem',
+                        gap: '0.4rem',
                         padding: '0.625rem',
-                        background: '#10b981',
-                        color: '#fff',
+                        background: '#059669',
+                        color: '#ffffff',
                         border: 'none',
-                        borderRadius: '0.625rem',
-                        fontWeight: 700,
-                        fontSize: '0.8125rem',
+                        borderRadius: '10px',
+                        fontWeight: 800,
+                        fontSize: '0.78125rem',
                         cursor: 'pointer',
-                        minHeight: 44,
+                        boxShadow: '0 2px 6px rgba(5, 150, 105, 0.2)',
                       }}
                     >
                       <CheckCircle2 size={16} /> Allow Entry
@@ -424,22 +592,22 @@ export const SecurityTerminalPage: React.FC = () => {
 
                   {p.status === 'CHECKED_IN' && (
                     <button
+                      type="button"
                       onClick={() => handleCheckOut(p.id)}
                       style={{
                         width: '100%',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '0.375rem',
+                        gap: '0.4rem',
                         padding: '0.625rem',
-                        background: '#78716c',
-                        color: '#fff',
+                        background: '#657785',
+                        color: '#ffffff',
                         border: 'none',
-                        borderRadius: '0.625rem',
-                        fontWeight: 700,
-                        fontSize: '0.8125rem',
+                        borderRadius: '10px',
+                        fontWeight: 800,
+                        fontSize: '0.78125rem',
                         cursor: 'pointer',
-                        minHeight: 44,
                       }}
                     >
                       <LogOut size={16} /> Check Out
@@ -449,7 +617,7 @@ export const SecurityTerminalPage: React.FC = () => {
               ))
             )}
           </div>
-        </section>
+        </div>
       </div>
 
       {/* Verification Result Modal */}
@@ -461,8 +629,8 @@ export const SecurityTerminalPage: React.FC = () => {
                 width: 56,
                 height: 56,
                 borderRadius: '50%',
-                background: validationResult.isValid ? '#ecfdf5' : '#fef2f2',
-                color: validationResult.isValid ? '#10b981' : '#ef4444',
+                background: validationResult.isValid ? '#ECFDF5' : '#FEF2F2',
+                color: validationResult.isValid ? '#059669' : '#DC2626',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -472,12 +640,12 @@ export const SecurityTerminalPage: React.FC = () => {
               {validationResult.isValid ? <CheckCircle2 size={32} /> : <XCircle size={32} />}
             </div>
 
-            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', color: validationResult.isValid ? '#065f46' : '#991b1b' }}>
+            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', fontWeight: 800, color: validationResult.isValid ? '#065F46' : '#991B1B' }}>
               {validationResult.isValid ? 'PASS VALIDATED' : 'ENTRY REJECTED'}
             </h3>
 
             {validationResult.pass && (
-              <div style={{ padding: '0.875rem', background: '#f8fafc', borderRadius: '0.75rem', margin: '0.75rem 0', textAlign: 'left', fontSize: '0.8125rem' }}>
+              <div style={{ padding: '0.875rem', background: '#F4FAFE', borderRadius: '12px', border: '1px solid #DCE8EF', margin: '0.75rem 0', textAlign: 'left', fontSize: '0.8125rem', color: '#083B56' }}>
                 <div style={{ marginBottom: '0.25rem' }}>Visitor: <strong>{validationResult.pass.visitorName}</strong></div>
                 <div style={{ marginBottom: '0.25rem' }}>Destination: <strong>{validationResult.pass.flatCode}</strong> ({validationResult.pass.residentName})</div>
                 <div>Category: {validationResult.pass.category}</div>
@@ -485,22 +653,24 @@ export const SecurityTerminalPage: React.FC = () => {
             )}
 
             {!validationResult.isValid && (
-              <p style={{ color: '#dc2626', fontWeight: 600, fontSize: '0.875rem', margin: '0.5rem 0 1rem 0' }}>
+              <p style={{ color: '#DC2626', fontWeight: 700, fontSize: '0.875rem', margin: '0.5rem 0 1rem 0' }}>
                 {validationResult.reason}
               </p>
             )}
 
             <div style={{ display: 'flex', gap: '0.625rem', marginTop: '1rem' }}>
               <button
+                type="button"
                 onClick={() => setValidationResult(null)}
-                style={{ flex: 1, padding: '0.75rem', borderRadius: '0.75rem', border: '1px solid #e8e2d8', background: '#fff', fontWeight: 600, fontSize: '0.8125rem', minHeight: 44, cursor: 'pointer' }}
+                style={{ flex: 1, padding: '0.75rem', borderRadius: '10px', border: '1px solid #DCE8EF', background: '#ffffff', fontWeight: 700, fontSize: '0.8125rem', cursor: 'pointer', color: '#083B56' }}
               >
                 Dismiss
               </button>
               {validationResult.isValid && validationResult.pass && (
                 <button
+                  type="button"
                   onClick={() => handleCheckIn(validationResult.pass!)}
-                  style={{ flex: 1, padding: '0.75rem', borderRadius: '0.75rem', border: 'none', background: '#10b981', color: '#fff', fontWeight: 700, fontSize: '0.8125rem', minHeight: 44, cursor: 'pointer' }}
+                  style={{ flex: 1, padding: '0.75rem', borderRadius: '10px', border: 'none', background: '#059669', color: '#ffffff', fontWeight: 800, fontSize: '0.8125rem', cursor: 'pointer' }}
                 >
                   Approve Entry
                 </button>
@@ -532,7 +702,7 @@ export const SecurityTerminalPage: React.FC = () => {
                 value={blName}
                 onChange={(e) => setBlName(e.target.value)}
                 placeholder="e.g. Karan Mehra"
-                style={{ width: '100%', padding: '0.75rem', borderRadius: '0.75rem', border: '1px solid #e8e2d8', fontSize: '0.875rem' }}
+                style={{ width: '100%', padding: '0.65rem', borderRadius: '10px', border: '1px solid #DCE8EF', fontSize: '0.8125rem', color: '#083B56' }}
               />
             </FormField>
             <FormField label="Phone Number" required>
@@ -542,7 +712,7 @@ export const SecurityTerminalPage: React.FC = () => {
                 value={blPhone}
                 onChange={(e) => setBlPhone(e.target.value)}
                 placeholder="10-digit phone"
-                style={{ width: '100%', padding: '0.75rem', borderRadius: '0.75rem', border: '1px solid #e8e2d8', fontSize: '0.875rem' }}
+                style={{ width: '100%', padding: '0.65rem', borderRadius: '10px', border: '1px solid #DCE8EF', fontSize: '0.8125rem', color: '#083B56' }}
               />
             </FormField>
             <FormField label="Reason for Blacklisting" required>
@@ -552,27 +722,27 @@ export const SecurityTerminalPage: React.FC = () => {
                 value={blReason}
                 onChange={(e) => setBlReason(e.target.value)}
                 placeholder="e.g. Altercation with gate staff"
-                style={{ width: '100%', padding: '0.75rem', borderRadius: '0.75rem', border: '1px solid #e8e2d8', fontSize: '0.875rem' }}
+                style={{ width: '100%', padding: '0.65rem', borderRadius: '10px', border: '1px solid #DCE8EF', fontSize: '0.8125rem', color: '#083B56' }}
               />
             </FormField>
           </div>
 
           <button
             type="submit"
-            style={{ width: '100%', padding: '0.75rem', borderRadius: '0.75rem', border: 'none', background: '#dc2626', color: '#fff', fontWeight: 700, marginTop: '1rem', cursor: 'pointer', minHeight: 48, fontSize: '0.875rem' }}
+            style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: 'none', background: '#DC2626', color: '#ffffff', fontWeight: 800, marginTop: '1rem', cursor: 'pointer', fontSize: '0.8125rem' }}
           >
-            Add to Blacklist
+            Add to Watchlist
           </button>
         </Form>
 
-        {/* Existing blacklist items */}
+        {/* Existing Watchlist Items */}
         {blacklist.length > 0 && (
-          <div style={{ marginTop: '1rem', borderTop: '1px solid #f5f5f4', paddingTop: '0.75rem' }}>
-            <h4 style={{ fontSize: '0.75rem', fontWeight: 700, color: '#78716c', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Current Watchlist</h4>
+          <div style={{ marginTop: '1rem', borderTop: '1px solid #DCE8EF', paddingTop: '0.75rem' }}>
+            <h4 style={{ fontSize: '0.75rem', fontWeight: 800, color: '#083B56', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Current Watchlist</h4>
             {blacklist.map((bl, i) => (
-              <div key={i} style={{ padding: '0.625rem', background: '#fffbeb', borderRadius: '0.625rem', marginBottom: '0.375rem', border: '1px solid #fef3c7' }}>
-                <div style={{ fontWeight: 700, fontSize: '0.8125rem', color: '#92400e' }}>{bl.name}</div>
-                <div style={{ fontSize: '0.6875rem', color: '#a16207' }}>{bl.phone} • {bl.reason}</div>
+              <div key={i} style={{ padding: '0.625rem 0.875rem', background: '#FFFBEB', borderRadius: '10px', marginBottom: '0.375rem', border: '1px solid #FDE68A' }}>
+                <div style={{ fontWeight: 800, fontSize: '0.8125rem', color: '#92400E' }}>{bl.name}</div>
+                <div style={{ fontSize: '0.6875rem', color: '#B45309' }}>{bl.phone} • {bl.reason}</div>
               </div>
             ))}
           </div>
@@ -591,7 +761,7 @@ export const SecurityTerminalPage: React.FC = () => {
                   value={walkInForm.visitorName}
                   onChange={(e) => setWalkInForm({ ...walkInForm, visitorName: e.target.value })}
                   placeholder="e.g. Rajan Pillai"
-                  style={{ width: '100%', padding: '0.625rem', borderRadius: '0.625rem', border: '1px solid #e8e2d8', fontSize: '0.8125rem' }}
+                  style={{ width: '100%', padding: '0.625rem', borderRadius: '10px', border: '1px solid #DCE8EF', fontSize: '0.8125rem', color: '#083B56' }}
                 />
               </FormField>
 
@@ -602,7 +772,7 @@ export const SecurityTerminalPage: React.FC = () => {
                   value={walkInForm.visitorPhone}
                   onChange={(e) => setWalkInForm({ ...walkInForm, visitorPhone: e.target.value })}
                   placeholder="10-digit mobile"
-                  style={{ width: '100%', padding: '0.625rem', borderRadius: '0.625rem', border: '1px solid #e8e2d8', fontSize: '0.8125rem' }}
+                  style={{ width: '100%', padding: '0.625rem', borderRadius: '10px', border: '1px solid #DCE8EF', fontSize: '0.8125rem', color: '#083B56' }}
                 />
               </FormField>
             </div>
@@ -612,7 +782,7 @@ export const SecurityTerminalPage: React.FC = () => {
                 <select
                   value={walkInForm.category}
                   onChange={(e) => setWalkInForm({ ...walkInForm, category: e.target.value as VisitorCategory })}
-                  style={{ width: '100%', padding: '0.625rem', borderRadius: '0.625rem', border: '1px solid #e8e2d8', fontSize: '0.8125rem', background: '#fff' }}
+                  style={{ width: '100%', padding: '0.625rem', borderRadius: '10px', border: '1px solid #DCE8EF', fontSize: '0.8125rem', background: '#ffffff', color: '#083B56', fontWeight: 700 }}
                 >
                   <option value="GUEST">Guest / Relative</option>
                   <option value="DELIVERY">Delivery Executive</option>
@@ -629,7 +799,7 @@ export const SecurityTerminalPage: React.FC = () => {
                   value={walkInForm.flatCode}
                   onChange={(e) => setWalkInForm({ ...walkInForm, flatCode: e.target.value })}
                   placeholder="e.g. B-1204"
-                  style={{ width: '100%', padding: '0.625rem', borderRadius: '0.625rem', border: '1px solid #e8e2d8', fontSize: '0.8125rem' }}
+                  style={{ width: '100%', padding: '0.625rem', borderRadius: '10px', border: '1px solid #DCE8EF', fontSize: '0.8125rem', color: '#083B56' }}
                 />
               </FormField>
             </div>
@@ -641,7 +811,7 @@ export const SecurityTerminalPage: React.FC = () => {
                   value={walkInForm.residentName}
                   onChange={(e) => setWalkInForm({ ...walkInForm, residentName: e.target.value })}
                   placeholder="e.g. Vikram Joshi"
-                  style={{ width: '100%', padding: '0.625rem', borderRadius: '0.625rem', border: '1px solid #e8e2d8', fontSize: '0.8125rem' }}
+                  style={{ width: '100%', padding: '0.625rem', borderRadius: '10px', border: '1px solid #DCE8EF', fontSize: '0.8125rem', color: '#083B56' }}
                 />
               </FormField>
 
@@ -651,7 +821,7 @@ export const SecurityTerminalPage: React.FC = () => {
                   value={walkInForm.vehicleNumber}
                   onChange={(e) => setWalkInForm({ ...walkInForm, vehicleNumber: e.target.value })}
                   placeholder="e.g. MH 12 AB 4590"
-                  style={{ width: '100%', padding: '0.625rem', borderRadius: '0.625rem', border: '1px solid #e8e2d8', fontSize: '0.8125rem' }}
+                  style={{ width: '100%', padding: '0.625rem', borderRadius: '10px', border: '1px solid #DCE8EF', fontSize: '0.8125rem', color: '#083B56' }}
                 />
               </FormField>
             </div>
@@ -662,7 +832,7 @@ export const SecurityTerminalPage: React.FC = () => {
                 value={walkInForm.purpose}
                 onChange={(e) => setWalkInForm({ ...walkInForm, purpose: e.target.value })}
                 placeholder="e.g. Grocery delivery, Swiggy, AC repair"
-                style={{ width: '100%', padding: '0.625rem', borderRadius: '0.625rem', border: '1px solid #e8e2d8', fontSize: '0.8125rem' }}
+                style={{ width: '100%', padding: '0.625rem', borderRadius: '10px', border: '1px solid #DCE8EF', fontSize: '0.8125rem', color: '#083B56' }}
               />
             </FormField>
 
@@ -679,32 +849,33 @@ export const SecurityTerminalPage: React.FC = () => {
                 }}
               />
               {walkInForm.photoUrl && (
-                <div style={{ marginTop: '0.375rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', color: '#059669', background: '#ecfdf5', padding: '0.375rem 0.625rem', borderRadius: '0.5rem', border: '1px solid #a7f3d0' }}>
+                <div style={{ marginTop: '0.375rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', color: '#059669', background: '#ECFDF5', padding: '0.375rem 0.625rem', borderRadius: '0.5rem', border: '1px solid #A7F3D0' }}>
                   <CheckCircle2 size={14} />
-                  <span>Gate photo successfully captured & attached</span>
+                  <span>Gate photo successfully captured &amp; attached</span>
                 </div>
               )}
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.625rem', marginTop: '1rem', borderTop: '1px solid #f1f5f9', paddingTop: '0.875rem' }}>
+          <div style={{ display: 'flex', gap: '0.625rem', marginTop: '1rem', borderTop: '1px solid #DCE8EF', paddingTop: '0.875rem' }}>
             <button
               type="button"
               onClick={() => setIsWalkInModalOpen(false)}
-              style={{ flex: 1, padding: '0.75rem', borderRadius: '0.75rem', border: '1px solid #e8e2d8', background: '#fff', fontWeight: 600, fontSize: '0.8125rem', cursor: 'pointer' }}
+              style={{ flex: 1, padding: '0.75rem', borderRadius: '10px', border: '1px solid #DCE8EF', background: '#ffffff', fontWeight: 700, fontSize: '0.8125rem', cursor: 'pointer', color: '#083B56' }}
             >
               Cancel
             </button>
             <button
               type="submit"
-              style={{ flex: 2, padding: '0.75rem', borderRadius: '0.75rem', border: 'none', background: '#059669', color: '#fff', fontWeight: 700, fontSize: '0.8125rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem' }}
+              style={{ flex: 2, padding: '0.75rem', borderRadius: '10px', border: 'none', background: 'var(--aarizo-coral, #F06543)', color: '#ffffff', fontWeight: 800, fontSize: '0.8125rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem', boxShadow: '0 2px 8px rgba(240, 101, 67, 0.25)' }}
             >
-              <CheckCircle2 size={16} /> Allow & Check In Visitor
+              <CheckCircle2 size={16} /> Allow &amp; Check In Visitor
             </button>
           </div>
         </Form>
       </Modal>
-      </div>
     </div>
   );
 };
+
+export default SecurityTerminalPage;

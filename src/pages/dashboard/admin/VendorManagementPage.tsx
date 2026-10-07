@@ -17,15 +17,15 @@ import {
   UserCheck,
   Ban,
   Mail,
+  ArrowLeft,
+  Search,
+  BarChart,
 } from 'lucide-react';
 import { DataTable, type Column } from '../../../components/ui/DataTable';
 import { StatusBadge } from '../../../components/ui/StatusBadge';
 import { Modal } from '../../../components/ui/Modal';
 import { Form, FormField } from '../../../components/ui/Form';
 import { MobileDataCard } from '../../../components/ui/MobileDataCard';
-import { PageHeader } from '../../../components/ui/PageHeader';
-import { StatCard } from '../../../components/ui/StatCard';
-import { SearchBar } from '../../../components/ui/SearchBar';
 import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { DocumentList } from '../../../components/common/DocumentList';
 import { FileUploader } from '../../../components/common/FileUploader';
@@ -42,6 +42,17 @@ import type {
   VendorRequest,
 } from '../../../domains/vendors/types';
 import { VendorPerformanceHub } from '../../../domains/vendors';
+
+const CATEGORY_PILLS = [
+  { id: 'ALL', label: 'All Vendors' },
+  { id: 'WATER_SUPPLY', label: 'Water Supply' },
+  { id: 'CLEANING', label: 'Cleaning' },
+  { id: 'ELECTRICIAN', label: 'Electrical' },
+  { id: 'PLUMBING', label: 'Plumbing' },
+  { id: 'ELEVATOR_MAINTENANCE', label: 'Elevators' },
+  { id: 'SECURITY_AGENCY', label: 'Security' },
+  { id: 'LANDSCAPING', label: 'Landscaping' },
+];
 
 export const VendorManagementPage: React.FC = () => {
   const currentSocietyId = 'soc-gvs';
@@ -61,6 +72,8 @@ export const VendorManagementPage: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
+  const [activeSectionTab, setActiveSectionTab] = useState<'DIRECTORY' | 'SCORECARD' | 'VAULT'>('DIRECTORY');
 
   // Create / Invite Vendor Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -226,9 +239,10 @@ export const VendorManagementPage: React.FC = () => {
         v.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
         v.contactPerson.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus = statusFilter === 'ALL' || v.status === statusFilter || v.approvalStatus === statusFilter;
-      return matchesSearch && matchesStatus;
+      const matchesCategory = categoryFilter === 'ALL' || v.category.toUpperCase().includes(categoryFilter.toUpperCase());
+      return matchesSearch && matchesStatus && matchesCategory;
     });
-  }, [vendors, searchQuery, statusFilter]);
+  }, [vendors, searchQuery, statusFilter, categoryFilter]);
 
   const activeVendorsCount = vendors.filter((v) => v.status === 'ACTIVE').length;
   const pendingVendorsCount = vendors.filter((v) => v.approvalStatus === 'PENDING').length;
@@ -242,8 +256,8 @@ export const VendorManagementPage: React.FC = () => {
       header: 'Contact Person',
       render: (v) => (
         <div>
-          <div className="font-semibold text-slate-800 dark:text-slate-200">{v.contactPerson}</div>
-          <div className="text-xs text-slate-500 dark:text-slate-400">{v.phone}</div>
+          <div className="font-semibold text-slate-800">{v.contactPerson}</div>
+          <div className="text-xs text-slate-500">{v.phone}</div>
         </div>
       ),
     },
@@ -290,7 +304,7 @@ export const VendorManagementPage: React.FC = () => {
               setSelectedVendor(v);
               setVendorDetailTab('docs');
             }}
-            className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold cursor-pointer"
+            className="p-1.5 rounded-lg bg-slate-100 hover:bg-[#EAF6FC] text-[#083B56] text-xs font-semibold cursor-pointer transition-colors"
             title="Inspect & Verify"
           >
             <Eye size={14} />
@@ -301,7 +315,7 @@ export const VendorManagementPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => promptApprove(v)}
-                className="p-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-xs font-semibold cursor-pointer"
+                className="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold cursor-pointer transition-colors"
                 title="Approve Vendor"
               >
                 <CheckCircle2 size={14} />
@@ -309,7 +323,7 @@ export const VendorManagementPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => promptReject(v)}
-                className="p-1.5 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-800 text-xs font-semibold cursor-pointer"
+                className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold cursor-pointer transition-colors"
                 title="Reject Vendor"
               >
                 <XCircle size={14} />
@@ -321,7 +335,7 @@ export const VendorManagementPage: React.FC = () => {
             <button
               type="button"
               onClick={() => promptSuspend(v)}
-              className="p-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-800 text-xs font-semibold cursor-pointer"
+              className="p-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-semibold cursor-pointer transition-colors"
               title="Suspend Vendor"
             >
               <Ban size={14} />
@@ -332,7 +346,7 @@ export const VendorManagementPage: React.FC = () => {
             <button
               type="button"
               onClick={() => promptReactivate(v)}
-              className="p-1.5 rounded-lg bg-sky-100 hover:bg-sky-200 text-sky-800 text-xs font-semibold cursor-pointer"
+              className="p-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-semibold cursor-pointer transition-colors"
               title="Reactivate Vendor"
             >
               <UserCheck size={14} />
@@ -344,151 +358,352 @@ export const VendorManagementPage: React.FC = () => {
   ];
 
   return (
-    <div className="p-4 md:p-6 pb-24 max-w-7xl mx-auto space-y-6">
-      {/* SaaS Page Header */}
-      <PageHeader
-        title="Vendor Management & Procurement"
-        subtitle="Manage approved society suppliers, verify compliance documents, track jobs, and moderate service offerings in real time."
-        icon={ShoppingBag}
-        syncStatus={syncState}
-        breadcrumbs={[
-          { label: 'Admin', href: '/admin' },
-          { label: 'Vendors' },
-        ]}
-        actions={
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setIsInviting(true);
-                setIsAddModalOpen(true);
-              }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-semibold transition cursor-pointer"
-            >
-              <Mail size={16} />
-              <span>Invite Vendor</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setIsInviting(false);
-                setIsAddModalOpen(true);
-              }}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#176B91] hover:bg-[#083B56] text-white text-xs sm:text-sm font-bold shadow-sm transition-colors cursor-pointer"
-            >
-              <Plus size={16} />
-              <span>Onboard Vendor</span>
-            </button>
-          </div>
-        }
-      />
-
-      {/* Modern SaaS Stat Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <StatCard
-          title="Total Vendors"
-          value={vendors.length}
-          subtitle="Registered suppliers"
-          icon={Store}
-          color="blue"
-        />
-        <StatCard
-          title="Active Vendors"
-          value={activeVendorsCount}
-          subtitle="Verified & operating"
-          icon={ShieldCheck}
-          color="emerald"
-        />
-        <StatCard
-          title="Pending Approvals"
-          value={pendingVendorsCount}
-          subtitle="Awaiting admin action"
-          icon={AlertTriangle}
-          color={pendingVendorsCount > 0 ? 'amber' : 'emerald'}
-        />
-        <StatCard
-          title="Service Categories"
-          value={uniqueCategoriesCount}
-          subtitle="Essential utilities"
-          icon={Layers}
-          color="purple"
-        />
-      </div>
-
-      {/* Main Vendor Directory Card */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-4 sm:p-5 shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div style={{ minHeight: '100%', background: 'var(--aarizo-page, #F7FBFE)', paddingBottom: '2.5rem' }}>
+      {/* ── Subheader Bar matching Residents, Domestic Help, Parking & Towers tabs ── */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '1rem 1rem 0.75rem',
+          background: 'var(--aarizo-card-blue, #F4FAFE)',
+          borderBottom: '1px solid var(--aarizo-border, #DCE8EF)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+          <button
+            onClick={() => window.history.back()}
+            aria-label="Back"
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              background: '#ffffff',
+              border: '1px solid var(--aarizo-border, #DCE8EF)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--aarizo-navy, #083B56)',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            <ArrowLeft size={18} />
+          </button>
           <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Vendor Directory</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Live synchronized with Firestore</p>
-          </div>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            <div className="w-full sm:w-64">
-              <SearchBar
-                value={searchQuery}
-                onChange={setSearchQuery}
-                placeholder="Search vendor or category..."
-              />
-            </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200"
-            >
-              <option value="ALL">All Statuses</option>
-              <option value="PENDING">Pending Review</option>
-              <option value="ACTIVE">Active</option>
-              <option value="APPROVED">Approved</option>
-              <option value="SUSPENDED">Suspended</option>
-              <option value="REJECTED">Rejected</option>
-            </select>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', margin: 0, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              Vendor Management &amp; Procurement
+              <span style={{ fontSize: '0.65rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '12px', background: '#EAF6FC', color: '#083B56', border: '1px solid #DCE8EF' }}>
+                {syncState}
+              </span>
+            </h2>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--aarizo-text-secondary, #657785)', margin: 0, marginTop: 2 }}>
+              Green Valley Society · Manage approved society suppliers, verify compliance documents &amp; track jobs
+            </p>
           </div>
         </div>
 
-        <DataTable
-          columns={columns}
-          data={filteredVendors}
-          keyExtractor={(v) => v.id}
-          pageSize={8}
-          mobileRender={(v) => (
-            <MobileDataCard
-              title={v.companyName}
-              subtitle={v.category}
-              status={
-                <StatusBadge
-                  label={v.status}
-                  variant={v.status === 'ACTIVE' ? 'success' : 'danger'}
-                />
-              }
-              attributes={[
-                { label: 'Contact', value: `${v.contactPerson} (${v.phone})` },
-                { label: 'Approval', value: v.approvalStatus || 'PENDING' },
-              ]}
-              actions={
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedVendor(v);
-                    setVendorDetailTab('docs');
-                  }}
-                  className="px-3 py-1.5 rounded-lg bg-[#176B91] text-white text-xs font-bold"
-                >
-                  Manage
-                </button>
-              }
-            />
-          )}
-        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+          <button
+            type="button"
+            onClick={() => {
+              setIsInviting(true);
+              setIsAddModalOpen(true);
+            }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              padding: '0.45rem 0.875rem',
+              borderRadius: '10px',
+              background: '#ffffff',
+              color: 'var(--aarizo-navy, #083B56)',
+              border: '1px solid var(--aarizo-border, #DCE8EF)',
+              fontWeight: 800,
+              fontSize: '0.75rem',
+              cursor: 'pointer',
+              boxShadow: '0 1px 3px rgba(8, 59, 86, 0.04)',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <Mail size={15} style={{ color: 'var(--aarizo-coral, #F06543)' }} /> Invite Vendor
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setIsInviting(false);
+              setIsAddModalOpen(true);
+            }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              padding: '0.45rem 0.875rem',
+              borderRadius: '10px',
+              background: 'var(--aarizo-coral, #F06543)',
+              color: '#ffffff',
+              fontWeight: 800,
+              fontSize: '0.75rem',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(240, 101, 67, 0.25)',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <Plus size={15} /> Onboard Vendor
+          </button>
+        </div>
       </div>
 
-      {/* Live Firestore Document Vault */}
-      <DocumentList
-        societyId={currentSocietyId}
-        entityType="vendor"
-        title="Society Vendor Contracts & Compliance Vault"
-      />
+      <div className="max-w-7xl mx-auto w-full px-3 sm:px-4 pt-4 space-y-5">
+        {/* Clean Stat Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div
+            style={{
+              background: '#ffffff',
+              border: '1px solid var(--aarizo-border, #DCE8EF)',
+              borderRadius: '14px',
+              padding: '0.875rem 1rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxShadow: '0 2px 8px rgba(8, 59, 86, 0.03)',
+            }}
+          >
+            <div>
+              <span style={{ fontSize: '0.6875rem', color: 'var(--aarizo-text-secondary, #657785)', fontWeight: 600, display: 'block' }}>TOTAL VENDORS</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)' }}>{vendors.length}</span>
+              <span style={{ fontSize: '0.6875rem', color: '#657785', display: 'block', marginTop: 2 }}>Registered suppliers</span>
+            </div>
+            <div style={{ width: 38, height: 38, borderRadius: '10px', background: 'var(--aarizo-card-blue, #F4FAFE)', border: '1px solid var(--aarizo-border, #DCE8EF)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--aarizo-navy, #083B56)', flexShrink: 0 }}>
+              <Store size={20} />
+            </div>
+          </div>
 
-      <VendorPerformanceHub />
+          <div
+            style={{
+              background: '#ffffff',
+              border: '1px solid var(--aarizo-border, #DCE8EF)',
+              borderRadius: '14px',
+              padding: '0.875rem 1rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxShadow: '0 2px 8px rgba(8, 59, 86, 0.03)',
+            }}
+          >
+            <div>
+              <span style={{ fontSize: '0.6875rem', color: 'var(--aarizo-text-secondary, #657785)', fontWeight: 600, display: 'block' }}>ACTIVE VENDORS</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#059669' }}>{activeVendorsCount}</span>
+              <span style={{ fontSize: '0.6875rem', color: '#657785', display: 'block', marginTop: 2 }}>Verified &amp; operating</span>
+            </div>
+            <div style={{ width: 38, height: 38, borderRadius: '10px', background: '#ECFDF5', border: '1px solid #A7F3D0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#059669', flexShrink: 0 }}>
+              <ShieldCheck size={20} />
+            </div>
+          </div>
+
+          <div
+            style={{
+              background: '#ffffff',
+              border: '1px solid var(--aarizo-border, #DCE8EF)',
+              borderRadius: '14px',
+              padding: '0.875rem 1rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxShadow: '0 2px 8px rgba(8, 59, 86, 0.03)',
+            }}
+          >
+            <div>
+              <span style={{ fontSize: '0.6875rem', color: 'var(--aarizo-text-secondary, #657785)', fontWeight: 600, display: 'block' }}>PENDING APPROVALS</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 800, color: pendingVendorsCount > 0 ? '#D97706' : '#059669' }}>{pendingVendorsCount}</span>
+              <span style={{ fontSize: '0.6875rem', color: '#657785', display: 'block', marginTop: 2 }}>Awaiting action</span>
+            </div>
+            <div style={{ width: 38, height: 38, borderRadius: '10px', background: '#FFFBEB', border: '1px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#D97706', flexShrink: 0 }}>
+              <AlertTriangle size={20} />
+            </div>
+          </div>
+
+          <div
+            style={{
+              background: '#ffffff',
+              border: '1px solid var(--aarizo-border, #DCE8EF)',
+              borderRadius: '14px',
+              padding: '0.875rem 1rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxShadow: '0 2px 8px rgba(8, 59, 86, 0.03)',
+            }}
+          >
+            <div>
+              <span style={{ fontSize: '0.6875rem', color: 'var(--aarizo-text-secondary, #657785)', fontWeight: 600, display: 'block' }}>SERVICE CATEGORIES</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)' }}>{uniqueCategoriesCount}</span>
+              <span style={{ fontSize: '0.6875rem', color: '#657785', display: 'block', marginTop: 2 }}>Essential utilities</span>
+            </div>
+            <div style={{ width: 38, height: 38, borderRadius: '10px', background: '#F3E8FF', border: '1px solid #E9D5FF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9333EA', flexShrink: 0 }}>
+              <Layers size={20} />
+            </div>
+          </div>
+        </div>
+
+        {/* ── Main Section Sub-Tabs Navigation Bar ── */}
+        <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: '0.25rem' }}>
+          {[
+            { id: 'DIRECTORY', label: `Vendor Directory (${vendors.length})`, icon: Store },
+            { id: 'SCORECARD', label: 'Scorecard Intelligence', icon: BarChart },
+            { id: 'VAULT', label: 'Contracts & Compliance Vault', icon: ShieldCheck },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeSectionTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveSectionTab(tab.id as any)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  background: isActive ? 'var(--aarizo-coral, #F06543)' : '#ffffff',
+                  color: isActive ? '#ffffff' : 'var(--aarizo-navy, #083B56)',
+                  border: isActive ? '1px solid var(--aarizo-coral, #F06543)' : '1px solid var(--aarizo-border, #DCE8EF)',
+                  borderRadius: '10px',
+                  padding: '0.55rem 0.95rem',
+                  fontSize: '0.75rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  boxShadow: isActive ? '0 2px 8px rgba(240, 101, 67, 0.25)' : '0 1px 3px rgba(8, 59, 86, 0.04)',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  transition: 'all 0.15s ease-in-out',
+                }}
+              >
+                <Icon size={15} /> {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ── SUB-TAB 1: VENDOR DIRECTORY & ONBOARDING ── */}
+        {activeSectionTab === 'DIRECTORY' && (
+          <div className="space-y-4">
+            {/* Category Quick Filter Pills */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1.5 pt-0.5 scrollbar-none">
+              {CATEGORY_PILLS.map((pill) => {
+                const isActive = categoryFilter === pill.id;
+                return (
+                  <button
+                    key={pill.id}
+                    type="button"
+                    onClick={() => setCategoryFilter(pill.id)}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.375rem',
+                      background: isActive ? '#F06543' : '#ffffff',
+                      color: isActive ? '#ffffff' : '#083B56',
+                      border: isActive ? '1px solid #F06543' : '1px solid #DCE8EF',
+                      borderRadius: '10px',
+                      padding: '0.45rem 0.85rem',
+                      fontSize: '0.75rem',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      boxShadow: isActive ? '0 2px 8px rgba(240, 101, 67, 0.25)' : '0 1px 3px rgba(8, 59, 86, 0.04)',
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0,
+                      transition: 'all 0.15s ease-in-out',
+                    }}
+                  >
+                    {pill.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Main Vendor Directory Card */}
+            <div className="bg-white rounded-2xl border border-[#DCE8EF] p-4 sm:p-5 shadow-2xs space-y-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="text-sm font-extrabold text-[#083B56]">Vendor Directory</h3>
+                  <p className="text-xs text-slate-500 font-medium">Live synchronized with Firestore</p>
+                </div>
+                <div className="flex items-center gap-2 w-full md:w-auto">
+                  <div className="relative flex-1 md:w-64">
+                    <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search vendor or category..."
+                      style={{ paddingLeft: '2.35rem' }}
+                      className="w-full pr-3 py-2 text-xs rounded-xl border border-[#DCE8EF] bg-[#F7FBFE] focus:bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#F06543]/30 focus:border-[#F06543] transition-all"
+                    />
+                  </div>
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="px-3 py-2 text-xs rounded-xl border border-[#DCE8EF] bg-white text-[#083B56] font-extrabold focus:outline-none focus:ring-2 focus:ring-[#F06543]/30 shrink-0 cursor-pointer"
+                  >
+                    <option value="ALL">All Statuses</option>
+                    <option value="PENDING">Pending Review</option>
+                    <option value="ACTIVE">Active</option>
+                    <option value="APPROVED">Approved</option>
+                    <option value="SUSPENDED">Suspended</option>
+                    <option value="REJECTED">Rejected</option>
+                  </select>
+                </div>
+              </div>
+
+              <DataTable
+                columns={columns}
+                data={filteredVendors}
+                keyExtractor={(v) => v.id}
+                pageSize={8}
+                mobileRender={(v) => (
+                  <MobileDataCard
+                    title={v.companyName}
+                    subtitle={v.category}
+                    status={
+                      <StatusBadge
+                        label={v.status}
+                        variant={v.status === 'ACTIVE' ? 'success' : 'danger'}
+                      />
+                    }
+                    attributes={[
+                      { label: 'Contact', value: `${v.contactPerson} (${v.phone})` },
+                      { label: 'Approval', value: v.approvalStatus || 'PENDING' },
+                    ]}
+                    actions={
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedVendor(v);
+                          setVendorDetailTab('docs');
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-[#F06543] text-white text-xs font-bold shadow-2xs"
+                      >
+                        Manage
+                      </button>
+                    }
+                  />
+                )}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* ── SUB-TAB 2: SCORECARD INTELLIGENCE ── */}
+        {activeSectionTab === 'SCORECARD' && <VendorPerformanceHub />}
+
+        {/* ── SUB-TAB 3: COMPLIANCE & CONTRACTS VAULT ── */}
+        {activeSectionTab === 'VAULT' && (
+          <DocumentList
+            societyId={currentSocietyId}
+            entityType="vendor"
+            title="Society Vendor Contracts & Compliance Vault"
+          />
+        )}
 
       {/* Onboard / Invite Vendor Modal */}
       <Modal
@@ -609,31 +824,26 @@ export const VendorManagementPage: React.FC = () => {
 
       {/* Vendor Inspection & Audit Detail Modal */}
       {selectedVendor && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-3xl w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  Vendor Inspection
-                </span>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                  {selectedVendor.companyName}
-                </h3>
-                <p className="text-xs text-slate-500">
-                  {selectedVendor.contactPerson} · {selectedVendor.phone} · {selectedVendor.category}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedVendor(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
-              >
-                <XCircle size={20} />
-              </button>
-            </div>
-
+        <Modal
+          isOpen={!!selectedVendor}
+          onClose={() => setSelectedVendor(null)}
+          title={selectedVendor.companyName}
+          subtitle={`${selectedVendor.contactPerson} • ${selectedVendor.phone} • ${selectedVendor.category}`}
+          icon={<Store className="w-5 h-5 text-[#F06543]" />}
+          maxWidth="700px"
+          footer={
+            <button
+              type="button"
+              onClick={() => setSelectedVendor(null)}
+              className="px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+            >
+              Close Inspection
+            </button>
+          }
+        >
+          <div className="space-y-4">
             {/* Modal Tabs */}
-            <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
+            <div className="flex items-center gap-1.5 border-b border-slate-200 pb-2.5 overflow-x-auto">
               {[
                 { id: 'docs', label: `Documents (${vendorDocs.length})`, icon: ShieldCheck },
                 { id: 'services', label: `Services (${vendorServices.length})`, icon: ShoppingBag },
@@ -646,11 +856,12 @@ export const VendorManagementPage: React.FC = () => {
                 return (
                   <button
                     key={tab.id}
+                    type="button"
                     onClick={() => setVendorDetailTab(tab.id as any)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap ${
                       isActive
-                        ? 'bg-[#176B91] text-white'
-                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        ? 'bg-[#FFF0EC] text-[#F06543] border border-[#FDF0ED]'
+                        : 'text-slate-600 hover:bg-slate-100'
                     }`}
                   >
                     <Icon size={14} />
@@ -664,19 +875,19 @@ export const VendorManagementPage: React.FC = () => {
             {vendorDetailTab === 'docs' && (
               <div className="space-y-3">
                 {vendorDocs.length === 0 ? (
-                  <div className="p-6 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+                  <div className="p-6 text-center border border-dashed border-slate-200 rounded-xl">
                     <p className="text-xs text-slate-400">No documents uploaded for this vendor.</p>
                   </div>
                 ) : (
                   vendorDocs.map((doc) => (
                     <div
                       key={doc.id}
-                      className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3"
+                      className="p-3.5 rounded-xl border border-slate-200 flex items-center justify-between gap-3 bg-slate-50"
                     >
                       <div className="flex items-center gap-3">
-                        <FileText className="w-5 h-5 text-[#176B91]" />
+                        <FileText className="w-5 h-5 text-[#F06543]" />
                         <div>
-                          <p className="text-xs font-bold text-slate-800 dark:text-slate-200">{doc.title}</p>
+                          <p className="text-xs font-bold text-slate-800">{doc.title}</p>
                           <p className="text-[11px] text-slate-500">
                             {doc.documentType} {doc.expiryDate ? `· Exp: ${doc.expiryDate}` : ''}
                           </p>
@@ -699,7 +910,7 @@ export const VendorManagementPage: React.FC = () => {
                             href={doc.fileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                            className="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-700"
                             title="Open Document"
                           >
                             <Download size={14} />
@@ -739,14 +950,14 @@ export const VendorManagementPage: React.FC = () => {
                   vendorServices.map((s) => (
                     <div
                       key={s.id}
-                      className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-between"
+                      className="p-3 rounded-xl border border-slate-200 flex items-center justify-between bg-slate-50"
                     >
                       <div>
-                        <span className="text-xs font-bold text-slate-900 dark:text-white">{s.title}</span>
+                        <span className="text-xs font-bold text-slate-900">{s.title}</span>
                         <p className="text-[11px] text-slate-500">{s.description}</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-black text-slate-900 dark:text-white">₹{s.price}</span>
+                        <span className="text-xs font-black text-slate-900">₹{s.price}</span>
                         <StatusBadge label={s.status} variant={s.status === 'ACTIVE' ? 'success' : 'neutral'} />
                       </div>
                     </div>
@@ -764,17 +975,17 @@ export const VendorManagementPage: React.FC = () => {
                   vendorJobs.map((j) => (
                     <div
                       key={j.id}
-                      className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-between"
+                      className="p-3 rounded-xl border border-slate-200 flex items-center justify-between bg-slate-50"
                     >
                       <div>
-                        <span className="text-xs font-mono font-bold text-[#176B91]">{j.orderNumber}</span>
-                        <p className="text-xs text-slate-800 dark:text-slate-200">
+                        <span className="text-xs font-mono font-bold text-[#083B56]">{j.orderNumber}</span>
+                        <p className="text-xs text-slate-800">
                           {j.serviceTitle} · {j.residentName} ({j.flatCode})
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
                         <StatusBadge label={j.status} variant={j.status === 'COMPLETED' ? 'success' : 'warning'} />
-                        <span className="text-xs font-black text-slate-900 dark:text-white">₹{j.price}</span>
+                        <span className="text-xs font-black text-slate-900">₹{j.price}</span>
                       </div>
                     </div>
                   ))
@@ -785,9 +996,9 @@ export const VendorManagementPage: React.FC = () => {
             {/* TAB: Payments */}
             {vendorDetailTab === 'payments' && (
               <div className="space-y-3">
-                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800">
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
                   <span className="text-xs font-semibold text-slate-500">Total Fulfilled Volume</span>
-                  <h4 className="text-xl font-black text-slate-900 dark:text-white">
+                  <h4 className="text-xl font-black text-[#083B56]">
                     ₹
                     {vendorJobs
                       .filter((j) => j.paymentStatus === 'PAID')
@@ -800,20 +1011,21 @@ export const VendorManagementPage: React.FC = () => {
 
             {/* TAB: Audit History */}
             {vendorDetailTab === 'audit' && (
-              <div className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-between">
+              <div className="space-y-2 text-xs text-slate-600">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
                   <span>Vendor Record Registered</span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">System Admin</span>
+                  <span className="font-semibold text-slate-800">System Admin</span>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-between">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
                   <span>Status: {selectedVendor.status}</span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">Current</span>
+                  <span className="font-semibold text-slate-800">Current</span>
                 </div>
               </div>
             )}
           </div>
-        </div>
+        </Modal>
       )}
+
 
       {/* Confirmation Dialog */}
       <ConfirmDialog
@@ -829,7 +1041,8 @@ export const VendorManagementPage: React.FC = () => {
         variant={confirmDialog.variant}
       />
     </div>
-  );
+  </div>
+);
 };
 
 export default VendorManagementPage;

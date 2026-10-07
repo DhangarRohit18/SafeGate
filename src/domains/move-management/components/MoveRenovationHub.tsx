@@ -10,7 +10,6 @@ import {
   RefreshCw,
   CheckSquare,
   Square,
-  X,
 } from 'lucide-react';
 import { moveRenovationService } from '../services/moveRenovationService';
 import type { MoveEvent, MoveType } from '../types';
@@ -22,6 +21,7 @@ import { FileUpload } from '../../../components/ui/FileUpload';
 import { RazorpayCheckoutModal } from '../../../domains/payments/RazorpayCheckoutModal';
 import { AdvertisementPopup } from '../../../components/ads/AdvertisementPopup';
 import { OffersLauncherPill } from '../../../components/ads/OffersLauncherPill';
+import { Modal } from '../../../components/ui/Modal';
 
 export const MoveRenovationHub: React.FC = () => {
   const { currentUser } = useAuth();
@@ -559,250 +559,242 @@ export const MoveRenovationHub: React.FC = () => {
       )}
 
       {/* Create Move Modal */}
-      {modalMode === 'CREATE_MOVE' && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center border-b pb-3">
-              <h3 className="font-bold text-slate-900 text-lg">Schedule Move-In / Move-Out</h3>
-              <button
-                type="button"
-                onClick={() => setModalMode(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-                title="Close"
+      <Modal
+        isOpen={modalMode === 'CREATE_MOVE'}
+        onClose={() => setModalMode(null)}
+        title="Schedule Move-In / Move-Out"
+        subtitle="Register move details, vehicle NOC and freight elevator time slot"
+        icon={<Truck size={20} />}
+        maxWidth="520px"
+        footer={
+          <div className="flex justify-end gap-2 w-full">
+            <button
+              type="button"
+              onClick={() => setModalMode(null)}
+              className="px-4 py-2.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl border border-slate-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const form = document.getElementById('create-move-form') as HTMLFormElement;
+                if (form) form.requestSubmit();
+              }}
+              className="px-5 py-2.5 text-white text-xs font-extrabold rounded-xl shadow-md bg-[#F06543]"
+            >
+              Submit Move Request
+            </button>
+          </div>
+        }
+      >
+        <form id="create-move-form" onSubmit={handleCreateMove} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-extrabold text-slate-700 mb-1">Move Type</label>
+              <select
+                value={moveForm.moveType}
+                onChange={(e) => setMoveForm({ ...moveForm, moveType: e.target.value as any })}
+                className="w-full px-3.5 py-2.5 border rounded-xl text-xs bg-white font-bold text-slate-800"
               >
-                <X size={18} />
-              </button>
+                <option value="MOVE_IN">MOVE-IN</option>
+                <option value="MOVE_OUT">MOVE-OUT</option>
+              </select>
             </div>
 
-            <form onSubmit={handleCreateMove} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Move Type</label>
-                  <select
-                    value={moveForm.moveType}
-                    onChange={(e) => setMoveForm({ ...moveForm, moveType: e.target.value as any })}
-                    className="w-full px-3 py-2 border rounded-lg text-xs bg-white font-bold text-slate-800"
-                  >
-                    <option value="MOVE_IN">MOVE-IN</option>
-                    <option value="MOVE_OUT">MOVE-OUT</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Flat Number</label>
-                  <input
-                    type="text"
-                    required
-                    value={moveForm.flatNumber}
-                    onChange={(e) => setMoveForm({ ...moveForm, flatNumber: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg text-xs"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Scheduled Date</label>
-                  <input
-                    type="date"
-                    required
-                    value={moveForm.scheduledDate}
-                    onChange={(e) => setMoveForm({ ...moveForm, scheduledDate: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg text-xs"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Freight Lift Time Slot</label>
-                  <select
-                    value={moveForm.timeSlot}
-                    onChange={(e) => setMoveForm({ ...moveForm, timeSlot: e.target.value as any })}
-                    className="w-full px-3 py-2 border rounded-lg text-xs bg-white"
-                  >
-                    <option value="09:00 - 12:00">09:00 AM - 12:00 PM</option>
-                    <option value="12:00 - 15:00">12:00 PM - 03:00 PM</option>
-                    <option value="15:00 - 18:00">03:00 PM - 06:00 PM</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Vehicle Number</label>
-                  <input
-                    type="text"
-                    required
-                    value={moveForm.vehicleNumber}
-                    onChange={(e) => setMoveForm({ ...moveForm, vehicleNumber: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg text-xs"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Packers & Movers Company</label>
-                  <input
-                    type="text"
-                    required
-                    value={moveForm.vendorCompany}
-                    onChange={(e) => setMoveForm({ ...moveForm, vendorCompany: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg text-xs"
-                  />
-                </div>
-                <div>
-                  <FileUpload
-                    category="general"
-                    label="Movers Agreement / Gatepass NOC (Optional)"
-                    onUploadSuccess={(url) => setContractorDocUrl(url)}
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3 border-t">
-                <button
-                  type="button"
-                  onClick={() => setModalMode(null)}
-                  className="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-white text-xs font-semibold rounded-lg shadow-md hover:opacity-95"
-                  style={{ background: 'var(--aarizo-blue, #176B91)' }}
-                >
-                  Submit Move Request
-                </button>
-              </div>
-            </form>
+            <div>
+              <label className="block text-xs font-extrabold text-slate-700 mb-1">Flat Number</label>
+              <input
+                type="text"
+                required
+                value={moveForm.flatNumber}
+                onChange={(e) => setMoveForm({ ...moveForm, flatNumber: e.target.value })}
+                className="w-full px-3.5 py-2.5 border rounded-xl text-xs font-bold text-slate-900"
+              />
+            </div>
           </div>
-        </div>
-      )}
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-extrabold text-slate-700 mb-1">Scheduled Date</label>
+              <input
+                type="date"
+                required
+                value={moveForm.scheduledDate}
+                onChange={(e) => setMoveForm({ ...moveForm, scheduledDate: e.target.value })}
+                className="w-full px-3.5 py-2.5 border rounded-xl text-xs font-bold text-slate-900"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-extrabold text-slate-700 mb-1">Freight Lift Time Slot</label>
+              <select
+                value={moveForm.timeSlot}
+                onChange={(e) => setMoveForm({ ...moveForm, timeSlot: e.target.value as any })}
+                className="w-full px-3.5 py-2.5 border rounded-xl text-xs bg-white font-bold text-slate-800"
+              >
+                <option value="09:00 - 12:00">09:00 AM - 12:00 PM</option>
+                <option value="12:00 - 15:00">12:00 PM - 03:00 PM</option>
+                <option value="15:00 - 18:00">03:00 PM - 06:00 PM</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-extrabold text-slate-700 mb-1">Vehicle Number</label>
+              <input
+                type="text"
+                required
+                value={moveForm.vehicleNumber}
+                onChange={(e) => setMoveForm({ ...moveForm, vehicleNumber: e.target.value })}
+                className="w-full px-3.5 py-2.5 border rounded-xl text-xs font-bold text-slate-900"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-extrabold text-slate-700 mb-1">Packers & Movers Company</label>
+              <input
+                type="text"
+                required
+                value={moveForm.vendorCompany}
+                onChange={(e) => setMoveForm({ ...moveForm, vendorCompany: e.target.value })}
+                className="w-full px-3.5 py-2.5 border rounded-xl text-xs font-bold text-slate-900"
+              />
+            </div>
+          </div>
+
+          <div>
+            <FileUpload
+              category="general"
+              label="Movers Agreement / Gatepass NOC (Optional)"
+              onUploadSuccess={(url) => setContractorDocUrl(url)}
+            />
+          </div>
+        </form>
+      </Modal>
 
       {/* Create Renovation Modal */}
-      {modalMode === 'CREATE_RENOVATION' && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-4 md:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center border-b pb-3">
-              <h3 className="font-bold text-slate-900 text-lg">Request Renovation Permit</h3>
-              <button
-                type="button"
-                onClick={() => setModalMode(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-                title="Close"
-              >
-                <X size={18} />
-              </button>
+      <Modal
+        isOpen={modalMode === 'CREATE_RENOVATION'}
+        onClose={() => setModalMode(null)}
+        title="Request Renovation Permit"
+        subtitle="Submit interior work approval & contractor details for committee clearance"
+        icon={<Wrench size={20} />}
+        maxWidth="520px"
+        footer={
+          <div className="flex justify-end gap-2 w-full">
+            <button
+              type="button"
+              onClick={() => setModalMode(null)}
+              className="px-4 py-2.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl border border-slate-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setDepositAmount(15000);
+                setDepositPurpose(`Renovation Security Deposit: Flat ${renovationForm.flatNumber}`);
+                setIsRazorpayOpen(true);
+              }}
+              className="px-4 py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl shadow-md hover:bg-emerald-500"
+            >
+              Pay ₹15k Deposit
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const form = document.getElementById('create-renovation-form') as HTMLFormElement;
+                if (form) form.requestSubmit();
+              }}
+              className="px-5 py-2.5 text-white text-xs font-extrabold rounded-xl shadow-md bg-[#F06543]"
+            >
+              Submit Permit Request
+            </button>
+          </div>
+        }
+      >
+        <form id="create-renovation-form" onSubmit={handleCreateRenovation} className="space-y-4">
+          <div>
+            <label className="block text-xs font-extrabold text-slate-700 mb-1">Project Title</label>
+            <input
+              type="text"
+              required
+              value={renovationForm.projectTitle}
+              onChange={(e) => setRenovationForm({ ...renovationForm, projectTitle: e.target.value })}
+              className="w-full px-3.5 py-2.5 border rounded-xl text-xs font-bold text-slate-900"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-extrabold text-slate-700 mb-1">Flat Number</label>
+              <input
+                type="text"
+                required
+                value={renovationForm.flatNumber}
+                onChange={(e) => setRenovationForm({ ...renovationForm, flatNumber: e.target.value })}
+                className="w-full px-3.5 py-2.5 border rounded-xl text-xs font-bold text-slate-900"
+              />
             </div>
 
-            <form onSubmit={handleCreateRenovation} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Project Title</label>
-                <input
-                  type="text"
-                  required
-                  value={renovationForm.projectTitle}
-                  onChange={(e) => setRenovationForm({ ...renovationForm, projectTitle: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg text-xs"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Flat Number</label>
-                  <input
-                    type="text"
-                    required
-                    value={renovationForm.flatNumber}
-                    onChange={(e) => setRenovationForm({ ...renovationForm, flatNumber: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg text-xs"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Contractor Company</label>
-                  <input
-                    type="text"
-                    required
-                    value={renovationForm.contractorCompany}
-                    onChange={(e) => setRenovationForm({ ...renovationForm, contractorCompany: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg text-xs"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Start Date</label>
-                  <input
-                    type="date"
-                    required
-                    value={renovationForm.startDate}
-                    onChange={(e) => setRenovationForm({ ...renovationForm, startDate: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg text-xs"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">End Date</label>
-                  <input
-                    type="date"
-                    required
-                    value={renovationForm.endDate}
-                    onChange={(e) => setRenovationForm({ ...renovationForm, endDate: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg text-xs"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Worker Names (Comma separated)</label>
-                <textarea
-                  required
-                  rows={2}
-                  value={renovationForm.workersText}
-                  onChange={(e) => setRenovationForm({ ...renovationForm, workersText: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg text-xs"
-                />
-              </div>
-
-              <div>
-                <FileUpload
-                  category="kyc"
-                  label="Architectural Layout / Contractor License PDF (Optional)"
-                  onUploadSuccess={(url) => setContractorDocUrl(url)}
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3 border-t">
-                <button
-                  type="button"
-                  onClick={() => setModalMode(null)}
-                  className="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDepositAmount(15000);
-                    setDepositPurpose(`Renovation Security Deposit: Flat ${renovationForm.flatNumber}`);
-                    setIsRazorpayOpen(true);
-                  }}
-                  className="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg shadow-md hover:bg-emerald-500"
-                >
-                  Pay ₹15k Deposit
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-amber-600 text-white text-xs font-semibold rounded-lg shadow-md hover:bg-amber-500"
-                >
-                  Submit Permit Request
-                </button>
-              </div>
-            </form>
+            <div>
+              <label className="block text-xs font-extrabold text-slate-700 mb-1">Contractor Company</label>
+              <input
+                type="text"
+                required
+                value={renovationForm.contractorCompany}
+                onChange={(e) => setRenovationForm({ ...renovationForm, contractorCompany: e.target.value })}
+                className="w-full px-3.5 py-2.5 border rounded-xl text-xs font-bold text-slate-900"
+              />
+            </div>
           </div>
-        </div>
-      )}
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-extrabold text-slate-700 mb-1">Start Date</label>
+              <input
+                type="date"
+                required
+                value={renovationForm.startDate}
+                onChange={(e) => setRenovationForm({ ...renovationForm, startDate: e.target.value })}
+                className="w-full px-3.5 py-2.5 border rounded-xl text-xs font-bold text-slate-900"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-extrabold text-slate-700 mb-1">End Date</label>
+              <input
+                type="date"
+                required
+                value={renovationForm.endDate}
+                onChange={(e) => setRenovationForm({ ...renovationForm, endDate: e.target.value })}
+                className="w-full px-3.5 py-2.5 border rounded-xl text-xs font-bold text-slate-900"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-extrabold text-slate-700 mb-1">Worker Names (Comma separated)</label>
+            <textarea
+              required
+              rows={2}
+              value={renovationForm.workersText}
+              onChange={(e) => setRenovationForm({ ...renovationForm, workersText: e.target.value })}
+              className="w-full px-3.5 py-2.5 border rounded-xl text-xs font-medium text-slate-900"
+            />
+          </div>
+
+          <div>
+            <FileUpload
+              category="kyc"
+              label="Architectural Layout / Contractor License PDF (Optional)"
+              onUploadSuccess={(url) => setContractorDocUrl(url)}
+            />
+          </div>
+        </form>
+      </Modal>
 
       {/* Razorpay Refundable Deposit Modal */}
       <RazorpayCheckoutModal

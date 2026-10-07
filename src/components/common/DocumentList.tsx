@@ -121,32 +121,44 @@ export const DocumentList: React.FC<DocumentListProps> = ({
   };
 
   return (
-    <div className={`bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700/80 p-5 shadow-xs ${className}`}>
+    <div
+      style={{
+        background: '#ffffff',
+        border: '1px solid var(--aarizo-border, #DCE8EF)',
+        borderRadius: '16px',
+        padding: '1.25rem',
+        boxShadow: '0 2px 8px rgba(8, 59, 86, 0.03)',
+      }}
+      className={className}
+    >
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <div>
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Shield className="w-4 h-4 text-[#176B91]" />
-            <span>{title}</span>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <Shield className="w-4.5 h-4.5 text-[#F06543] shrink-0" />
+            <h3 className="text-sm font-extrabold text-[#083B56] leading-tight">
+              {title}
+            </h3>
+            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#EAF6FC] text-[#083B56] border border-[#DCE8EF] shrink-0">
               {documents.length}
             </span>
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          </div>
+          <p className="text-xs text-slate-500 mt-1 font-medium">
             Cloud verified storage with live Firestore audit synchronization
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
           {documents.length > 3 && (
             <div className="relative">
-              <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search files..."
-                className="pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 w-36 sm:w-44 focus:outline-none focus:border-[#176B91]"
+                style={{ paddingLeft: '2.25rem' }}
+                className="pr-3 py-1.5 text-xs rounded-xl border border-[#DCE8EF] bg-[#F7FBFE] text-slate-800 w-36 sm:w-44 focus:outline-none focus:border-[#F06543]"
               />
             </div>
           )}
@@ -155,7 +167,21 @@ export const DocumentList: React.FC<DocumentListProps> = ({
             <button
               type="button"
               onClick={() => setIsUploadModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#176B91] hover:bg-[#083B56] text-white text-xs font-bold shadow-xs transition-colors shrink-0 cursor-pointer"
+              style={{
+                background: '#F06543',
+                color: '#ffffff',
+                fontWeight: 800,
+                padding: '0.45rem 0.85rem',
+                borderRadius: '10px',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.375rem',
+                fontSize: '0.75rem',
+                boxShadow: '0 2px 8px rgba(240, 101, 67, 0.25)',
+                whiteSpace: 'nowrap',
+              }}
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Upload Document</span>
@@ -167,14 +193,16 @@ export const DocumentList: React.FC<DocumentListProps> = ({
       {/* Content */}
       {loading ? (
         <div className="py-8 flex flex-col items-center justify-center text-slate-400">
-          <Loader2 className="w-6 h-6 animate-spin mb-2 text-[#176B91]" />
+          <Loader2 className="w-6 h-6 animate-spin mb-2 text-[#F06543]" />
           <p className="text-xs font-medium">Syncing documents from Firestore...</p>
         </div>
       ) : filteredDocs.length === 0 ? (
-        <div className="py-8 text-center border-2 border-dashed border-slate-200 dark:border-slate-700/60 rounded-xl">
-          <FileText className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-1.5" />
-          <p className="text-xs font-bold text-slate-700 dark:text-slate-300">No documents found</p>
-          <p className="text-[11px] text-slate-400 mt-0.5">
+        <div className="py-8 px-4 text-center border-2 border-dashed border-[#DCE8EF] bg-[#F7FBFE] rounded-xl flex flex-col items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-[#EAF6FC] border border-[#DCE8EF] flex items-center justify-center mb-2 text-[#F06543]">
+            <FileText className="w-5 h-5" />
+          </div>
+          <p className="text-xs font-extrabold text-[#083B56]">No documents found</p>
+          <p className="text-[11px] text-slate-500 mt-0.5 font-medium">
             {allowUpload ? 'Click "Upload Document" to attach files.' : 'No attachments available.'}
           </p>
         </div>
@@ -183,15 +211,15 @@ export const DocumentList: React.FC<DocumentListProps> = ({
           {filteredDocs.map((doc) => (
             <div
               key={doc.id}
-              className="flex items-center justify-between p-3 rounded-xl border border-slate-200/90 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-900/30 hover:border-[#176B91]/40 transition-all gap-3"
+              className="flex items-center justify-between p-3 rounded-xl border border-[#DCE8EF] bg-[#F7FBFE] hover:border-[#F06543]/40 transition-all gap-3"
             >
               <div className="flex items-center gap-3 min-w-0">
                 {renderDocIcon(doc)}
                 <div className="min-w-0 flex-1">
-                  <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate" title={doc.name}>
+                  <h4 className="text-xs font-bold text-[#083B56] truncate" title={doc.name}>
                     {doc.name}
                   </h4>
-                  <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5 font-medium">
+                  <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5 font-medium">
                     <span>{formatFileSize(doc.size)}</span>
                     <span>•</span>
                     <span className="flex items-center gap-1">

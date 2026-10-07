@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Plus,
   Search,
@@ -7,6 +8,7 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
+  ArrowLeft,
 } from 'lucide-react';
 import { societyRequestService } from '../services/societyRequestService';
 import { SubmitRequestModal } from './SubmitRequestModal';
@@ -20,6 +22,7 @@ export interface UnifiedRequestCenterProps {
 }
 
 export const UnifiedRequestCenter: React.FC<UnifiedRequestCenterProps> = ({ hideHeaderBanner = false }) => {
+  const navigate = useNavigate();
   const { currentUser } = useAuth();
   const { activeRole } = useRBAC();
   const [requests, setRequests] = useState<SocietyRequest[]>([]);
@@ -187,57 +190,78 @@ export const UnifiedRequestCenter: React.FC<UnifiedRequestCenterProps> = ({ hide
   };
 
   return (
-    <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%', padding: '0.75rem 1rem 6rem', display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: '100%', background: 'var(--aarizo-page, #F7FBFE)', boxSizing: 'border-box' }}>
-      {/* ── Optional Compact Navy Header Banner (#083B56) ── */}
+    <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '0 0 5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', minHeight: '100%', background: 'var(--aarizo-page, #F7FBFE)', boxSizing: 'border-box' }}>
+      {/* ── Header Card (Exact Light Coral & Navy Design System) ── */}
       {!hideHeaderBanner && (
         <div
           style={{
-            background: 'linear-gradient(135deg, var(--aarizo-navy, #083B56) 0%, #0D4767 100%)',
+            background: 'var(--aarizo-card-bg, #ffffff)',
             borderRadius: '16px',
-            padding: '1.25rem 1.5rem',
-            color: '#FFFFFF',
-            boxShadow: '0 4px 16px rgba(8, 59, 86, 0.08)',
+            border: '1px solid var(--aarizo-border, #DCE8EF)',
+            padding: '1rem',
             display: 'flex',
-            justifyContent: 'space-between',
             alignItems: 'center',
-            flexWrap: 'wrap',
+            justifyContent: 'space-between',
             gap: '1rem',
+            flexWrap: 'wrap',
+            boxShadow: '0 1px 4px rgba(8, 59, 86, 0.04)',
           }}
         >
-          <div>
-            <h1 style={{ color: '#FFFFFF', fontWeight: 800, fontSize: '1.25rem', margin: 0, letterSpacing: '-0.01em' }}>
-              Unified Society Request Centre
-            </h1>
-            <p style={{ color: 'var(--aarizo-sky, #83CBEA)', fontSize: '0.78rem', margin: '0.2rem 0 0', lineHeight: 1.3 }}>
-              NOCs, Tenant Registrations, Permits &amp; Executive Approvals
-            </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+            <button
+              onClick={() => navigate(-1)}
+              aria-label="Back"
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: '50%',
+                background: '#ffffff',
+                border: '1px solid var(--aarizo-border, #DCE8EF)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--aarizo-navy, #083B56)',
+                cursor: 'pointer',
+                flexShrink: 0,
+              }}
+            >
+              <ArrowLeft size={18} />
+            </button>
+            <div>
+              <h1 style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', margin: 0, letterSpacing: '-0.02em' }}>
+                Unified Society Request Centre
+              </h1>
+              <p style={{ fontSize: '0.6875rem', color: 'var(--aarizo-text-secondary, #657785)', margin: 0, marginTop: 2 }}>
+                Green Valley Society · NOCs, Tenant Registrations, Permits &amp; Executive Approvals
+              </p>
+            </div>
           </div>
 
           <button
             onClick={() => setShowSubmitModal(true)}
             style={{
-              background: 'var(--aarizo-blue, #176B91)',
-              color: '#FFFFFF',
-              border: '1px solid rgba(255, 255, 255, 0.25)',
-              borderRadius: '10px',
-              padding: '0.6rem 1rem',
-              fontWeight: 700,
-              fontSize: '0.8125rem',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.4rem',
+              gap: '0.35rem',
+              padding: '0.5rem 0.875rem',
+              borderRadius: '10px',
+              background: 'var(--aarizo-coral, #F06543)',
+              color: '#ffffff',
+              fontWeight: 800,
+              fontSize: '0.75rem',
+              border: 'none',
               cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-              flexShrink: 0,
+              boxShadow: '0 2px 8px rgba(240, 101, 67, 0.25)',
+              whiteSpace: 'nowrap',
             }}
           >
-            <Plus size={16} /> New Request / NOC
+            <Plus size={15} /> New Request / NOC
           </button>
         </div>
       )}
 
-      {/* ── 4-Card KPI Stat Counters Grid (Responsive 2 on mobile, 4 on desktop) ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.75rem' }}>
+      {/* ── 4 Compact KPI Stat Cards Grid ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.75rem' }}>
         {requestStats.map((st) => {
           const Icon = st.icon;
           const isSelected = filterStatus === st.statusFilter;
@@ -249,22 +273,22 @@ export const UnifiedRequestCenter: React.FC<UnifiedRequestCenterProps> = ({ hide
               style={{
                 background: '#ffffff',
                 borderRadius: '14px',
-                border: isSelected ? `2px solid ${st.color}` : '1px solid #DCE8EF',
-                padding: '0.875rem 1rem',
+                border: isSelected ? '2px solid #F06543' : '1px solid #DCE8EF',
+                padding: '0.75rem 0.875rem',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.75rem',
+                gap: '0.65rem',
                 textAlign: 'left',
                 cursor: 'pointer',
-                boxShadow: isSelected ? '0 4px 14px rgba(8,59,86,0.12)' : '0 2px 8px rgba(8,59,86,0.03)',
+                boxShadow: isSelected ? '0 2px 8px rgba(240, 101, 67, 0.18)' : '0 1px 3px rgba(8,59,86,0.03)',
                 transition: 'all 0.15s ease',
               }}
             >
               <div
                 style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: '12px',
+                  width: 36,
+                  height: 36,
+                  borderRadius: '10px',
                   background: st.bg,
                   display: 'flex',
                   alignItems: 'center',
@@ -272,13 +296,13 @@ export const UnifiedRequestCenter: React.FC<UnifiedRequestCenterProps> = ({ hide
                   flexShrink: 0,
                 }}
               >
-                <Icon size={20} color={st.color} />
+                <Icon size={18} color={st.color} />
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ fontSize: '1.375rem', fontWeight: 800, color: '#083B56', lineHeight: 1.1 }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#083B56', lineHeight: 1.1 }}>
                   {st.count}
                 </div>
-                <div style={{ fontSize: '0.72rem', color: '#657785', fontWeight: 600, marginTop: '0.15rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <div style={{ fontSize: '0.7rem', color: '#657785', fontWeight: 700, marginTop: '0.1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {st.label}
                 </div>
               </div>
@@ -288,18 +312,7 @@ export const UnifiedRequestCenter: React.FC<UnifiedRequestCenterProps> = ({ hide
       </div>
 
       {/* ── Category Pill Tabs Track ── */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '6px',
-          overflowX: 'auto',
-          padding: '6px',
-          background: '#EBF3F7',
-          borderRadius: '16px',
-          border: '1px solid #DCE8EF',
-          scrollbarWidth: 'none',
-        }}
-      >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.2rem' }}>
         {[
           { key: 'ALL', label: 'All Requests' },
           { key: 'NOC', label: 'NOC Certificate' },
@@ -318,18 +331,18 @@ export const UnifiedRequestCenter: React.FC<UnifiedRequestCenterProps> = ({ hide
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '0.5rem 1rem',
-                fontSize: '0.8125rem',
-                fontWeight: isActive ? 700 : 600,
-                background: isActive ? '#083B56' : '#ffffff',
-                color: isActive ? '#ffffff' : '#475569',
-                border: isActive ? '1px solid #083B56' : '1px solid #DCE8EF',
-                borderRadius: '12px',
+                gap: '5px',
+                padding: '0.45rem 0.85rem',
+                fontSize: '0.75rem',
+                fontWeight: 800,
+                background: isActive ? '#F06543' : '#ffffff',
+                color: isActive ? '#ffffff' : '#083B56',
+                border: isActive ? '1px solid #F06543' : '1px solid #DCE8EF',
+                borderRadius: '10px',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
                 flexShrink: 0,
-                boxShadow: isActive ? '0 3px 10px rgba(8, 59, 86, 0.25)' : 'none',
+                boxShadow: isActive ? '0 2px 8px rgba(240, 101, 67, 0.22)' : '0 1px 3px rgba(8, 59, 86, 0.03)',
                 transition: 'all 0.15s ease',
               }}
             >
@@ -339,22 +352,22 @@ export const UnifiedRequestCenter: React.FC<UnifiedRequestCenterProps> = ({ hide
         })}
       </div>
 
-      {/* ── Filter & Search Bar (Responsive flex-row on tablet/desktop) ── */}
+      {/* ── Search & Filter Controls (Compact uniform height) ── */}
       <div
         style={{
           background: '#ffffff',
-          padding: '1rem',
-          borderRadius: '16px',
-          border: '1px solid #E2E8F0',
-          boxShadow: '0 2px 10px rgba(8, 59, 86, 0.04)',
+          padding: '0.75rem 1rem',
+          borderRadius: '14px',
+          border: '1px solid #DCE8EF',
+          boxShadow: '0 1px 3px rgba(8, 59, 86, 0.03)',
           display: 'flex',
           flexWrap: 'wrap',
-          gap: '0.75rem',
+          gap: '0.625rem',
           alignItems: 'center',
         }}
       >
-        <div style={{ position: 'relative', flex: '1 1 240px', minWidth: '220px' }}>
-          <Search size={16} style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: '#8B9AA5', pointerEvents: 'none' }} />
+        <div style={{ position: 'relative', flex: '2 1 260px', minWidth: '200px' }}>
+          <Search size={15} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#8B9AA5', pointerEvents: 'none' }} />
           <input
             type="text"
             placeholder="Search request title, resident, or Request ID..."
@@ -362,35 +375,37 @@ export const UnifiedRequestCenter: React.FC<UnifiedRequestCenterProps> = ({ hide
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
               width: '100%',
-              paddingLeft: '2.5rem',
+              paddingLeft: '2.25rem',
               paddingRight: '0.75rem',
-              height: '42px',
+              height: '38px',
               borderRadius: '10px',
-              fontSize: '0.8125rem',
-              border: '1px solid #E2E8F0',
+              fontSize: '0.78125rem',
+              border: '1px solid #DCE8EF',
               outline: 'none',
-              background: '#F8FAFC',
+              background: '#F7FBFE',
               color: '#083B56',
               boxSizing: 'border-box',
+              fontWeight: 600,
             }}
           />
         </div>
 
-        <div style={{ display: 'flex', gap: '0.5rem', flex: '1 1 280px', minWidth: '240px' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', flex: '1 1 240px', minWidth: '220px' }}>
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
             style={{
               flex: 1,
-              padding: '0.5rem 0.75rem',
+              padding: '0.4rem 0.65rem',
               borderRadius: '10px',
-              fontSize: '0.78125rem',
-              border: '1px solid #E2E8F0',
-              background: '#ffffff',
+              fontSize: '0.75rem',
+              border: '1px solid #DCE8EF',
+              background: '#F7FBFE',
               color: '#083B56',
-              height: '42px',
-              fontWeight: 600,
+              height: '38px',
+              fontWeight: 700,
               boxSizing: 'border-box',
+              outline: 'none',
             }}
           >
             <option value="ALL">All Categories</option>
@@ -407,15 +422,16 @@ export const UnifiedRequestCenter: React.FC<UnifiedRequestCenterProps> = ({ hide
             onChange={(e) => setFilterStatus(e.target.value)}
             style={{
               flex: 1,
-              padding: '0.5rem 0.75rem',
+              padding: '0.4rem 0.65rem',
               borderRadius: '10px',
-              fontSize: '0.78125rem',
-              border: '1px solid #E2E8F0',
-              background: '#ffffff',
+              fontSize: '0.75rem',
+              border: '1px solid #DCE8EF',
+              background: '#F7FBFE',
               color: '#083B56',
-              height: '42px',
-              fontWeight: 600,
+              height: '38px',
+              fontWeight: 700,
               boxSizing: 'border-box',
+              outline: 'none',
             }}
           >
             <option value="ALL">All Statuses</option>
@@ -430,13 +446,15 @@ export const UnifiedRequestCenter: React.FC<UnifiedRequestCenterProps> = ({ hide
       </div>
 
       {/* ── Requests Cards Grid (1 col on mobile, 2 col on tablet, 3 col on desktop) ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
         {filteredRequests.length === 0 ? (
-          <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '3rem 1rem', background: '#ffffff', borderRadius: '16px', border: '1px solid #E2E8F0', color: '#64748B' }}>
-            <p style={{ fontSize: '0.875rem', color: '#64748B', margin: '0 0 1rem' }}>No society requests match the filter criteria.</p>
+          <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '2.5rem 1rem', background: '#ffffff', borderRadius: '16px', border: '1px solid #DCE8EF', color: '#657785' }}>
+            <CheckCircle2 size={32} style={{ color: '#059669', margin: '0 auto 0.5rem' }} />
+            <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#083B56' }}>No pending requests found</h3>
+            <p style={{ fontSize: '0.78rem', color: '#657785', margin: '0.25rem 0 1rem' }}>No society governance requests match the filter criteria.</p>
             <button
               onClick={() => setShowSubmitModal(true)}
-              style={{ background: '#176B91', color: '#FFFFFF', padding: '0.5rem 1.25rem', fontSize: '0.8125rem', fontWeight: 700, borderRadius: '10px', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+              style={{ background: '#F06543', color: '#FFFFFF', padding: '0.5rem 1.125rem', fontSize: '0.78rem', fontWeight: 800, borderRadius: '10px', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', boxShadow: '0 2px 8px rgba(240, 101, 67, 0.25)' }}
             >
               <Plus size={15} /> Submit New Request / NOC
             </button>
@@ -452,27 +470,27 @@ export const UnifiedRequestCenter: React.FC<UnifiedRequestCenterProps> = ({ hide
                 style={{
                   background: '#ffffff',
                   borderRadius: '16px',
-                  border: '1px solid #E2E8F0',
-                  padding: '1.25rem',
-                  boxShadow: '0 2px 10px rgba(8, 59, 86, 0.04)',
+                  border: '1px solid #DCE8EF',
+                  padding: '1.125rem',
+                  boxShadow: '0 2px 8px rgba(8, 59, 86, 0.03)',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  gap: '0.875rem',
+                  gap: '0.85rem',
                   cursor: 'pointer',
-                  transition: 'all 0.18s ease',
+                  transition: 'all 0.15s ease-in-out',
                   position: 'relative',
                 }}
               >
                 <div>
                   {/* Top Bar: ID + Status Pill Badge */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.625rem' }}>
-                    <span style={{ fontFamily: 'monospace', fontSize: '0.72rem', fontWeight: 700, color: '#083B56', background: '#F1F5F9', padding: '0.2rem 0.5rem', borderRadius: '6px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                    <span style={{ fontFamily: 'monospace', fontSize: '0.7rem', fontWeight: 800, color: '#083B56', background: '#F4FAFE', padding: '0.2rem 0.5rem', borderRadius: '6px', border: '1px solid #DCE8EF' }}>
                       {req.id}
                     </span>
                     <span
                       style={{
-                        fontSize: '0.6875rem',
+                        fontSize: '0.68rem',
                         fontWeight: 800,
                         color: badge.color,
                         background: badge.bg,
@@ -491,31 +509,31 @@ export const UnifiedRequestCenter: React.FC<UnifiedRequestCenterProps> = ({ hide
                   </div>
 
                   {/* Title & Description */}
-                  <h3 style={{ color: '#083B56', fontWeight: 800, fontSize: '0.9375rem', margin: '0 0 0.35rem', lineHeight: 1.35 }}>
+                  <h3 style={{ color: '#083B56', fontWeight: 800, fontSize: '0.92rem', margin: '0 0 0.35rem', lineHeight: 1.35 }}>
                     {req.title}
                   </h3>
-                  <p style={{ color: '#64748B', fontSize: '0.8125rem', lineHeight: 1.45, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  <p style={{ color: '#657785', fontSize: '0.78rem', lineHeight: 1.45, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                     {req.description}
                   </p>
                 </div>
 
                 {/* Meta details card */}
-                <div style={{ background: '#F8FAFC', borderRadius: '12px', padding: '0.75rem', border: '1px solid #EDF2F7', display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.75rem' }}>
+                <div style={{ background: '#F8FAFC', borderRadius: '12px', padding: '0.65rem 0.75rem', border: '1px solid #DCE8EF', display: 'flex', flexDirection: 'column', gap: '0.3rem', fontSize: '0.75rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ color: '#64748B', fontWeight: 500 }}>Resident:</span>
-                    <strong style={{ color: '#083B56', fontWeight: 700 }}>{req.residentName} ({req.flatCode})</strong>
+                    <span style={{ color: '#657785', fontWeight: 600 }}>Resident:</span>
+                    <strong style={{ color: '#083B56', fontWeight: 800 }}>{req.residentName} ({req.flatCode})</strong>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ color: '#64748B', fontWeight: 500 }}>Category:</span>
-                    <span style={{ color: '#176B91', background: '#EAF6FC', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 700, fontSize: '0.7rem' }}>
+                    <span style={{ color: '#657785', fontWeight: 600 }}>Category:</span>
+                    <span style={{ color: '#083B56', background: '#F4FAFE', border: '1px solid #DCE8EF', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 700, fontSize: '0.7rem' }}>
                       {formatCategoryName(req.category)}
                     </span>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#64748B', fontSize: '0.7rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#657785', fontSize: '0.7rem' }}>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                       <Paperclip size={12} /> Attached Docs:
                     </span>
-                    <span style={{ fontWeight: 600 }}>{req.documents.length} files</span>
+                    <span style={{ fontWeight: 700, color: '#083B56' }}>{req.documents.length} files</span>
                   </div>
                 </div>
 
@@ -529,12 +547,12 @@ export const UnifiedRequestCenter: React.FC<UnifiedRequestCenterProps> = ({ hide
                     }}
                     style={{
                       flex: 1,
-                      background: '#F1F5F9',
+                      background: '#F4FAFE',
                       color: '#083B56',
-                      border: '1px solid #E2E8F0',
+                      border: '1px solid #DCE8EF',
                       borderRadius: '8px',
                       padding: '0.45rem',
-                      fontWeight: 700,
+                      fontWeight: 800,
                       fontSize: '0.75rem',
                       cursor: 'pointer',
                       display: 'flex',
@@ -561,7 +579,7 @@ export const UnifiedRequestCenter: React.FC<UnifiedRequestCenterProps> = ({ hide
                           border: 'none',
                           borderRadius: '8px',
                           padding: '0.45rem 0.75rem',
-                          fontWeight: 700,
+                          fontWeight: 800,
                           fontSize: '0.75rem',
                           cursor: 'pointer',
                           display: 'flex',

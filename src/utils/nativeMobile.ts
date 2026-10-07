@@ -18,15 +18,16 @@ export const initNativeMobileFeatures = async () => {
   if (!isNativeApp()) return;
 
   try {
-    // Set status bar background to Aarizo Deep Navy brand color
-    await StatusBar.setBackgroundColor({ color: '#083B56' });
-    // Style.Dark sets the status bar text/icons to white
-    await StatusBar.setStyle({ style: Style.Dark });
+    // Set status bar background to Safegate warm off-white brand background
+    await StatusBar.setBackgroundColor({ color: '#F7FBFE' });
+    // Style.Light sets the status bar text/icons to dark
+    await StatusBar.setStyle({ style: Style.Light });
     await StatusBar.setOverlaysWebView({ overlay: false });
   } catch (err) {
     console.debug('StatusBar initialization fallback:', err);
   }
 };
+
 
 /**
  * Native Haptic Feedback with Web Vibration API fallback

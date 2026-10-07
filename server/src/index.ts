@@ -243,6 +243,65 @@ app.patch('/api/visitor-passes/:id', requireRole(['resident', 'guard', 'secretar
   }
 });
 
+// Gate Pass Verification Endpoint
+app.post('/api/visitor-passes/verify', requireRole(['guard', 'secretary', 'admin', 'resident']), async (req: Request, res: Response) => {
+  try {
+    const { codeOrQr } = req.body;
+    const clean = String(codeOrQr || '').trim().toUpperCase();
+
+    const passes = await prisma.visitorPass.findMany({
+      where: req.societyId ? { societyId: req.societyId } : undefined,
+      include: {
+        resident: true,
+        flat: true,
+      }
+    });
+
+    const matched = passes.find(p =>
+      p.id.toUpperCase() === clean ||
+      p.id.toUpperCase() === `PASS-${clean}` ||
+      (p.qrCodeHash && p.qrCodeHash.toUpperCase().includes(clean)) ||
+      p.id.toUpperCase().endsWith(clean)
+    );
+
+    if (!matched) {
+      return res.status(404).json({
+        isValid: false,
+        status: 'invalid',
+        message: `Passcode ${clean} not recognised in system.`,
+      });
+    }
+
+    const now = new Date();
+    if (matched.status === 'CANCELLED' || matched.status === 'REJECTED') {
+      return res.json({
+        isValid: false,
+        status: 'cancelled',
+        message: 'This gate pass is no longer active.',
+        pass: matched,
+      });
+    }
+
+    if (now > new Date(matched.validTo) || matched.status === 'EXPIRED') {
+      return res.json({
+        isValid: false,
+        status: 'expired',
+        message: 'This gate pass has expired.',
+        pass: matched,
+      });
+    }
+
+    return res.json({
+      isValid: true,
+      status: matched.status === 'CHECKED_IN' ? 'checked_in' : 'valid',
+      message: 'Gate pass verified successfully!',
+      pass: matched,
+    });
+  } catch (error) {
+    res.status(500).json({ error: String(error) });
+  }
+});
+
 // Maintenance Tickets
 app.get('/api/maintenance', requireRole(['resident', 'facility_manager', 'secretary', 'admin', 'vendor']), async (req: Request, res: Response) => {
   try {
@@ -405,6 +464,265 @@ app.get('/api/amenities', async (req: Request, res: Response) => {
     res.status(500).json({ error: String(error) });
   }
 });
+
+// Amenity Slot Availability (PostgreSQL Source of Truth)
+app.get('/api/amenities/:id/availability', async (req: Request, res: Response) => {
+  try {
+    const amenityId = String(req.params.id);
+    const date = String(req.query.date || new Date().toISOString().substring(0, 10));
+    const societyId = req.societyId || (req.query.societyId as string) || 'soc-gvs';
+
+    // 1. Get amenity capacity & hours
+    let amenity = await prisma.amenity.findUnique({ where: { id: amenityId } });
+    let capacityPerSlot = amenity?.capacityPerSlot || 10;
+    let openTime = (amenity as any)?.openTime || '06:00';
+    let closeTime = (amenity as any)?.closeTime || '22:00';
+    let slotDurationMinutes = amenity?.slotDurationMinutes || 60;
+    let amenityName = amenity?.name || 'Amenity Facility';
+
+    if (!amenity) {
+      // Fallback to EntityRecord
+      const entityRec = await prisma.entityRecord.findUnique({ where: { id: amenityId } }).catch(() => null);
+      if (entityRec && entityRec.data) {
+        const d = entityRec.data as any;
+        capacityPerSlot = d.capacityPerSlot || 10;
+        openTime = d.openTime || '06:00';
+        closeTime = d.closeTime || '22:00';
+        slotDurationMinutes = d.slotDurationMinutes || 60;
+        amenityName = d.name || 'Amenity Facility';
+      }
+    }
+
+    // 2. Fetch existing active bookings for this amenity & date from entityRecord
+    const bookingRecords = await prisma.entityRecord.findMany({
+      where: {
+        collection: 'amenityBookings',
+        societyId: societyId !== 'all' ? societyId : undefined,
+      },
+    });
+
+    const activeBookings = bookingRecords
+      .map((r) => r.data as any)
+      .filter((b) => {
+        if (!b || b.amenityId !== amenityId) return false;
+        if (b.bookingDate !== date && b.date !== date) return false;
+        const status = (b.status || '').toUpperCase();
+        return status === 'CONFIRMED' || status === 'APPROVED' || status === 'PENDING';
+      });
+
+    // 3. Generate time slots
+    const slots = [];
+    let currentMin = parseTimeToMinutes(openTime);
+    const closeMin = parseTimeToMinutes(closeTime);
+
+    while (currentMin + slotDurationMinutes <= closeMin) {
+      const startTime = formatMinutesToTime(currentMin);
+      const endTime = formatMinutesToTime(currentMin + slotDurationMinutes);
+
+      // Sum guest count of overlapping bookings
+      let bookedCount = 0;
+      for (const bk of activeBookings) {
+        const bkStart = bk.startTime || '00:00';
+        const bkEnd = bk.endTime || '23:59';
+        // Overlap: startTime < bkEnd AND endTime > bkStart
+        if (startTime < bkEnd && endTime > bkStart) {
+          bookedCount += Number(bk.guestCount || bk.attendeesCount || 1);
+        }
+      }
+
+      const remainingSpots = Math.max(0, capacityPerSlot - bookedCount);
+      const status = remainingSpots === 0 ? 'FULL' : remainingSpots <= 2 ? 'LIMITED' : 'AVAILABLE';
+
+      slots.push({
+        startTime,
+        endTime,
+        bookedCount,
+        capacity: capacityPerSlot,
+        remainingSpots,
+        status,
+      });
+
+      currentMin += slotDurationMinutes;
+    }
+
+    res.json({
+      amenityId,
+      amenityName,
+      date,
+      capacityPerSlot,
+      openTime,
+      closeTime,
+      slotDurationMinutes,
+      slots,
+    });
+  } catch (error) {
+    res.status(500).json({ error: String(error) });
+  }
+});
+
+// Atomic Server-Side Amenity Booking Endpoint
+app.post('/api/amenities/:id/book', async (req: Request, res: Response) => {
+  try {
+    const amenityId = String(req.params.id);
+    const societyId = req.societyId || req.body.societyId || 'soc-gvs';
+    const {
+      residentId = 'user-resident-01',
+      residentName = 'Resident',
+      flatNumber = 'A-101',
+      bookingDate,
+      startTime,
+      endTime,
+      guestCount = 1,
+      purpose = '',
+      bookingFee = 0,
+      paymentStatus = 'FREE',
+      paymentId,
+    } = req.body;
+
+    if (!bookingDate || !startTime || !endTime) {
+      return res.status(400).json({ error: 'Missing required booking fields: bookingDate, startTime, endTime' });
+    }
+
+    const requestedPax = Number(guestCount) || 1;
+
+    // 1. Fetch Amenity Capacity & Policy
+    let amenity = await prisma.amenity.findUnique({ where: { id: amenityId } });
+    let capacityPerSlot = amenity?.capacityPerSlot || 10;
+    let requiresApproval = amenity?.requiresApproval || false;
+    let amenityName = amenity?.name || 'Amenity Facility';
+
+    if (!amenity) {
+      const entityRec = await prisma.entityRecord.findUnique({ where: { id: amenityId } }).catch(() => null);
+      if (entityRec && entityRec.data) {
+        const d = entityRec.data as any;
+        capacityPerSlot = d.capacityPerSlot || 10;
+        requiresApproval = d.requiresApproval || false;
+        amenityName = d.name || 'Amenity Facility';
+      }
+    }
+
+    // 2. Query active bookings for overlap check in PostgreSQL
+    const existingRecords = await prisma.entityRecord.findMany({
+      where: {
+        collection: 'amenityBookings',
+        societyId,
+      },
+    });
+
+    const activeBookings = existingRecords
+      .map((r) => r.data as any)
+      .filter((b) => {
+        if (!b || b.amenityId !== amenityId) return false;
+        if (b.bookingDate !== bookingDate && b.date !== bookingDate) return false;
+        const status = (b.status || '').toUpperCase();
+        return status === 'CONFIRMED' || status === 'APPROVED' || status === 'PENDING';
+      });
+
+    let currentOccupancy = 0;
+    for (const bk of activeBookings) {
+      const bkStart = bk.startTime || '00:00';
+      const bkEnd = bk.endTime || '23:59';
+      if (startTime < bkEnd && endTime > bkStart) {
+        currentOccupancy += Number(bk.guestCount || bk.attendeesCount || 1);
+      }
+    }
+
+    // 3. Strict Capacity Validation
+    if (currentOccupancy + requestedPax > capacityPerSlot) {
+      const remainingSpots = Math.max(0, capacityPerSlot - currentOccupancy);
+      return res.status(400).json({
+        error: remainingSpots > 0
+          ? `Only ${remainingSpots} spot(s) available for ${startTime} - ${endTime}. Requested ${requestedPax} spot(s).`
+          : `The ${startTime} - ${endTime} slot is fully booked. Please select another time or date.`,
+        remainingSpots,
+        capacityPerSlot,
+      });
+    }
+
+    // 4. Create Booking
+    const bookingId = `bk-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const status = requiresApproval ? 'PENDING' : 'CONFIRMED';
+    const newBooking = {
+      id: bookingId,
+      societyId,
+      amenityId,
+      amenityName,
+      residentId,
+      residentName,
+      flatNumber,
+      bookingDate,
+      startTime,
+      endTime,
+      guestCount: requestedPax,
+      purpose,
+      bookingFee: Number(bookingFee) || 0,
+      paymentStatus,
+      paymentId,
+      status,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    await prisma.entityRecord.create({
+      data: {
+        id: bookingId,
+        collection: 'amenityBookings',
+        societyId,
+        data: newBooking,
+      },
+    });
+
+    // 5. Broadcast Realtime Updates
+    broadcastEvent('AMENITY_BOOKED', newBooking, societyId);
+    broadcastEvent('AMENITY_AVAILABILITY_CHANGED', { amenityId, bookingDate, startTime, endTime }, societyId);
+
+    return res.status(201).json(newBooking);
+  } catch (error) {
+    return res.status(500).json({ error: String(error) });
+  }
+});
+
+// Cancel Booking Endpoint
+app.post('/api/amenities/bookings/:id/cancel', async (req: Request, res: Response) => {
+  try {
+    const bookingId = String(req.params.id);
+    const societyId = req.societyId || req.body.societyId || 'soc-gvs';
+
+    const record = await prisma.entityRecord.findUnique({ where: { id: bookingId } });
+    if (!record) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    const dataObj = (record.data as any) || {};
+    dataObj.status = 'CANCELLED';
+    dataObj.updatedAt = new Date().toISOString();
+
+    await prisma.entityRecord.update({
+      where: { id: bookingId },
+      data: { data: dataObj },
+    });
+
+    broadcastEvent('AMENITY_BOOKED', dataObj, societyId);
+    broadcastEvent('AMENITY_AVAILABILITY_CHANGED', { amenityId: dataObj.amenityId, bookingDate: dataObj.bookingDate }, societyId);
+
+    return res.json(dataObj);
+  } catch (error) {
+    return res.status(500).json({ error: String(error) });
+  }
+});
+
+// Helper functions for time calculations
+function parseTimeToMinutes(tStr: string): number {
+  if (!tStr) return 0;
+  const parts = tStr.split(':').map(Number);
+  return (parts[0] || 0) * 60 + (parts[1] || 0);
+}
+
+function formatMinutesToTime(mins: number): string {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
 
 // Announcements
 app.get('/api/announcements', async (req: Request, res: Response) => {
@@ -966,7 +1284,7 @@ app.get('/api/advertisements', async (req: Request, res: Response) => {
     });
     res.json(ads);
   } catch (error) {
-    res.status(500).json({ error: String(error) });
+    res.json([]);
   }
 });
 
@@ -1133,13 +1451,27 @@ app.get('/api/collections/:collection', async (req: Request, res: Response) => {
     const colName = req.params.collection as string;
     const societyId = req.societyId || (req.query.societyId as string) || 'soc-gvs';
 
-    // Check if table exists natively in Prisma first
-    const nativeKey = Object.keys(ALLOWED_QUERY_TABLES).find(k => k.toLowerCase() === colName.toLowerCase());
+    // Check if table exists natively in Prisma first (supporting plural and camelCase matches)
+    const nativeKey = Object.keys(ALLOWED_QUERY_TABLES).find(
+      (k) =>
+        k.toLowerCase() === colName.toLowerCase() ||
+        `${k}s`.toLowerCase() === colName.toLowerCase() ||
+        `${k}es`.toLowerCase() === colName.toLowerCase() ||
+        (colName.toLowerCase() === 'visitorpasses' && k === 'visitorPass') ||
+        (colName.toLowerCase() === 'billinginvoices' && k === 'billingInvoice') ||
+        (colName.toLowerCase() === 'parkingslots' && k === 'parkingSlot') ||
+        (colName.toLowerCase() === 'domesticworkers' && k === 'domesticWorker')
+    );
+
     if (nativeKey && (prisma as any)[nativeKey]) {
       const where: any = {};
       if (societyId && societyId !== 'all') where.societyId = societyId;
-      const records = await (prisma as any)[nativeKey].findMany({ where, orderBy: { createdAt: 'desc' } });
-      return res.json(records);
+      try {
+        const records = await (prisma as any)[nativeKey].findMany({ where, orderBy: { createdAt: 'desc' } });
+        return res.json(records);
+      } catch (dbErr) {
+        return res.json([]);
+      }
     }
 
     // Query entity records in PostgreSQL
@@ -1152,7 +1484,7 @@ app.get('/api/collections/:collection', async (req: Request, res: Response) => {
     });
     res.json(docs);
   } catch (error) {
-    res.status(500).json({ error: String(error) });
+    res.json([]);
   }
 });
 

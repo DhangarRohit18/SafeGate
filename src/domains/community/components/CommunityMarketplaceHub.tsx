@@ -14,6 +14,7 @@ import {
 import { communityMarketplaceEngine } from '../services/communityMarketplaceEngine';
 import { FileUpload } from '../../../components/ui/FileUpload';
 import { AdvertisementPopup, OffersLauncherPill } from '../../../components/common/AdvertisementPopup';
+import { Modal } from '../../../components/ui/Modal';
 import type {
   MarketplaceListing,
   ListingType,
@@ -548,163 +549,176 @@ export const CommunityMarketplaceHub: React.FC<CommunityMarketplaceHubProps> = (
       )}
 
       {/* MODAL: CREATE LISTING */}
-      {isListingModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-4 md:p-6 shadow-xl space-y-4">
-            <h3 className="font-bold text-slate-900 text-base border-b pb-3">Create Marketplace Item</h3>
-            <form onSubmit={handleCreateListing} className="space-y-3 text-xs">
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Intent Type</label>
-                <select
-                  value={type}
-                  onChange={(e) => setType(e.target.value as any)}
-                  className="w-full p-2.5 bg-slate-50 border rounded-xl font-bold"
-                >
-                  <option value="SELL">SELL (For Sale)</option>
-                  <option value="BUY">BUY (Looking for)</option>
-                  <option value="BORROW">BORROW (Temporary request)</option>
-                  <option value="FREE_REUSE">🎁 FREE / REUSE (Giveaway)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Item Title</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Microwave Oven 20L"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border rounded-xl"
-                />
-              </div>
-
-              {type !== 'FREE_REUSE' && (
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Price (₹)</label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={price || ''}
-                    onChange={(e) => setPrice(Number(e.target.value))}
-                    className="w-full p-2.5 bg-slate-50 border rounded-xl font-bold"
-                  />
-                </div>
-              )}
-
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Description</label>
-                <textarea
-                  rows={3}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border rounded-xl"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Upload Item Photo</label>
-                <FileUpload
-                  category="general"
-                  label="Take Photo or Upload Product Image"
-                  accept="image/*"
-                  currentUrl={imageUrl}
-                  onUploadSuccess={(url) => setImageUrl(url)}
-                  onRemove={() => setImageUrl('')}
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setIsListingModalOpen(false)}
-                  className="px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-xl"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-white font-bold text-xs rounded-xl shadow-sm transition"
-                  style={{ background: 'var(--aarizo-blue, #176B91)' }}
-                >
-                  Publish Listing
-                </button>
-              </div>
-            </form>
+      <Modal
+        isOpen={isListingModalOpen}
+        onClose={() => setIsListingModalOpen(false)}
+        title="Create Marketplace Item"
+        subtitle="Post a buy, sell, borrow, or free giveaway listing for society members"
+        icon={<Store size={20} />}
+        maxWidth="500px"
+        footer={
+          <div className="flex justify-end gap-2 w-full">
+            <button
+              type="button"
+              onClick={() => setIsListingModalOpen(false)}
+              className="px-4 py-2.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl border border-slate-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const form = document.getElementById('create-listing-form') as HTMLFormElement;
+                if (form) form.requestSubmit();
+              }}
+              className="px-5 py-2.5 text-white text-xs font-extrabold rounded-xl shadow-md bg-[#F06543]"
+            >
+              Publish Listing
+            </button>
           </div>
-        </div>
-      )}
+        }
+      >
+        <form id="create-listing-form" onSubmit={handleCreateListing} className="space-y-3.5 text-xs">
+          <div>
+            <label className="block font-extrabold text-slate-700 mb-1">Intent Type</label>
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value as any)}
+              className="w-full p-3 bg-white border border-slate-300 rounded-xl font-bold text-slate-900"
+            >
+              <option value="SELL">SELL (For Sale)</option>
+              <option value="BUY">BUY (Looking for)</option>
+              <option value="BORROW">BORROW (Temporary request)</option>
+              <option value="FREE_REUSE">🎁 FREE / REUSE (Giveaway)</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block font-extrabold text-slate-700 mb-1">Item Title</label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Microwave Oven 20L"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl font-bold text-slate-900"
+            />
+          </div>
+
+          {type !== 'FREE_REUSE' && (
+            <div>
+              <label className="block font-extrabold text-slate-700 mb-1">Price (₹)</label>
+              <input
+                type="number"
+                min={0}
+                value={price || ''}
+                onChange={(e) => setPrice(Number(e.target.value))}
+                className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl font-bold text-slate-900"
+              />
+            </div>
+          )}
+
+          <div>
+            <label className="block font-extrabold text-slate-700 mb-1">Description</label>
+            <textarea
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl font-medium text-slate-900"
+            />
+          </div>
+
+          <div>
+            <label className="block font-extrabold text-slate-700 mb-1">Upload Item Photo</label>
+            <FileUpload
+              category="general"
+              label="Take Photo or Upload Product Image"
+              accept="image/*"
+              currentUrl={imageUrl}
+              onUploadSuccess={(url) => setImageUrl(url)}
+              onRemove={() => setImageUrl('')}
+            />
+          </div>
+        </form>
+      </Modal>
 
       {/* MODAL: CREATE LOST & FOUND */}
-      {isLostFoundModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-4 md:p-6 shadow-xl space-y-4">
-            <h3 className="font-bold text-slate-900 text-base border-b pb-3">Report Lost / Found Item</h3>
-            <form onSubmit={handleCreateLostFound} className="space-y-3 text-xs">
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Notice Type</label>
-                <select
-                  value={lfType}
-                  onChange={(e) => setLfType(e.target.value as any)}
-                  className="w-full p-2.5 bg-slate-50 border rounded-xl font-bold"
-                >
-                  <option value="FOUND">FOUND ITEM</option>
-                  <option value="LOST">LOST ITEM</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Title</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Black Leather Wallet"
-                  value={lfTitle}
-                  onChange={(e) => setLfTitle(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border rounded-xl"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Location / Details</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Near Parking Slot B-12"
-                  value={lfLocation}
-                  onChange={(e) => setLfLocation(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border rounded-xl"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Attach Photo (Optional)</label>
-                <FileUpload
-                  category="general"
-                  label="Take Photo of Found/Lost Item"
-                  accept="image/*"
-                  onUploadSuccess={(url) => setLfDesc((prev) => `${prev ? prev + ' ' : ''}[Photo: ${url}]`)}
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setIsLostFoundModalOpen(false)}
-                  className="px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-xl"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-amber-600 text-white font-semibold rounded-xl"
-                >
-                  Publish Report
-                </button>
-              </div>
-            </form>
+      <Modal
+        isOpen={isLostFoundModalOpen}
+        onClose={() => setIsLostFoundModalOpen(false)}
+        title="Report Lost / Found Item"
+        subtitle="Broadcast lost or found item details to society guard desk & residents"
+        icon={<Sparkles size={20} />}
+        maxWidth="480px"
+        footer={
+          <div className="flex justify-end gap-2 w-full">
+            <button
+              type="button"
+              onClick={() => setIsLostFoundModalOpen(false)}
+              className="px-4 py-2.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl border border-slate-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const form = document.getElementById('create-lost-found-form') as HTMLFormElement;
+                if (form) form.requestSubmit();
+              }}
+              className="px-5 py-2.5 bg-[#F06543] text-white text-xs font-extrabold rounded-xl shadow-md"
+            >
+              Publish Report
+            </button>
           </div>
-        </div>
-      )}
+        }
+      >
+        <form id="create-lost-found-form" onSubmit={handleCreateLostFound} className="space-y-3.5 text-xs">
+          <div>
+            <label className="block font-extrabold text-slate-700 mb-1">Notice Type</label>
+            <select
+              value={lfType}
+              onChange={(e) => setLfType(e.target.value as any)}
+              className="w-full p-3 bg-white border border-slate-300 rounded-xl font-bold text-slate-900"
+            >
+              <option value="FOUND">FOUND ITEM</option>
+              <option value="LOST">LOST ITEM</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block font-extrabold text-slate-700 mb-1">Title</label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Black Leather Wallet"
+              value={lfTitle}
+              onChange={(e) => setLfTitle(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl font-bold text-slate-900"
+            />
+          </div>
+
+          <div>
+            <label className="block font-extrabold text-slate-700 mb-1">Location / Details</label>
+            <input
+              type="text"
+              placeholder="e.g. Near Parking Slot B-12"
+              value={lfLocation}
+              onChange={(e) => setLfLocation(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl font-medium text-slate-900"
+            />
+          </div>
+
+          <div>
+            <label className="block font-extrabold text-slate-700 mb-1">Attach Photo (Optional)</label>
+            <FileUpload
+              category="general"
+              label="Take Photo of Found/Lost Item"
+              accept="image/*"
+              onUploadSuccess={(url) => setLfDesc((prev) => `${prev ? prev + ' ' : ''}[Photo: ${url}]`)}
+            />
+          </div>
+        </form>
+      </Modal>
       {/* Floating Offers Pill Launcher & Popup */}
       <OffersLauncherPill onOpen={() => setIsAdPopupOpen(true)} />
       <AdvertisementPopup

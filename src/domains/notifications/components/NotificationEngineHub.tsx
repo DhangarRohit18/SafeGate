@@ -254,28 +254,65 @@ export const NotificationEngineHub: React.FC = () => {
     <div className="max-w-7xl mx-auto space-y-5 pb-24">
       {/* Header Banner */}
       <div
-        style={{ background: 'linear-gradient(135deg, var(--aarizo-navy, #083B56) 0%, #0D4767 100%)' }}
-        className="text-white rounded-2xl p-4 md:p-6 shadow-xl relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+        style={{
+          background: '#ffffff',
+          borderRadius: '16px',
+          border: '1px solid var(--aarizo-border, #DCE8EF)',
+          padding: '1.25rem 1.5rem',
+          boxShadow: '0 2px 8px rgba(8, 59, 86, 0.04)',
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '1rem',
+        }}
       >
-        <div className="space-y-1 z-10">
-          <div className="flex items-center gap-2">
-            <span className="p-2 bg-white/10 text-white rounded-lg">
-              <Radio size={24} className="animate-pulse" />
-            </span>
-            <h2 style={{ color: '#ffffff', margin: 0 }} className="text-xl font-bold">
-              Multi-Channel Real-Time Notification Engine
-            </h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: '12px',
+              background: 'var(--aarizo-card-blue, #F4FAFE)',
+              border: '1px solid var(--aarizo-border, #DCE8EF)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--aarizo-navy, #083B56)',
+            }}
+          >
+            <Radio size={20} className="animate-pulse" />
           </div>
-          <p style={{ color: '#EAF6FC', margin: '0.25rem 0 0' }} className="text-sm">
-            Event-driven dispatches via In-App, Push, WhatsApp, SMS & Email with live multi-tab socket sync.
-          </p>
+          <div>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', margin: 0, letterSpacing: '-0.01em' }}>
+              Notifications &amp; Announcements
+            </h2>
+            <p style={{ fontSize: '0.75rem', color: 'var(--aarizo-text-secondary, #657785)', margin: 0, marginTop: 2 }}>
+              Green Valley Society · Notices, emergency alerts &amp; communication preferences
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 z-10">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           {unreadCount > 0 && (
             <button
+              type="button"
               onClick={handleMarkAllRead}
-              className="px-3.5 py-2 bg-[#083B56] hover:bg-[#176B91] text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-md border border-white/20"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                padding: '0.5rem 0.875rem',
+                borderRadius: '10px',
+                background: 'var(--aarizo-coral, #F06543)',
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: '0.75rem',
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(240, 101, 67, 0.25)',
+              }}
             >
               <CheckCheck size={15} /> Mark All Read ({unreadCount})
             </button>
@@ -286,41 +323,40 @@ export const NotificationEngineHub: React.FC = () => {
       {/* Real-Time Live Status & Auto-Stream Controller */}
       <div
         style={{
-          background: 'linear-gradient(135deg, #0A2E44 0%, #083B56 100%)',
-          border: '1px solid rgba(131, 203, 234, 0.25)',
+          background: '#ffffff',
+          border: '1px solid var(--aarizo-border, #DCE8EF)',
           borderRadius: '16px',
-          padding: '1rem 1.25rem',
-          color: '#ffffff',
-          boxShadow: '0 4px 16px rgba(8, 59, 86, 0.12)',
+          padding: '0.875rem 1.25rem',
+          boxShadow: '0 2px 6px rgba(8, 59, 86, 0.03)',
         }}
         className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
       >
         {/* Left: Socket Indicators */}
         <div className="flex flex-wrap items-center gap-2.5 text-xs">
           {/* Connection Status Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 font-bold">
-            <span className="relative flex h-2.5 w-2.5">
+          <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#059669', borderRadius: '12px', padding: '0.35rem 0.65rem', fontWeight: 800 }} className="inline-flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
             <span>WEBSOCKET LIVE</span>
           </div>
 
           {/* Transport Info */}
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/10 text-slate-200 border border-white/10">
-            <Wifi size={13} className="text-[#83CBEA]" />
+          <div style={{ background: '#F4FAFE', border: '1px solid #DCE8EF', color: '#083B56', borderRadius: '10px', padding: '0.35rem 0.65rem', fontWeight: 700 }} className="inline-flex items-center gap-1.5">
+            <Wifi size={13} color="#083B56" />
             <span>BroadcastChannel Bus</span>
           </div>
 
           {/* Dynamic Latency */}
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/10 text-slate-200 border border-white/10">
-            <Activity size={13} className="text-emerald-400" />
-            <span>Latency: <strong className="text-emerald-300">{latencyMs}ms</strong></span>
+          <div style={{ background: '#F4FAFE', border: '1px solid #DCE8EF', color: '#083B56', borderRadius: '10px', padding: '0.35rem 0.65rem', fontWeight: 700 }} className="inline-flex items-center gap-1.5">
+            <Activity size={13} color="#059669" />
+            <span>Latency: <strong style={{ color: '#059669' }}>{latencyMs}ms</strong></span>
           </div>
 
           {/* Ingest Counter */}
           {messagesIngestedCount > 0 && (
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-cyan-950/60 text-cyan-300 border border-cyan-500/30">
+            <div style={{ background: '#FFF5F2', border: '1px solid #FDBA74', color: '#F06543', borderRadius: '10px', padding: '0.35rem 0.65rem', fontWeight: 700 }} className="inline-flex items-center gap-1.5">
               <Zap size={13} />
               <span>Session Ingests: <strong>+{messagesIngestedCount}</strong></span>
             </div>
@@ -331,31 +367,67 @@ export const NotificationEngineHub: React.FC = () => {
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-start sm:justify-end mt-2 md:mt-0">
           {/* Sound Toggle */}
           <button
+            type="button"
             onClick={() => setSoundEnabled(!soundEnabled)}
             title={soundEnabled ? 'Mute notification sound' : 'Unmute notification sound'}
-            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs border border-white/15 transition-all flex items-center gap-1.5"
+            style={{
+              padding: '0.45rem 0.75rem',
+              borderRadius: '10px',
+              background: '#F4FAFE',
+              border: '1px solid #DCE8EF',
+              color: '#083B56',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+            }}
           >
-            {soundEnabled ? <Volume2 size={15} className="text-[#83CBEA]" /> : <VolumeX size={15} className="text-slate-400" />}
+            {soundEnabled ? <Volume2 size={15} color="#083B56" /> : <VolumeX size={15} color="#657785" />}
             <span className="hidden sm:inline">{soundEnabled ? 'Chime ON' : 'Muted'}</span>
           </button>
 
           {/* Quick Simulate Button */}
           <button
+            type="button"
             onClick={handleQuickSimulate}
-            className="px-3 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 border border-cyan-400/40 text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
+            style={{
+              padding: '0.45rem 0.75rem',
+              borderRadius: '10px',
+              background: '#F4FAFE',
+              border: '1px solid #DCE8EF',
+              color: '#083B56',
+              fontSize: '0.75rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+            }}
           >
-            <Zap size={14} className="text-cyan-300" />
+            <Zap size={14} color="#F06543" />
             <span>Simulate Ingest</span>
           </button>
 
           {/* Live Auto-Stream Toggle */}
           <button
+            type="button"
             onClick={() => setIsLiveStreamActive(!isLiveStreamActive)}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md ${
-              isLiveStreamActive
-                ? 'bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400/60 shadow-emerald-900/40'
-                : 'bg-white/10 hover:bg-white/20 text-slate-300 border border-white/20'
-            }`}
+            style={{
+              padding: '0.45rem 0.85rem',
+              borderRadius: '10px',
+              background: isLiveStreamActive ? 'var(--aarizo-coral, #F06543)' : '#F4FAFE',
+              border: isLiveStreamActive ? 'none' : '1px solid #DCE8EF',
+              color: isLiveStreamActive ? '#ffffff' : '#083B56',
+              fontSize: '0.75rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              boxShadow: isLiveStreamActive ? '0 2px 8px rgba(240, 101, 67, 0.25)' : 'none',
+            }}
           >
             {isLiveStreamActive ? <Play size={14} className="fill-current animate-pulse" /> : <Pause size={14} />}
             <span>{isLiveStreamActive ? 'Live Stream: Active' : 'Live Stream: Paused'}</span>
@@ -367,31 +439,32 @@ export const NotificationEngineHub: React.FC = () => {
       {recentLiveIngest && (
         <div
           style={{
-            background: 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)',
-            border: '1px solid #10B981',
+            background: '#ECFDF5',
+            border: '1px solid #A7F3D0',
             borderRadius: '12px',
             padding: '0.75rem 1rem',
-            color: '#065F46',
-            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.15)',
+            color: '#059669',
+            boxShadow: '0 2px 8px rgba(5, 150, 105, 0.08)',
           }}
           className="flex items-center justify-between gap-3 animate-fadeIn"
         >
           <div className="flex items-center gap-2.5 text-xs font-medium">
-            <span className="p-1.5 bg-emerald-600 text-white rounded-lg animate-pulse">
+            <span style={{ padding: '0.35rem', background: '#059669', color: '#ffffff', borderRadius: '8px' }}>
               <Zap size={14} />
             </span>
             <div>
-              <span className="font-extrabold uppercase tracking-wide text-emerald-900">
+              <span style={{ fontWeight: 800, textTransform: 'uppercase', color: '#065F46' }}>
                 ⚡ Real-Time Ingest ({recentLiveIngest.timestamp}):
               </span>{' '}
-              <span className="font-bold text-emerald-950">[{recentLiveIngest.eventType}]</span>{' '}
+              <span style={{ fontWeight: 800, color: '#064E3B' }}>[{recentLiveIngest.eventType}]</span>{' '}
               <span>{recentLiveIngest.title}</span> —{' '}
-              <span className="text-emerald-800 text-[11px]">
+              <span style={{ fontSize: '0.6875rem', color: '#047857' }}>
                 Dispatched via {recentLiveIngest.channels.join(', ')}
               </span>
             </div>
           </div>
           <button
+            type="button"
             onClick={() => setRecentLiveIngest(null)}
             className="text-emerald-700 hover:text-emerald-900 p-1 rounded hover:bg-emerald-200/50"
           >
@@ -400,17 +473,18 @@ export const NotificationEngineHub: React.FC = () => {
         </div>
       )}
 
-      {/* Tabs */}
+      {/* Tabs Container */}
       <div
         style={{
-          background: '#EBF3F7',
+          background: '#ffffff',
+          border: '1px solid var(--aarizo-border, #DCE8EF)',
           borderRadius: '16px',
-          padding: '0.375rem',
+          padding: '0.35rem',
           display: 'flex',
-          gap: '0.375rem',
+          gap: '0.35rem',
           overflowX: 'auto',
           scrollbarWidth: 'none',
-          boxShadow: 'inset 0 1px 3px rgba(8, 59, 86, 0.06)',
+          boxShadow: '0 2px 6px rgba(8, 59, 86, 0.03)',
           marginBottom: '1.25rem',
         }}
       >
@@ -425,26 +499,27 @@ export const NotificationEngineHub: React.FC = () => {
           return (
             <button
               key={tab.key}
+              type="button"
               onClick={() => setActiveTab(tab.key as any)}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.45rem',
-                padding: '0.6rem 1rem',
+                padding: '0.55rem 1rem',
                 borderRadius: '12px',
-                border: isActive ? 'none' : '1px solid #DCE8EF',
-                background: isActive ? 'var(--aarizo-navy, #083B56)' : '#FFFFFF',
-                color: isActive ? '#FFFFFF' : '#475569',
-                fontWeight: 700,
-                fontSize: '0.8125rem',
+                border: 'none',
+                background: isActive ? 'var(--aarizo-coral, #F06543)' : 'transparent',
+                color: isActive ? '#FFFFFF' : 'var(--aarizo-navy, #083B56)',
+                fontWeight: isActive ? 800 : 700,
+                fontSize: '0.78125rem',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
                 transition: 'all 0.15s ease',
-                boxShadow: isActive ? '0 3px 10px rgba(8, 59, 86, 0.25)' : '0 1px 3px rgba(0,0,0,0.04)',
+                boxShadow: isActive ? '0 3px 10px rgba(240, 101, 67, 0.28)' : 'none',
                 flexShrink: 0,
               }}
             >
-              <Icon size={15} color={isActive ? 'var(--aarizo-sky, #83CBEA)' : 'var(--aarizo-blue, #176B91)'} />
+              <Icon size={15} color={isActive ? '#FFFFFF' : 'var(--aarizo-navy, #083B56)'} />
               <span>{tab.label}</span>
             </button>
           );

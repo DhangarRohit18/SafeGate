@@ -303,16 +303,113 @@ class AmenityService {
     return items.filter(b => b.societyId === societyId);
   }
 
+  async fetchSlotAvailability(
+    societyId: string,
+    amenityId: string,
+    bookingDate: string
+  ): Promise<{
+    amenityId: string;
+    amenityName: string;
+    date: string;
+    capacityPerSlot: number;
+    openTime: string;
+    closeTime: string;
+    slotDurationMinutes: number;
+    slots: Array<{
+      startTime: string;
+      endTime: string;
+      bookedCount: number;
+      capacity: number;
+      remainingSpots: number;
+      status: 'AVAILABLE' | 'LIMITED' | 'FULL';
+    }>;
+  }> {
+    try {
+      const res = await fetch(`/api/amenities/${amenityId}/availability?date=${bookingDate}&societyId=${societyId}`);
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch {
+      // Fallback
+    }
+
+    // Local calculation fallback
+    const amenity = this.getAmenities(societyId).find((a) => a.id === amenityId);
+    const capacityPerSlot = amenity?.capacityPerSlot || 10;
+    const openTime = amenity?.openTime || '06:00';
+    const closeTime = amenity?.closeTime || '22:00';
+    const slotDurationMinutes = amenity?.slotDurationMinutes || 60;
+
+    const existingBookings = this.getBookings(societyId).filter(
+      (b) =>
+        b.amenityId === amenityId &&
+        b.bookingDate === bookingDate &&
+        (b.status === 'CONFIRMED' || b.status === 'APPROVED' || b.status === 'PENDING')
+    );
+
+    const parseMins = (tStr: string) => {
+      const parts = (tStr || '00:00').split(':').map(Number);
+      return parts[0] * 60 + parts[1];
+    };
+
+    const formatMins = (mins: number) => {
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    };
+
+    const slots = [];
+    let curMin = parseMins(openTime);
+    const closeMin = parseMins(closeTime);
+
+    while (curMin + slotDurationMinutes <= closeMin) {
+      const startTime = formatMins(curMin);
+      const endTime = formatMins(curMin + slotDurationMinutes);
+
+      let bookedCount = 0;
+      for (const bk of existingBookings) {
+        if (startTime < bk.endTime && endTime > bk.startTime) {
+          bookedCount += bk.guestCount || 1;
+        }
+      }
+
+      const remainingSpots = Math.max(0, capacityPerSlot - bookedCount);
+      const status = remainingSpots === 0 ? 'FULL' : remainingSpots <= 2 ? 'LIMITED' : 'AVAILABLE';
+
+      slots.push({
+        startTime,
+        endTime,
+        bookedCount,
+        capacity: capacityPerSlot,
+        remainingSpots,
+        status: status as 'AVAILABLE' | 'LIMITED' | 'FULL',
+      });
+
+      curMin += slotDurationMinutes;
+    }
+
+    return {
+      amenityId,
+      amenityName: amenity?.name || 'Amenity',
+      date: bookingDate,
+      capacityPerSlot,
+      openTime,
+      closeTime,
+      slotDurationMinutes,
+      slots,
+    };
+  }
+
   validateBookingRequest(
     societyId: string,
     amenityId: string,
     bookingDate: string, // YYYY-MM-DD
-    startTime: string,   // HH:mm
-    endTime: string,     // HH:mm
+    startTime: string, // HH:mm
+    endTime: string, // HH:mm
     requestedGuestCount: number
   ): { valid: boolean; error?: string } {
     const amenities = this.getAmenities(societyId);
-    const amenity = amenities.find(a => a.id === amenityId);
+    const amenity = amenities.find((a) => a.id === amenityId);
 
     if (!amenity) return { valid: false, error: 'Amenity does not exist' };
     if (!amenity.isActive || !amenity.isBookable) {
@@ -323,7 +420,7 @@ class AmenityService {
     if (startTime < amenity.openTime || endTime > amenity.closeTime) {
       return {
         valid: false,
-        error: `Booking time (${startTime} - ${endTime}) is outside operating hours (${amenity.openTime} - ${amenity.closeTime})`
+        error: `Booking time (${startTime} - ${endTime}) is outside operating hours (${amenity.openTime} - ${amenity.closeTime})`,
       };
     }
 
@@ -332,25 +429,26 @@ class AmenityService {
     }
 
     // 2. Check Blackout Dates
-    for (const blk of amenity.blackoutDates) {
+    for (const blk of amenity.blackoutDates || []) {
       if (bookingDate >= blk.startDate && bookingDate <= blk.endDate) {
         return { valid: false, error: `Amenity is blocked on this date due to: ${blk.reason}` };
       }
     }
 
     // 3. Check Scheduled Maintenance
-    for (const maint of amenity.maintenanceSchedules) {
+    for (const maint of amenity.maintenanceSchedules || []) {
       const maintDate = maint.startDate.substring(0, 10);
       if (bookingDate === maintDate && maint.status !== 'COMPLETED') {
         return { valid: false, error: `Amenity has scheduled maintenance: ${maint.title}` };
       }
     }
 
-    // 4. Overlapping & Capacity overflow check
+    // 4. Overlapping & Capacity overflow check (includes CONFIRMED, APPROVED, and PENDING)
     const existingBookings = this.getBookings(societyId).filter(
-      b => b.amenityId === amenityId &&
-           b.bookingDate === bookingDate &&
-           (b.status === 'APPROVED' || b.status === 'PENDING')
+      (b) =>
+        b.amenityId === amenityId &&
+        b.bookingDate === bookingDate &&
+        (b.status === 'CONFIRMED' || b.status === 'APPROVED' || b.status === 'PENDING')
     );
 
     let currentOccupancy = 0;
@@ -359,7 +457,7 @@ class AmenityService {
       // Overlap condition: start < existingEnd AND end > existingStart
       const isOverlapping = startTime < booking.endTime && endTime > booking.startTime;
       if (isOverlapping) {
-        currentOccupancy += booking.guestCount;
+        currentOccupancy += booking.guestCount || 1;
       }
     }
 
@@ -367,11 +465,82 @@ class AmenityService {
       const remainingCapacity = Math.max(0, amenity.capacityPerSlot - currentOccupancy);
       return {
         valid: false,
-        error: `Capacity overflow! Maximum slot capacity is ${amenity.capacityPerSlot}. Remaining available capacity for this slot is ${remainingCapacity}.`
+        error:
+          remainingCapacity > 0
+            ? `Only ${remainingCapacity} spot(s) available for ${startTime} - ${endTime}. Requested ${requestedGuestCount} spot(s).`
+            : `Slot ${startTime} - ${endTime} is fully booked! Maximum capacity is ${amenity.capacityPerSlot}.`,
       };
     }
 
     return { valid: true };
+  }
+
+  async createBookingAsync(
+    societyId: string,
+    amenityId: string,
+    residentId: string,
+    residentName: string,
+    flatNumber: string,
+    bookingDate: string,
+    startTime: string,
+    endTime: string,
+    guestCount: number,
+    purpose?: string,
+    paymentDetails?: { bookingFee?: number; paymentStatus?: 'FREE' | 'PAID' | 'PENDING'; paymentId?: string }
+  ): Promise<AmenityBooking> {
+    try {
+      const res = await fetch(`/api/amenities/${amenityId}/book`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          societyId,
+          residentId,
+          residentName,
+          flatNumber,
+          bookingDate,
+          startTime,
+          endTime,
+          guestCount,
+          purpose,
+          bookingFee: paymentDetails?.bookingFee,
+          paymentStatus: paymentDetails?.paymentStatus,
+          paymentId: paymentDetails?.paymentId,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to complete server booking');
+      }
+
+      const createdBooking: AmenityBooking = await res.json();
+
+      // Update local storage cache
+      const raw = localStorage.getItem(BOOKINGS_STORAGE_KEY);
+      const allBookings: AmenityBooking[] = raw ? JSON.parse(raw) : [];
+      allBookings.unshift(createdBooking);
+      localStorage.setItem(BOOKINGS_STORAGE_KEY, JSON.stringify(allBookings));
+
+      return createdBooking;
+    } catch (err: any) {
+      if (err.message && err.message.includes('booked') || err.message.includes('spot')) {
+        throw err;
+      }
+      // Local fallback
+      return this.createBooking(
+        societyId,
+        amenityId,
+        residentId,
+        residentName,
+        flatNumber,
+        bookingDate,
+        startTime,
+        endTime,
+        guestCount,
+        purpose,
+        paymentDetails
+      );
+    }
   }
 
   createBooking(
@@ -401,7 +570,7 @@ class AmenityService {
     }
 
     const amenities = this.getAmenities(societyId);
-    const amenity = amenities.find(a => a.id === amenityId)!;
+    const amenity = amenities.find((a) => a.id === amenityId)!;
 
     const fee = paymentDetails?.bookingFee ?? amenity.bookingFee ?? 0;
 
@@ -421,7 +590,7 @@ class AmenityService {
       bookingFee: fee,
       paymentStatus: paymentDetails?.paymentStatus ?? (fee > 0 ? 'PENDING' : 'FREE'),
       paymentId: paymentDetails?.paymentId,
-      status: amenity.requiresApproval ? 'PENDING' : 'APPROVED',
+      status: amenity.requiresApproval ? 'PENDING' : 'CONFIRMED',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -436,24 +605,56 @@ class AmenityService {
     return newBooking;
   }
 
-  updateBookingStatus(societyId: string, bookingId: string, status: 'APPROVED' | 'REJECTED' | 'CANCELLED', adminNotes?: string): AmenityBooking {
+  updateBookingStatus(
+    societyId: string,
+    bookingId: string,
+    status: 'APPROVED' | 'REJECTED' | 'CANCELLED',
+    adminNotes?: string
+  ): AmenityBooking {
+    if (status === 'CANCELLED') {
+      fetch(`/api/amenities/bookings/${bookingId}/cancel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ societyId }),
+      }).catch(() => {});
+    }
+
     const raw = localStorage.getItem(BOOKINGS_STORAGE_KEY);
     let allBookings: AmenityBooking[] = raw ? JSON.parse(raw) : [];
 
-    const index = allBookings.findIndex(b => b.id === bookingId && b.societyId === societyId);
-    if (index === -1) throw new Error('Booking not found');
+    const index = allBookings.findIndex((b) => b.id === bookingId && b.societyId === societyId);
+    if (index !== -1) {
+      allBookings[index].status = status;
+      if (adminNotes) allBookings[index].adminNotes = adminNotes;
+      allBookings[index].updatedAt = new Date().toISOString();
+      localStorage.setItem(BOOKINGS_STORAGE_KEY, JSON.stringify(allBookings));
+    }
 
-    allBookings[index].status = status;
-    if (adminNotes) allBookings[index].adminNotes = adminNotes;
-    allBookings[index].updatedAt = new Date().toISOString();
+    amenityBookingRepository
+      .update(bookingId, {
+        status,
+        adminNotes,
+      })
+      .catch(() => {});
 
-    localStorage.setItem(BOOKINGS_STORAGE_KEY, JSON.stringify(allBookings));
-    amenityBookingRepository.update(bookingId, {
-      status,
-      adminNotes,
-    }).catch(() => {});
-
-    return allBookings[index];
+    return (
+      allBookings[index] || {
+        id: bookingId,
+        societyId,
+        amenityId: '',
+        amenityName: '',
+        residentId: '',
+        residentName: '',
+        flatNumber: '',
+        bookingDate: '',
+        startTime: '',
+        endTime: '',
+        guestCount: 1,
+        status,
+        createdAt: '',
+        updatedAt: '',
+      }
+    );
   }
 
   // --- COMMUNITY FEATURES (Announcements, Events, Polls, Posts) ---

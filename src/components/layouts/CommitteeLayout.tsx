@@ -1,19 +1,22 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { MobileAppShell } from '../mobile/MobileAppShell';
-import { LayoutDashboard, CheckSquare, BarChart3, FileText, Bell, CheckCircle, User } from 'lucide-react';
+import { LayoutDashboard, CheckSquare, BarChart3, FileText, Bell, Activity, BookOpen, User } from 'lucide-react';
 
 const DRAWER_NAV = [
   { label: 'Overview', path: '/committee', icon: LayoutDashboard },
   { label: 'Approvals', path: '/committee/approvals', icon: CheckSquare },
   { label: 'Financials', path: '/committee/financials', icon: BarChart3 },
   { label: 'Compliance', path: '/committee/compliance', icon: FileText },
-  { label: 'Society Health', path: '/committee/health', icon: CheckCircle },
+  { label: 'Society Health', path: '/committee/health', icon: Activity },
+  { label: 'Governance', path: '/committee/governance', icon: BookOpen },
+  { label: 'Reports', path: '/committee/reports', icon: BarChart3 },
+  { label: 'Profile', path: '/committee/profile', icon: User },
 ];
 
 const BOTTOM_NAV = [
   { label: 'Home', path: '/committee', icon: LayoutDashboard },
   { label: 'Approvals', path: '/committee/approvals', icon: CheckSquare },
-  { label: 'Reports', path: '/committee/financials', icon: BarChart3 },
+  { label: 'Reports', path: '/committee/reports', icon: BarChart3 },
   { label: 'Profile', path: '/committee/profile', icon: User },
 ];
 

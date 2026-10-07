@@ -84,6 +84,8 @@ const SEED_RESIDENTS: Resident[] = [
 const SEED_FAMILY_MEMBERS: FamilyMember[] = [
   { id: 'fam-1', societyId: 'soc-gvs', residentId: 'res-1', flatId: 'flat-1204', name: 'Pooja Joshi', relationship: 'SPOUSE', phone: '9820098205' },
   { id: 'fam-2', societyId: 'soc-gvs', residentId: 'res-1', flatId: 'flat-1204', name: 'Aarav Joshi', relationship: 'CHILD' },
+  { id: 'fam-3', societyId: 'soc-gvs', residentId: 'res-1', flatId: 'flat-1204', name: 'Rhea Joshi', relationship: 'CHILD' },
+  { id: 'fam-4', societyId: 'soc-gvs', residentId: 'res-2', flatId: 'flat-402', name: 'Ananya Roy Jr.', relationship: 'CHILD' },
 ];
 
 const SEED_VEHICLES: Vehicle[] = [

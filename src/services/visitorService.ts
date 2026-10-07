@@ -19,7 +19,7 @@ const STORAGE_KEYS = {
 
 const SEED_PASSES: SmartVisitorPass[] = [
   {
-    id: 'pass-101',
+    id: 'pass-8492',
     societyId: 'soc-gvs',
     residentId: 'res-1',
     residentName: 'Vikram Joshi',
@@ -29,8 +29,8 @@ const SEED_PASSES: SmartVisitorPass[] = [
     visitorPhone: '9820198201',
     category: 'GUEST',
     passLifecycle: 'ONE_TIME',
-    passCode: 'GVS-4092',
-    qrDataString: 'COMMUNITYOS:GVS-4092:SOC-GVS:FLAT-1204',
+    passCode: '8492',
+    qrDataString: 'COMMUNITYOS:8492:SOC-GVS:FLAT-1204',
     validFrom: new Date(Date.now() - 3600000).toISOString(),
     validUntil: new Date(Date.now() + 86400000).toISOString(),
     usageCount: 0,
@@ -42,31 +42,30 @@ const SEED_PASSES: SmartVisitorPass[] = [
     createdAt: new Date().toISOString(),
   },
   {
-    id: 'pass-102',
+    id: 'pass-9102',
     societyId: 'soc-gvs',
     residentId: 'res-1',
     residentName: 'Vikram Joshi',
     flatCode: 'B-1204',
     towerName: 'Tower B',
-    visitorName: 'Swiggy Delivery Executive',
+    visitorName: 'Zomato Food Delivery',
     visitorPhone: '9870011223',
     category: 'DELIVERY',
     passLifecycle: 'ONE_TIME',
-    passCode: 'GVS-7892',
-    qrDataString: 'COMMUNITYOS:GVS-7892:SOC-GVS:FLAT-1204',
+    passCode: '9102',
+    qrDataString: 'COMMUNITYOS:9102:SOC-GVS:FLAT-1204',
     validFrom: new Date().toISOString(),
     validUntil: new Date(Date.now() + 14400000).toISOString(),
-    usageCount: 1,
+    usageCount: 0,
     maxUsages: 1,
-    companyName: 'Swiggy',
-    deliveryVendor: 'Swiggy',
-    packageReferenceNumber: 'SWG-881029',
-    status: 'CHECKED_IN',
-    lifecycleState: 'INSIDE',
+    companyName: 'Zomato',
+    deliveryVendor: 'Zomato',
+    packageReferenceNumber: 'ZOM-881029',
+    status: 'APPROVED',
+    lifecycleState: 'EXPECTED',
     maxAllowedDurationMinutes: 30,
     gateName: 'Main Gate 1',
     gateOfficerName: 'Officer R. Singh',
-    checkedInAt: 'Today, 12:15 PM',
     createdAt: new Date().toISOString(),
   },
   {
@@ -258,7 +257,12 @@ export const visitorService = {
     const pass = passes.find(
       (p) =>
         p.societyId === societyId &&
-        (p.passCode.toUpperCase() === cleanCode || p.qrDataString.toUpperCase().includes(cleanCode))
+        (
+          p.passCode.toUpperCase() === cleanCode ||
+          p.passCode.toUpperCase().endsWith(cleanCode) ||
+          p.id.toUpperCase().endsWith(cleanCode) ||
+          p.qrDataString.toUpperCase().includes(cleanCode)
+        )
     );
 
     if (!pass) {

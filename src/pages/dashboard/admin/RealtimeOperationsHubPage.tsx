@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Wifi,
   Radio,
@@ -17,6 +18,8 @@ import {
   CheckCircle2,
   ListFilter,
   Send,
+  ArrowLeft,
+  Shield,
 } from 'lucide-react';
 import { realtimeService } from '../../../services/realtimeService';
 import { SocietyOperationsBoard } from '../../../domains/utilities';
@@ -24,6 +27,8 @@ import { useRealtimeStream } from '../../../hooks/useRealtime';
 import type { RealtimeTopic } from '../../../types/realtime';
 
 export const RealtimeOperationsHubPage: React.FC = () => {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<'STREAM' | 'DISPATCH' | 'UTILITY' | 'AUDIT'>('STREAM');
   const [topicFilter, setTopicFilter] = useState<RealtimeTopic | 'ALL'>('ALL');
   const { messages, status } = useRealtimeStream(topicFilter);
 
@@ -48,6 +53,7 @@ export const RealtimeOperationsHubPage: React.FC = () => {
         simSenderName
       );
       setLastDispatchedId(msg.id);
+      setActiveTab('STREAM');
     } catch (err: any) {
       alert(`Invalid JSON Payload: ${err.message}`);
     }
@@ -58,17 +64,17 @@ export const RealtimeOperationsHubPage: React.FC = () => {
       case 'VISITOR_ARRIVAL':
       case 'VISITOR_ENTRY':
       case 'VISITOR_EXIT':
-        return <UserCheck className="w-4 h-4 text-[#176B91]" />;
+        return <UserCheck className="w-4 h-4 text-[#083B56]" />;
       case 'VISITOR_APPROVAL':
         return <CheckCircle2 className="w-4 h-4 text-emerald-500" />;
       case 'QR_SCAN':
         return <QrCode className="w-4 h-4 text-[#083B56]" />;
       case 'PARKING_OCCUPANCY':
-        return <Car className="w-4 h-4 text-[#176B91]" />;
+        return <Car className="w-4 h-4 text-[#083B56]" />;
       case 'EMERGENCY_ALERTS':
-        return <ShieldAlert className="w-4 h-4 text-red-500" />;
+        return <ShieldAlert className="w-4 h-4 text-rose-500" />;
       case 'MAINTENANCE_STATUS':
-        return <Wrench className="w-4 h-4 text-rose-500" />;
+        return <Wrench className="w-4 h-4 text-amber-500" />;
       case 'PAYMENT_STATUS':
         return <DollarSign className="w-4 h-4 text-emerald-600" />;
       case 'DELIVERY_STATUS':
@@ -78,7 +84,7 @@ export const RealtimeOperationsHubPage: React.FC = () => {
       case 'AMENITY_AVAILABILITY':
         return <Sparkles className="w-4 h-4 text-[#083B56]" />;
       case 'NOTIFICATIONS':
-        return <Bell className="w-4 h-4 text-[#176B91]" />;
+        return <Bell className="w-4 h-4 text-[#083B56]" />;
       default:
         return <Activity className="w-4 h-4 text-slate-500" />;
     }
@@ -87,167 +93,224 @@ export const RealtimeOperationsHubPage: React.FC = () => {
   const getTopicBadgeStyle = (topic: RealtimeTopic) => {
     switch (topic) {
       case 'EMERGENCY_ALERTS':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300 font-bold animate-pulse';
+        return 'bg-rose-50 text-rose-700 border border-rose-200 font-extrabold animate-pulse';
       case 'VISITOR_ARRIVAL':
       case 'VISITOR_APPROVAL':
-        return 'bg-[#EAF6FC] text-[#083B56] dark:bg-[#083B56]/40 dark:text-[#83CBEA]';
+        return 'bg-[#EAF6FC] text-[#083B56] border border-[#DCE8EF]';
       case 'PAYMENT_STATUS':
-        return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300';
+        return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
       case 'PARKING_OCCUPANCY':
-        return 'bg-[#EAF6FC] text-[#083B56] dark:bg-[#083B56]/40 dark:text-[#83CBEA]';
+        return 'bg-[#F4FAFE] text-[#083B56] border border-[#DCE8EF]';
       default:
-        return 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300';
+        return 'bg-[#F7FBFE] text-[#083B56] border border-[#DCE8EF]';
     }
   };
 
   return (
-    <div className="space-y-6 pb-24 max-w-7xl mx-auto p-3 sm:p-6">
-      {/* Aarizo Gradient Header Banner */}
+    <div style={{ minHeight: '100vh', background: 'var(--aarizo-page, #F7FBFE)', paddingBottom: '2.5rem' }}>
+      {/* ── Subheader / Top Bar ── */}
       <div
         style={{
-          background: 'linear-gradient(135deg, var(--aarizo-navy, #083B56) 0%, #0D4767 100%)',
-          borderRadius: '16px',
-          padding: '1.5rem',
-          color: '#FFFFFF',
-          boxShadow: '0 4px 16px rgba(8, 59, 86, 0.08)',
+          background: '#ffffff',
+          borderBottom: '1px solid var(--aarizo-border, #DCE8EF)',
+          padding: '0.875rem 1rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '0.75rem',
+          boxShadow: '0 1px 3px rgba(8, 59, 86, 0.03)',
+          marginBottom: '1.25rem',
         }}
       >
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              background: 'var(--aarizo-card-blue, #F4FAFE)',
+              border: '1px solid var(--aarizo-border, #DCE8EF)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--aarizo-navy, #083B56)',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            <ArrowLeft size={18} />
+          </button>
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-emerald-300 text-xs font-semibold uppercase tracking-wider mb-2 border border-white/15">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Live Realtime Engine
-            </div>
-            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white">Real-Time Operations Hub</h1>
-            <p className="text-xs md:text-sm mt-1" style={{ color: 'var(--aarizo-sky, #83CBEA)' }}>
-              Zero-polling event streaming, multi-tab BroadcastChannel, &amp; 13 real-time operational topics
+            <h2 style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', margin: 0, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+              Live Operations
+              <span style={{ fontSize: '0.65rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '12px', background: '#ECFDF5', color: '#059669', border: '1px solid #A7F3D0', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                <Wifi size={11} /> LIVE CONNECTED
+              </span>
+            </h2>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--aarizo-text-secondary, #657785)', margin: 0, marginTop: 2 }}>
+              Green Valley Society · Live society activity log &amp; operational status
             </p>
-          </div>
-
-          {/* Connection Health Metrics */}
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="bg-white/10 px-4 py-2 rounded-xl border border-white/20 flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <Wifi className="w-4 h-4 text-emerald-400" />
-                <span className="text-xs font-bold text-white">SOCKET ACTIVE</span>
-              </div>
-              <span className="text-white/40">|</span>
-              <span className="text-xs font-mono text-emerald-300">{status.latencyMs}ms latency</span>
-            </div>
           </div>
         </div>
 
-        {/* Diagnostics Bar */}
-        <div className="mt-5 pt-4 border-t border-white/15 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-          <div>
-            <span style={{ color: 'var(--aarizo-sky, #83CBEA)' }}>Transport:</span>
-            <div className="font-bold text-white font-mono">{status.transportType}</div>
-          </div>
-          <div>
-            <span style={{ color: 'var(--aarizo-sky, #83CBEA)' }}>Active Listeners:</span>
-            <div className="font-bold text-emerald-300 font-mono">{status.activeListenersCount} Callbacks</div>
-          </div>
-          <div>
-            <span style={{ color: 'var(--aarizo-sky, #83CBEA)' }}>Total Streamed:</span>
-            <div className="font-bold text-sky-200 font-mono">{status.messagesReceivedTotal} Events</div>
-          </div>
-          <div>
-            <span style={{ color: 'var(--aarizo-sky, #83CBEA)' }}>Status:</span>
-            <div className="font-bold text-emerald-300 flex items-center gap-1">
-              <Radio className="w-3.5 h-3.5 animate-pulse" /> Subscribed & Ready
-            </div>
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+          <button
+            type="button"
+            onClick={() => setActiveTab('DISPATCH')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              padding: '0.45rem 0.875rem',
+              borderRadius: '10px',
+              background: 'var(--aarizo-coral, #F06543)',
+              color: '#ffffff',
+              fontWeight: 800,
+              fontSize: '0.75rem',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(240, 101, 67, 0.25)',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <Send size={14} /> Dispatch Event
+          </button>
         </div>
       </div>
 
-      {/* Main Stream Feed & Simulator Stack (2-Column on Desktop) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column (7 Cols on desktop): Live Event Stream Feed */}
-        <div className="lg:col-span-7 space-y-4">
-          <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <ListFilter className="w-4 h-4 text-slate-500" />
-              <span className="text-xs font-bold text-slate-900">Topic Filter:</span>
-            </div>
-
-            <select
-              value={topicFilter}
-              onChange={(e) => setTopicFilter(e.target.value as any)}
-              className="px-3 py-1.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#176B91]"
-            >
-              <option value="ALL">All 13 Topics</option>
-              <option value="VISITOR_ARRIVAL">VISITOR_ARRIVAL</option>
-              <option value="VISITOR_APPROVAL">VISITOR_APPROVAL</option>
-              <option value="QR_SCAN">QR_SCAN</option>
-              <option value="VISITOR_ENTRY">VISITOR_ENTRY</option>
-              <option value="VISITOR_EXIT">VISITOR_EXIT</option>
-              <option value="PARKING_OCCUPANCY">PARKING_OCCUPANCY</option>
-              <option value="EMERGENCY_ALERTS">EMERGENCY_ALERTS</option>
-              <option value="MAINTENANCE_STATUS">MAINTENANCE_STATUS</option>
-              <option value="PAYMENT_STATUS">PAYMENT_STATUS</option>
-              <option value="DELIVERY_STATUS">DELIVERY_STATUS</option>
-              <option value="WORKER_ENTRY_EXIT">WORKER_ENTRY_EXIT</option>
-              <option value="AMENITY_AVAILABILITY">AMENITY_AVAILABILITY</option>
-              <option value="NOTIFICATIONS">NOTIFICATIONS</option>
-            </select>
+      <div className="max-w-7xl mx-auto w-full px-3 sm:px-4 space-y-4">
+        {/* ── Diagnostics Summary Bar ── */}
+        <div
+          style={{
+            background: '#ffffff',
+            borderRadius: '14px',
+            border: '1px solid var(--aarizo-border, #DCE8EF)',
+            padding: '0.75rem 1rem',
+            boxShadow: '0 1px 4px rgba(8, 59, 86, 0.03)',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+            gap: '0.75rem',
+          }}
+        >
+          <div>
+            <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#657785', textTransform: 'uppercase' }}>Transport Engine</span>
+            <div style={{ fontSize: '0.8125rem', fontWeight: 800, color: '#083B56', fontFamily: 'monospace' }}>{status.transportType}</div>
           </div>
-
-          {/* Live Message Cards Stream */}
-          <div className="space-y-3 max-h-[700px] overflow-y-auto pr-1">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`bg-white p-4 rounded-2xl shadow-sm border transition-all duration-300 ${
-                  msg.id === lastDispatchedId
-                    ? 'border-emerald-500 shadow-lg shadow-emerald-500/10 ring-2 ring-emerald-500/20'
-                    : 'border-slate-200'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    {getTopicIcon(msg.topic)}
-                    <span className={`px-2.5 py-0.5 rounded-md text-[10px] uppercase font-mono ${getTopicBadgeStyle(msg.topic)}`}>
-                      {msg.topic}
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-slate-400 font-mono">
-                    {new Date(msg.timestamp).toLocaleTimeString()}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between text-xs text-slate-600 mb-2">
-                  <span>
-                    Sender: <strong className="text-slate-900">{msg.senderName}</strong> ({msg.senderRole})
-                  </span>
-                  <span className="font-mono text-[10px] text-slate-500">Society: {msg.societyId}</span>
-                </div>
-
-                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-[11px] text-emerald-400 overflow-x-auto">
-                  <pre>{JSON.stringify(msg.payload, null, 2)}</pre>
-                </div>
-              </div>
-            ))}
+          <div>
+            <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#657785', textTransform: 'uppercase' }}>Active Callbacks</span>
+            <div style={{ fontSize: '0.8125rem', fontWeight: 800, color: '#059669', fontFamily: 'monospace' }}>{status.activeListenersCount} Listeners</div>
+          </div>
+          <div>
+            <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#657785', textTransform: 'uppercase' }}>Total Streamed</span>
+            <div style={{ fontSize: '0.8125rem', fontWeight: 800, color: '#083B56', fontFamily: 'monospace' }}>{status.messagesReceivedTotal} Events</div>
+          </div>
+          <div>
+            <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#657785', textTransform: 'uppercase' }}>Channel Status</span>
+            <div style={{ fontSize: '0.8125rem', fontWeight: 800, color: '#059669', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              <Radio size={13} className="animate-pulse" /> Subscribed
+            </div>
           </div>
         </div>
 
-        {/* Right Column (5 Cols on desktop): Broadcast Event Simulator */}
-        <div className="lg:col-span-5 bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4 h-fit sticky top-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-bold text-slate-900 flex items-center gap-2 text-sm sm:text-base">
-              <Send className="w-4 h-4 text-[#176B91]" /> Dispatch Real-Time Event
-            </h3>
-            <span className="px-2.5 py-0.5 rounded-full bg-sky-50 text-[#176B91] border border-sky-100 text-[10px] font-bold">
-              Simulator Console
-            </span>
-          </div>
-
-          <form onSubmit={handleBroadcastEvent} className="space-y-3 text-xs">
-            <div>
-              <label className="block text-slate-700 font-semibold mb-1">Target Operational Topic (13)</label>
-              <select
-                value={simTopic}
-                onChange={(e) => setSimTopic(e.target.value as any)}
-                className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#176B91]"
+        {/* ── Sub-Tab Navigation Bar - Integrated Segmented Control Container ── */}
+        <div
+          style={{
+            background: '#ffffff',
+            border: '1px solid var(--aarizo-border, #DCE8EF)',
+            borderRadius: '16px',
+            padding: '0.35rem',
+            display: 'flex',
+            gap: '0.35rem',
+            overflowX: 'auto',
+            scrollbarWidth: 'none',
+            boxShadow: '0 2px 6px rgba(8, 59, 86, 0.03)',
+          }}
+        >
+          {[
+            { key: 'STREAM', label: `Live Event Stream (${messages.length})`, icon: Activity },
+            { key: 'DISPATCH', label: 'Dispatch Event Simulator', icon: Send },
+            { key: 'UTILITY', label: 'Society Utility Health Board', icon: Radio },
+            { key: 'AUDIT', label: 'Security Audit & Sessions', icon: Shield },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => {
+                  if (tab.key === 'AUDIT') {
+                    navigate('/admin/security-audit');
+                  } else {
+                    setActiveTab(tab.key as any);
+                  }
+                }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.45rem',
+                  padding: '0.55rem 1rem',
+                  borderRadius: '12px',
+                  border: 'none',
+                  background: isActive ? 'var(--aarizo-coral, #F06543)' : 'transparent',
+                  color: isActive ? '#FFFFFF' : 'var(--aarizo-navy, #083B56)',
+                  fontWeight: isActive ? 800 : 700,
+                  fontSize: '0.78125rem',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.15s ease',
+                  boxShadow: isActive ? '0 3px 10px rgba(240, 101, 67, 0.28)' : 'none',
+                  flexShrink: 0,
+                }}
               >
+                <Icon size={15} color={isActive ? '#FFFFFF' : 'var(--aarizo-navy, #083B56)'} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ── TAB 1: LIVE EVENT STREAM ── */}
+        {activeTab === 'STREAM' && (
+          <div className="space-y-4">
+            {/* Filter Card */}
+            <div
+              style={{
+                background: '#ffffff',
+                borderRadius: '14px',
+                border: '1px solid #DCE8EF',
+                padding: '0.75rem 1rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '0.75rem',
+                boxShadow: '0 1px 4px rgba(8, 59, 86, 0.03)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <ListFilter size={16} color="#083B56" />
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#083B56' }}>Topic Filter:</span>
+              </div>
+
+              <select
+                value={topicFilter}
+                onChange={(e) => setTopicFilter(e.target.value as any)}
+                style={{
+                  padding: '0.4rem 0.75rem',
+                  borderRadius: '10px',
+                  border: '1px solid #DCE8EF',
+                  background: '#F4FAFE',
+                  color: '#083B56',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  outline: 'none',
+                }}
+              >
+                <option value="ALL">All 13 Topics</option>
                 <option value="VISITOR_ARRIVAL">VISITOR_ARRIVAL</option>
                 <option value="VISITOR_APPROVAL">VISITOR_APPROVAL</option>
                 <option value="QR_SCAN">QR_SCAN</option>
@@ -264,54 +327,230 @@ export const RealtimeOperationsHubPage: React.FC = () => {
               </select>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {/* Live Event Cards List */}
+            <div className="space-y-3">
+              {messages.length === 0 ? (
+                <div
+                  style={{
+                    background: '#ffffff',
+                    borderRadius: '16px',
+                    border: '1px solid #DCE8EF',
+                    padding: '2.5rem',
+                    textAlign: 'center',
+                    color: '#657785',
+                  }}
+                >
+                  <Activity size={32} style={{ margin: '0 auto 0.5rem auto', color: '#083B56', opacity: 0.5 }} />
+                  <div style={{ fontWeight: 800, color: '#083B56' }}>No events logged yet</div>
+                  <div style={{ fontSize: '0.75rem', marginTop: 4 }}>Dispatch a test event using the simulator to view real-time streaming payloads.</div>
+                </div>
+              ) : (
+                messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    style={{
+                      background: '#ffffff',
+                      borderRadius: '16px',
+                      border: msg.id === lastDispatchedId ? '2px solid #059669' : '1px solid #DCE8EF',
+                      padding: '1rem 1.25rem',
+                      boxShadow: msg.id === lastDispatchedId ? '0 4px 16px rgba(5, 150, 105, 0.15)' : '0 2px 6px rgba(8, 59, 86, 0.03)',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        {getTopicIcon(msg.topic)}
+                        <span className={`px-2.5 py-0.5 rounded-md text-[10px] uppercase font-mono ${getTopicBadgeStyle(msg.topic)}`}>
+                          {msg.topic}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: '0.6875rem', color: '#657785', fontFamily: 'monospace' }}>
+                        {new Date(msg.timestamp).toLocaleTimeString()}
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem', color: '#657785', marginBottom: '0.5rem' }}>
+                      <span>
+                        Sender: <strong style={{ color: '#083B56' }}>{msg.senderName}</strong> ({msg.senderRole})
+                      </span>
+                      <span style={{ fontFamily: 'monospace', fontSize: '0.6875rem' }}>Society: {msg.societyId}</span>
+                    </div>
+
+                    {/* Code block with clean high-contrast navy background */}
+                    <div
+                      style={{
+                        background: '#083B56',
+                        borderRadius: '12px',
+                        padding: '0.75rem 1rem',
+                        fontFamily: 'monospace',
+                        fontSize: '0.75rem',
+                        color: '#83CBEA',
+                        overflowX: 'auto',
+                        border: '1px solid #0D4767',
+                      }}
+                    >
+                      <pre style={{ margin: 0 }}>{JSON.stringify(msg.payload, null, 2)}</pre>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB 2: DISPATCH EVENT SIMULATOR ── */}
+        {activeTab === 'DISPATCH' && (
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '16px',
+              border: '1px solid #DCE8EF',
+              padding: '1.5rem',
+              boxShadow: '0 2px 8px rgba(8, 59, 86, 0.04)',
+              maxWidth: '40rem',
+              margin: '0 auto',
+            }}
+            className="space-y-5"
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <label className="block text-slate-700 font-semibold mb-1">Sender Name</label>
-                <input
-                  type="text"
-                  value={simSenderName}
-                  onChange={(e) => setSimSenderName(e.target.value)}
-                  className="w-full p-2 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#176B91]"
-                />
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#083B56', margin: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Send size={18} color="#F06543" /> Dispatch Real-Time Operational Event
+                </h3>
+                <p style={{ fontSize: '0.75rem', color: '#657785', margin: 0, marginTop: 2 }}>
+                  Broadcast payloads across multi-tab BroadcastChannel topic listeners instantaneously.
+                </p>
               </div>
-              <div>
-                <label className="block text-slate-700 font-semibold mb-1">Sender Role</label>
-                <input
-                  type="text"
-                  value={simSenderRole}
-                  onChange={(e) => setSimSenderRole(e.target.value)}
-                  className="w-full p-2 rounded-xl border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#176B91]"
-                />
-              </div>
+              <span style={{ fontSize: '0.65rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '12px', background: '#F4FAFE', color: '#083B56', border: '1px solid #DCE8EF' }}>
+                Simulator Console
+              </span>
             </div>
 
-            <div>
-              <label className="block text-slate-700 font-semibold mb-1">Event JSON Payload</label>
-              <textarea
-                value={simPayloadJson}
-                onChange={(e) => setSimPayloadJson(e.target.value)}
-                rows={6}
-                className="w-full font-mono text-xs p-3 rounded-xl border border-slate-300 bg-slate-950 text-emerald-400 focus:outline-none"
-              ></textarea>
-            </div>
+            <form onSubmit={handleBroadcastEvent} className="space-y-4">
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#083B56', marginBottom: 4 }}>Target Operational Topic (13)</label>
+                <select
+                  value={simTopic}
+                  onChange={(e) => setSimTopic(e.target.value as any)}
+                  style={{
+                    width: '100%',
+                    padding: '0.6rem 0.75rem',
+                    borderRadius: '10px',
+                    border: '1px solid #DCE8EF',
+                    background: '#ffffff',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    color: '#083B56',
+                  }}
+                >
+                  <option value="VISITOR_ARRIVAL">VISITOR_ARRIVAL</option>
+                  <option value="VISITOR_APPROVAL">VISITOR_APPROVAL</option>
+                  <option value="QR_SCAN">QR_SCAN</option>
+                  <option value="VISITOR_ENTRY">VISITOR_ENTRY</option>
+                  <option value="VISITOR_EXIT">VISITOR_EXIT</option>
+                  <option value="PARKING_OCCUPANCY">PARKING_OCCUPANCY</option>
+                  <option value="EMERGENCY_ALERTS">EMERGENCY_ALERTS</option>
+                  <option value="MAINTENANCE_STATUS">MAINTENANCE_STATUS</option>
+                  <option value="PAYMENT_STATUS">PAYMENT_STATUS</option>
+                  <option value="DELIVERY_STATUS">DELIVERY_STATUS</option>
+                  <option value="WORKER_ENTRY_EXIT">WORKER_ENTRY_EXIT</option>
+                  <option value="AMENITY_AVAILABILITY">AMENITY_AVAILABILITY</option>
+                  <option value="NOTIFICATIONS">NOTIFICATIONS</option>
+                </select>
+              </div>
 
-            <button
-              type="submit"
-              style={{ background: 'var(--aarizo-blue, #176B91)' }}
-              className="w-full py-2.5 text-white font-bold rounded-xl shadow-md hover:opacity-95 transition flex items-center justify-center gap-2 text-xs sm:text-sm"
-            >
-              <Play className="w-4 h-4" /> Publish Real-Time Event Across Tabs
-            </button>
-          </form>
-        </div>
-      </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#083B56', marginBottom: 4 }}>Sender Name</label>
+                  <input
+                    type="text"
+                    value={simSenderName}
+                    onChange={(e) => setSimSenderName(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '0.55rem 0.75rem',
+                      borderRadius: '10px',
+                      border: '1px solid #DCE8EF',
+                      background: '#ffffff',
+                      fontSize: '0.75rem',
+                      color: '#083B56',
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#083B56', marginBottom: 4 }}>Sender Role</label>
+                  <input
+                    type="text"
+                    value={simSenderRole}
+                    onChange={(e) => setSimSenderRole(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '0.55rem 0.75rem',
+                      borderRadius: '10px',
+                      border: '1px solid #DCE8EF',
+                      background: '#ffffff',
+                      fontSize: '0.75rem',
+                      color: '#083B56',
+                    }}
+                  />
+                </div>
+              </div>
 
-      <div className="pt-6 border-t border-slate-200">
-        <SocietyOperationsBoard />
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#083B56', marginBottom: 4 }}>Event JSON Payload</label>
+                <textarea
+                  value={simPayloadJson}
+                  onChange={(e) => setSimPayloadJson(e.target.value)}
+                  rows={6}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '12px',
+                    border: '1px solid #0D4767',
+                    background: '#083B56',
+                    color: '#83CBEA',
+                    fontFamily: 'monospace',
+                    fontSize: '0.75rem',
+                    outline: 'none',
+                  }}
+                ></textarea>
+              </div>
+
+              <button
+                type="submit"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem 1rem',
+                  borderRadius: '12px',
+                  background: 'var(--aarizo-coral, #F06543)',
+                  color: '#ffffff',
+                  fontWeight: 800,
+                  fontSize: '0.8125rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 3px 10px rgba(240, 101, 67, 0.28)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <Play size={16} /> Publish Real-Time Event Across Tabs
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* ── TAB 3: SOCIETY UTILITY BOARD ── */}
+        {activeTab === 'UTILITY' && (
+          <div className="mt-2">
+            <SocietyOperationsBoard hideHeader />
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
 export default RealtimeOperationsHubPage;
-

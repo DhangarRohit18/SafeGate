@@ -41,27 +41,30 @@ export const GuardShell: React.FC = () => {
     try {
       const passes = await apiClient.getVisitorPasses();
       if (passes && Array.isArray(passes) && passes.length > 0) {
-        const mapped: GuardVisitor[] = passes.map((p: any) => ({
-          id: p.id,
-          passcode: (p.id.slice(-4) || '8492'),
-          name: p.visitorName,
-          phone: p.phone,
-          visitorType: (p.passType?.toLowerCase() || 'guest') as any,
-          visitorTypeLabel: `${p.passType || 'Guest'} Visitor`,
-          residentName: 'Vikram Joshi',
-          flatCode: 'Flat 1204',
-          tower: 'Tower B',
-          societyName: 'Green Valley Society',
-          vehicleNumber: p.vehicleNumber || undefined,
-          expectedDate: 'Today',
-          expectedTimeSlot: new Date(p.validFrom).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          status: p.status === 'CHECKED_IN' ? 'checked_in' : (p.status === 'APPROVED' ? 'approved' : 'expected'),
-          verificationStatus: 'valid',
-          createdAt: new Date(p.createdAt).toLocaleDateString(),
-          gateName: 'Gate #1 Main Entrance',
-          gateOfficer: 'Officer Ramesh Shinde',
-          notes: p.purpose || 'Visit',
-        }));
+        const mapped: GuardVisitor[] = passes.map((p: any) => {
+          const code = p.passCode || (p.id ? p.id.replace(/^pass-/, '') : '8492');
+          return {
+            id: p.id,
+            passcode: code,
+            name: p.visitorName,
+            phone: p.phone,
+            visitorType: (p.passType?.toLowerCase() || 'guest') as any,
+            visitorTypeLabel: `${p.passType || 'Guest'} Visitor`,
+            residentName: p.residentName || 'Vikram Joshi',
+            flatCode: p.flatCode || 'Flat 1204',
+            tower: p.towerName || 'Tower B',
+            societyName: 'Green Valley Society',
+            vehicleNumber: p.vehicleNumber || undefined,
+            expectedDate: 'Today',
+            expectedTimeSlot: new Date(p.validFrom || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            status: p.status === 'CHECKED_IN' ? 'checked_in' : (p.status === 'EXPIRED' ? 'expired' : p.status === 'CANCELLED' ? 'cancelled' : p.status === 'APPROVED' ? 'approved' : 'expected'),
+            verificationStatus: p.status === 'EXPIRED' ? 'expired' : p.status === 'CANCELLED' ? 'cancelled' : 'valid',
+            createdAt: new Date(p.createdAt || Date.now()).toLocaleDateString(),
+            gateName: 'Gate #1 Main Entrance',
+            gateOfficer: 'Officer Ramesh Shinde',
+            notes: p.purpose || 'Visit',
+          };
+        });
         setVisitors(mapped);
       }
     } catch (err) {

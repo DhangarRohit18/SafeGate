@@ -104,13 +104,13 @@
 
 /* Operational Hero & Stat Cards */
 .guard-hero-card {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  color: #ffffff;
+  background: #ffffff;
+  color: var(--aarizo-navy, #083B56);
   border-radius: 16px;
   padding: 1.25rem;
   margin-bottom: 1.25rem;
-  border: 1px solid #334155;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+  border: 1px solid var(--aarizo-border, #DCE8EF);
+  box-shadow: 0 2px 8px rgba(8, 59, 86, 0.04);
 }
 
 .guard-stats-row {
@@ -122,31 +122,36 @@
 
 .guard-stat-box {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 0.75rem 0.5rem;
+  border: 1px solid var(--aarizo-border, #DCE8EF);
+  border-radius: 14px;
+  padding: 0.875rem 0.5rem;
   text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 2px 6px rgba(8, 59, 86, 0.03);
+  transition: all 0.15s ease;
+}
+
+.guard-stat-box:hover {
+  border-color: var(--aarizo-coral, #F06543);
 }
 
 .stat-box-num {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: #0f172a;
+  font-size: 1.375rem;
+  font-weight: 900;
+  color: var(--aarizo-navy, #083B56);
   line-height: 1.1;
   margin-bottom: 0.2rem;
 }
 
 .stat-box-label {
   font-size: 0.6875rem;
-  font-weight: 600;
-  color: #64748b;
+  font-weight: 700;
+  color: var(--aarizo-text-secondary, #657785);
   line-height: 1.2;
 }
 
 /* Prominent Pass Verification Bar */
 .verify-hero-cta {
-  background: linear-gradient(135deg, var(--aarizo-navy, #083B56) 0%, #176B91 100%);
+  background: var(--aarizo-coral, #F06543);
   color: #ffffff;
   border: none;
   border-radius: 16px;
@@ -156,14 +161,14 @@
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(8, 59, 86, 0.25);
+  box-shadow: 0 3px 12px rgba(240, 101, 67, 0.28);
   margin-bottom: 1.25rem;
   transition: all 0.2s ease;
 }
 
 .verify-hero-cta:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 6px 18px rgba(240, 101, 67, 0.35);
 }
 
 .verify-cta-left {
@@ -177,8 +182,7 @@
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(4px);
+  background: rgba(255, 255, 255, 0.22);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -190,11 +194,12 @@
   font-weight: 800;
   margin: 0 0 0.15rem 0;
   line-height: 1.2;
+  color: #ffffff;
 }
 
 .verify-cta-sub {
   font-size: 0.78125rem;
-  color: #bfdbfe;
+  color: rgba(255, 255, 255, 0.9);
   margin: 0;
 }
 

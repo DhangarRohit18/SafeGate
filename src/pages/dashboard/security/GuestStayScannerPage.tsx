@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { guestStayService } from '../../../services/guestStayService';
 import { realtimeService } from '../../../services/realtimeService';
@@ -8,15 +9,22 @@ import {
   QrCode,
   CheckCircle2,
   XCircle,
-  UserCheck
+  UserCheck,
+  ArrowLeft,
+  Camera,
+  Calendar,
 } from 'lucide-react';
+import { Modal } from '../../../components/ui/Modal';
+import { QRScanner } from '../../../components/ui/QRScanner';
 
 export const GuestStayScannerPage: React.FC = () => {
+  const navigate = useNavigate();
   const { currentUser } = useAuth();
   const societyId = (currentUser as any)?.societyId || 'soc-gvs';
 
   const [qrInput, setQrInput] = useState('');
   const [activeReservations, setActiveReservations] = useState<GuestReservation[]>([]);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   // Scan Validation Result
   const [scanResult, setScanResult] = useState<{
@@ -60,139 +68,283 @@ export const GuestStayScannerPage: React.FC = () => {
     loadData();
   };
 
+  const checkedInCount = activeReservations.filter(r => r.status === 'CHECKED_IN').length;
+  const bookedCount = activeReservations.filter(r => r.status === 'PENDING_APPROVAL' || r.status === 'CHECKED_IN').length;
+
   return (
-    <div style={{ background: 'var(--aarizo-page, #F7FBFE)', minHeight: '100%' }}>
-      <div className="max-w-7xl mx-auto p-4 md:p-6 pb-24 space-y-6">
-        {/* Aarizo Gradient Header */}
-        <div
-          className="p-5 md:p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-white"
-          style={{ background: 'linear-gradient(135deg, var(--aarizo-navy, #083B56) 0%, #0D4767 100%)' }}
-        >
-          <div>
-            <div className="flex items-center gap-2.5">
-              <Hotel className="w-6 h-6" style={{ color: 'var(--aarizo-sky, #83CBEA)' }} />
-              <h1 className="text-xl md:text-2xl font-extrabold text-white">Guest Room Gate Scanner</h1>
+    <div style={{ background: 'var(--aarizo-page, #F7FBFE)', minHeight: '100vh', paddingBottom: '5rem', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+      {/* Subheader */}
+      <div style={{ background: '#ffffff', borderBottom: '1px solid #DCE8EF', padding: '0.85rem 1.25rem' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <button
+              onClick={() => navigate(-1)}
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                background: '#F4FAFE',
+                border: '1px solid #DCE8EF',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#083B56',
+                cursor: 'pointer',
+              }}
+            >
+              <ArrowLeft size={18} />
+            </button>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <h1 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#083B56' }}>
+                  Guest Stay Terminal Scanner
+                </h1>
+                <span
+                  style={{
+                    background: '#ECFDF5',
+                    border: '1px solid #A7F3D0',
+                    color: '#059669',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                >
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981', display: 'inline-block' }}></span>
+                  Gate Terminal Active
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#52788D' }}>
+                Verify Guest Room QR passes, auto check-in pre-booked visitors, and issue access cards
+              </p>
             </div>
-            <p className="text-xs md:text-sm mt-1" style={{ color: 'var(--aarizo-sky, #83CBEA)' }}>
-              Scan and verify Guest Room QR passes, auto check-in pre-booked visitors, and issue access cards.
-            </p>
           </div>
-          <span style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', padding: '0.35rem 0.75rem', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 700 }}>
-            Gate Terminal
-          </span>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: '1100px', margin: '1.25rem auto', padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        {/* Metrics Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
+          <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '12px', padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#F4FAFE', border: '1px solid #DCE8EF', color: '#083B56', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Hotel size={20} />
+            </div>
+            <div>
+              <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#52788D', textTransform: 'uppercase' }}>Total Reservations</div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#083B56' }}>{activeReservations.length}</div>
+            </div>
+          </div>
+
+          <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '12px', padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#ECFDF5', border: '1px solid #6EE7B7', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <UserCheck size={20} />
+            </div>
+            <div>
+              <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#52788D', textTransform: 'uppercase' }}>Currently Checked-In</div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#059669' }}>{checkedInCount}</div>
+            </div>
+          </div>
+
+          <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '12px', padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#FFFBEB', border: '1px solid #FDE68A', color: '#D97706', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Calendar size={20} />
+            </div>
+            <div>
+              <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#52788D', textTransform: 'uppercase' }}>Upcoming Booked</div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#D97706' }}>{bookedCount}</div>
+            </div>
+          </div>
         </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Scanner Terminal */}
-        <div className="flex flex-col gap-6">
-          {/* QR Terminal Box */}
-          <div className="dark-hero-banner bg-slate-900 text-white p-4 md:p-6 rounded-2xl shadow-xl flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold flex items-center gap-2">
-                <QrCode className="w-5 h-5 text-[#83CBEA]" /> Guest Stay Terminal Scanner
-              </h2>
-              <span className="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-semibold rounded-full border border-emerald-500/30">
-                Active Gate Terminal
-              </span>
+        {/* Mobile Responsive Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem' }}>
+          {/* Left Column: QR Verification Input */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '16px', padding: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                <h2 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#083B56', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <QrCode size={18} color="#F06543" /> Guest QR Pass Verification
+                </h2>
+                <button
+                  onClick={() => setIsScannerOpen(true)}
+                  style={{
+                    padding: '0.45rem 0.85rem',
+                    background: '#F4FAFE',
+                    border: '1px solid #DCE8EF',
+                    borderRadius: '8px',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    color: '#083B56',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                >
+                  <Camera size={14} color="#F06543" /> Camera Scan
+                </button>
+              </div>
+              <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.82rem', color: '#52788D' }}>
+                Scan QR code from visitor's pass or enter booking pass token below.
+              </p>
+
+              <form
+                onSubmit={e => {
+                  e.preventDefault();
+                  handleScanQR(qrInput);
+                }}
+                style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.25rem' }}
+              >
+                <input
+                  type="text"
+                  placeholder="e.g. GUEST-QR-8801-ROYAL"
+                  value={qrInput}
+                  onChange={e => setQrInput(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem 1rem',
+                    borderRadius: '10px',
+                    border: '1px solid #CBD5E1',
+                    fontSize: '0.88rem',
+                    fontFamily: 'monospace',
+                    color: '#083B56',
+                    fontWeight: 600,
+                    outline: 'none',
+                    background: '#F8FAFC',
+                    boxSizing: 'border-box',
+                  }}
+                />
+                <button
+                  type="submit"
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    background: '#F06543',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '10px',
+                    fontWeight: 700,
+                    fontSize: '0.88rem',
+                    cursor: 'pointer',
+                    boxShadow: '0 3px 12px rgba(240, 101, 67, 0.28)',
+                  }}
+                >
+                  Verify &amp; Check In Guest
+                </button>
+              </form>
+
+              {/* Quick Demo Test Passes */}
+              {activeReservations.length > 0 && (
+                <div style={{ paddingTop: '0.85rem', borderTop: '1px solid #E2E8F0' }}>
+                  <span style={{ fontSize: '0.78rem', color: '#52788D', fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>
+                    Active Guest Passes (Tap to test scan):
+                  </span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {activeReservations.slice(0, 4).map(resv => (
+                      <button
+                        key={resv.id}
+                        onClick={() => handleScanQR(resv.qrCode)}
+                        style={{
+                          padding: '0.55rem 0.85rem',
+                          background: '#F4FAFE',
+                          border: '1px solid #DCE8EF',
+                          borderRadius: '8px',
+                          fontSize: '0.8rem',
+                          color: '#083B56',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          textAlign: 'left',
+                        }}
+                      >
+                        <span>{resv.primaryGuestName} (Room #{resv.roomNumber})</span>
+                        <span style={{ fontSize: '0.72rem', color: '#52788D', fontFamily: 'monospace' }}>{resv.qrCode}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            <p className="text-xs text-slate-400">
-              Scan barcode/QR code from visitor's mobile or input booking pass token.
-            </p>
-
-            <form
-              onSubmit={e => {
-                e.preventDefault();
-                handleScanQR(qrInput);
-              }}
-              className="flex items-center gap-2"
-            >
-              <input
-                type="text"
-                placeholder="Scan or Enter Guest QR Code (e.g. GUEST-QR-8801-ROYAL)"
-                value={qrInput}
-                onChange={e => setQrInput(e.target.value)}
-                className="flex-1 px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#83CBEA] font-mono"
-              />
-              <button
-                type="submit"
-                style={{ background: 'var(--aarizo-blue, #176B91)', color: '#FFFFFF' }}
-                className="px-5 py-3 text-white text-sm font-bold rounded-xl transition-all shadow flex items-center gap-1.5 hover:opacity-95"
+            {/* Validation Result Box */}
+            {scanResult && (
+              <div
+                style={{
+                  padding: '1.25rem',
+                  borderRadius: '16px',
+                  border: '1px solid',
+                  borderColor: scanResult.allowed ? '#A7F3D0' : '#FCA5A5',
+                  background: scanResult.allowed ? '#ECFDF5' : '#FEF2F2',
+                  color: scanResult.allowed ? '#065F46' : '#991B1B',
+                }}
               >
-                Scan Pass
-              </button>
-            </form>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.85rem' }}>
+                  {scanResult.allowed ? (
+                    <CheckCircle2 size={32} color="#059669" style={{ flexShrink: 0 }} />
+                  ) : (
+                    <XCircle size={32} color="#DC2626" style={{ flexShrink: 0 }} />
+                  )}
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.1rem', fontWeight: 800 }}>
+                      {scanResult.allowed ? 'VERIFICATION SUCCESSFUL' : 'ENTRY DENIED / BLOCKED'}
+                    </h3>
+                    <p style={{ margin: 0, fontSize: '0.88rem', fontWeight: 600 }}>{scanResult.message}</p>
 
-            {/* Quick Demo Passes */}
-            {activeReservations.length > 0 && (
-              <div className="pt-2">
-                <span className="text-[11px] text-slate-400 font-medium block mb-1.5">Active Guest QR Passes (Click to test check-in/out):</span>
-                <div className="flex flex-wrap gap-2">
-                  {activeReservations.slice(0, 4).map(resv => (
-                    <button
-                      key={resv.id}
-                      onClick={() => handleScanQR(resv.qrCode)}
-                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs text-[#83CBEA] font-mono"
-                    >
-                      {resv.primaryGuestName} (Room {resv.roomNumber})
-                    </button>
-                  ))}
+                    {scanResult.reservation && (
+                      <div style={{ marginTop: '0.85rem', padding: '0.85rem', background: '#ffffff', borderRadius: '10px', border: '1px solid #DCE8EF', fontSize: '0.82rem', color: '#083B56', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                        <div><strong>Primary Guest:</strong> {scanResult.reservation.primaryGuestName} ({scanResult.reservation.primaryGuestPhone})</div>
+                        <div><strong>ID Proof:</strong> {scanResult.reservation.idProofType} ({scanResult.reservation.idProofNumber})</div>
+                        <div><strong>Assigned Suite:</strong> {scanResult.reservation.roomName} (Room #{scanResult.reservation.roomNumber})</div>
+                        <div><strong>Resident Host:</strong> {scanResult.reservation.residentName} (Flat {scanResult.reservation.flatNumber})</div>
+                        <div><strong>Stay Dates:</strong> {scanResult.reservation.checkInDate} to {scanResult.reservation.checkOutDate}</div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Validation Result Box */}
-          {scanResult && (
-            <div className={`p-6 rounded-2xl border shadow-lg ${
-              scanResult.allowed ? 'bg-emerald-50 border-emerald-300 text-emerald-900' : 'bg-rose-50 border-rose-300 text-rose-900'
-            }`}>
-              <div className="flex items-start gap-4">
-                {scanResult.allowed ? (
-                  <CheckCircle2 className="w-10 h-10 text-emerald-600 shrink-0" />
-                ) : (
-                  <XCircle className="w-10 h-10 text-rose-600 shrink-0" />
-                )}
-                <div className="space-y-2 flex-1">
-                  <h3 className="text-xl font-bold">
-                    {scanResult.allowed ? 'VERIFICATION SUCCESSFUL' : 'ENTRY DENIED / BLOCKED'}
-                  </h3>
-                  <p className="text-sm font-medium">{scanResult.message}</p>
-
-                  {scanResult.reservation && (
-                    <div className="mt-3 p-4 bg-white/80 rounded-xl border text-xs text-slate-800 space-y-1">
-                      <p><strong>Primary Guest:</strong> {scanResult.reservation.primaryGuestName} ({scanResult.reservation.primaryGuestPhone})</p>
-                      <p><strong>ID Proof:</strong> {scanResult.reservation.idProofType} ({scanResult.reservation.idProofNumber})</p>
-                      <p><strong>Assigned Suite:</strong> {scanResult.reservation.roomName} (Room #{scanResult.reservation.roomNumber})</p>
-                      <p><strong>Resident Host:</strong> {scanResult.reservation.residentName} (Flat {scanResult.reservation.flatNumber})</p>
-                      <p><strong>Stay Dates:</strong> {scanResult.reservation.checkInDate} to {scanResult.reservation.checkOutDate}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Right Column: Active Guest Stays */}
-        <div className="flex flex-col gap-6">
-          <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col gap-4">
-            <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
-              <UserCheck className="w-4 h-4 text-[#083B56]" /> Currently Checked-In Guest Stays
+          {/* Right Column: Currently Checked-In Guest Stays */}
+          <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '16px', padding: '1.25rem' }}>
+            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 800, color: '#083B56', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <UserCheck size={16} /> Currently Checked-In Guest Stays
             </h3>
 
-            <div className="flex flex-col gap-3 max-h-[400px] overflow-y-auto">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {activeReservations.filter(r => r.status === 'CHECKED_IN').length === 0 ? (
-                <p className="text-xs text-slate-400 text-center py-6">No guests currently checked-in</p>
+                <div style={{ padding: '2.5rem 1rem', textAlign: 'center', color: '#52788D', fontSize: '0.85rem' }}>
+                  <Hotel size={36} color="#CBD5E1" style={{ marginBottom: '0.5rem' }} />
+                  <div style={{ fontWeight: 800, color: '#083B56' }}>No Guest Stays Checked In</div>
+                  <div style={{ fontSize: '0.78rem', marginTop: '2px' }}>Check in a guest above to log room entry.</div>
+                </div>
               ) : (
                 activeReservations.filter(r => r.status === 'CHECKED_IN').map(resv => (
-                  <div key={resv.id} className="p-3 bg-[#EAF6FC] border border-[#DCE8EF] rounded-xl text-xs space-y-1">
-                    <div className="flex items-center justify-between font-bold text-slate-900">
-                      <span>Room #{resv.roomNumber} — {resv.primaryGuestName}</span>
-                      <span className="px-2 py-0.5 bg-[#083B56] text-white text-[10px] rounded-full">CHECKED IN</span>
+                  <div
+                    key={resv.id}
+                    style={{
+                      padding: '0.85rem',
+                      background: '#F8FAFC',
+                      border: '1px solid #E2E8F0',
+                      borderRadius: '10px',
+                      fontSize: '0.82rem',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                      <span style={{ fontWeight: 800, color: '#083B56', fontSize: '0.9rem' }}>
+                        Room #{resv.roomNumber} — {resv.primaryGuestName}
+                      </span>
+                      <span style={{ padding: '2px 8px', background: '#ECFDF5', color: '#059669', fontSize: '0.72rem', fontWeight: 700, borderRadius: '6px' }}>
+                        CHECKED IN
+                      </span>
                     </div>
-                    <p className="text-slate-500">Resident Host: {resv.residentName} ({resv.flatNumber})</p>
-                    <p className="text-slate-400 text-[11px]">Checkout Due: {resv.checkOutDate}</p>
+                    <div style={{ color: '#52788D', marginTop: '2px' }}>Resident Host: {resv.residentName} ({resv.flatNumber})</div>
+                    <div style={{ color: '#94A3B8', fontSize: '0.78rem', marginTop: '2px' }}>Checkout Due: {resv.checkOutDate}</div>
                   </div>
                 ))
               )}
@@ -200,8 +352,14 @@ export const GuestStayScannerPage: React.FC = () => {
           </div>
         </div>
       </div>
-      </div>
+
+      {/* Camera QR Scanner Modal */}
+      <Modal isOpen={isScannerOpen} onClose={() => setIsScannerOpen(false)} title="Camera Guest QR Scanner">
+        <QRScanner onScan={(code) => {
+          handleScanQR(code);
+          setIsScannerOpen(false);
+        }} />
+      </Modal>
     </div>
   );
 };
-

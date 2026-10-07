@@ -43,11 +43,17 @@ class RealtimeService {
   /**
    * Initialize Server-Sent Events (SSE) for true cross-device network real-time sync
    */
+  private sseErrorCount = 0;
+
   private initSseStream() {
     if (typeof window !== 'undefined' && 'EventSource' in window) {
       try {
-        const streamUrl = `${this.backendBaseUrl}/api/realtime/stream`;
+        const streamUrl = '/api/realtime/stream';
         this.sseSource = new EventSource(streamUrl);
+
+        this.sseSource.onopen = () => {
+          this.sseErrorCount = 0;
+        };
 
         this.sseSource.onmessage = (event) => {
           try {
@@ -61,7 +67,11 @@ class RealtimeService {
         };
 
         this.sseSource.onerror = () => {
-          // Graceful fallback to BroadcastChannel and local in-memory event bus when server is offline
+          this.sseErrorCount += 1;
+          if (this.sseErrorCount >= 3 && this.sseSource) {
+            this.sseSource.close();
+            this.sseSource = null;
+          }
         };
       } catch {
         // Fallback gracefully

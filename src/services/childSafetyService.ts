@@ -8,6 +8,8 @@ import type {
   EmergencyContact
 } from '../types/childSafety';
 import { childRepository } from '../repositories/childSafety/ChildRepository';
+import { societyService } from './societyService';
+import { db } from './db';
 
 const CHILDREN_STORAGE_KEY = 'communityos_children_profiles';
 const QR_PASSES_STORAGE_KEY = 'communityos_child_pickup_qrs';
@@ -198,24 +200,69 @@ class ChildSafetyService {
     const raw = localStorage.getItem(CHILDREN_STORAGE_KEY);
     let items: ChildProfile[] = raw ? JSON.parse(raw) : [];
 
-    let societyItems = items.filter(c => c.societyId === societyId);
-    if (societyItems.length === 0) {
-      const seeded = SEED_CHILDREN.map(c => ({ ...c, societyId }));
-      items = [...items, ...seeded];
-      localStorage.setItem(CHILDREN_STORAGE_KEY, JSON.stringify(items));
-      return seeded;
+    // Canonical Source of Truth: Get all family members registered with relationship === 'CHILD'
+    const familyMembers = societyService.getFamilyMembers(societyId);
+    const familyChildren = familyMembers.filter(f => f.relationship.toUpperCase() === 'CHILD');
+    const residents = db.getResidents();
+    const flats = db.getFlats();
+
+    const mergedChildren: ChildProfile[] = [];
+
+    // Map each family child member into a ChildProfile
+    for (const famChild of familyChildren) {
+      const existing = items.find(c => c.id === famChild.id || c.fullName.toLowerCase() === famChild.name.toLowerCase());
+      const resident = residents.find(r => r.id === famChild.residentId);
+      const flat = flats.find(f => f.id === famChild.flatId);
+      const flatCode = flat?.flatNumber || (resident ? resident.flatCode.replace(/^.*·\s*/, '') : 'B-1204');
+
+      if (existing) {
+        mergedChildren.push({
+          ...existing,
+          id: famChild.id,
+          fullName: famChild.name,
+          flatNumber: flatCode,
+          societyId,
+        });
+      } else {
+        const seedMatch = SEED_CHILDREN.find(s => s.fullName.toLowerCase().includes(famChild.name.toLowerCase().split(' ')[0])) || SEED_CHILDREN[0];
+        const newChildProfile: ChildProfile = {
+          id: famChild.id,
+          societyId,
+          flatNumber: flatCode,
+          fullName: famChild.name,
+          dateOfBirth: seedMatch?.dateOfBirth || '2018-05-14',
+          gender: seedMatch?.gender || 'MALE',
+          photoUrl: seedMatch?.photoUrl,
+          medicalNotes: seedMatch?.medicalNotes || 'No known allergies. Blood Group O+.',
+          status: 'SAFE',
+          guardians: [
+            {
+              id: `g-${famChild.residentId}`,
+              name: resident?.name || 'Primary Guardian',
+              relationship: 'Parent / Guardian',
+              phone: resident?.phone || '+91 98765 43210',
+              email: resident?.email,
+              isPrimary: true
+            }
+          ],
+          emergencyContacts: seedMatch?.emergencyContacts || [],
+          authorizedPickups: seedMatch?.authorizedPickups || [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        mergedChildren.push(newChildProfile);
+      }
     }
 
-    // Ensure B-1204 exists for Resident demo
-    const hasB1204 = societyItems.some(c => c.flatNumber === 'B-1204');
-    if (!hasB1204) {
-      const b1204Child = { ...SEED_CHILDREN.find(c => c.flatNumber === 'B-1204')!, societyId };
-      items.push(b1204Child);
-      localStorage.setItem(CHILDREN_STORAGE_KEY, JSON.stringify(items));
-      societyItems.push(b1204Child);
+    // Preserve any existing demo profiles for fallback
+    for (const seedItem of SEED_CHILDREN) {
+      if (!mergedChildren.some(c => c.fullName.toLowerCase() === seedItem.fullName.toLowerCase())) {
+        mergedChildren.push({ ...seedItem, societyId });
+      }
     }
 
-    return societyItems;
+    localStorage.setItem(CHILDREN_STORAGE_KEY, JSON.stringify(mergedChildren));
+    return mergedChildren;
   }
 
   saveChildProfile(profile: ChildProfile): ChildProfile {

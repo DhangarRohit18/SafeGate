@@ -54,78 +54,78 @@ export const PracticalAIHub: React.FC = () => {
   const healthSummary = practicalAILayerEngine.getPlainLanguageHealthSummary(94, 91);
 
   return (
-    <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+    <div className="bg-white p-4 md:p-6 rounded-2xl border border-[#DCE8EF] shadow-2xs space-y-6">
       {/* Header & Safety Guard Warning */}
       <div
-        className="flex flex-col md:flex-row justify-between items-start md:items-center text-white p-5 rounded-2xl gap-4 shadow-sm"
-        style={{ background: 'linear-gradient(135deg, #083B56 0%, #0D4767 100%)' }}
+        className="flex flex-col md:flex-row justify-between items-start md:items-center p-5 rounded-2xl gap-4"
+        style={{ background: '#F4FAFE', border: '1px solid #DCE8EF' }}
       >
         <div>
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-sky-300" />
-            <h2 className="text-lg font-bold">AARIZO Practical AI Intelligence Suite</h2>
+            <Sparkles className="w-5 h-5 text-[#F06543]" />
+            <h2 className="text-lg font-extrabold text-[#083B56]">AARIZO Practical AI Intelligence Suite</h2>
           </div>
-          <p className="text-xs text-slate-300 mt-1">
+          <p className="text-xs text-slate-500 font-medium mt-1">
             6 Focused AI Use Cases: Complaint Classification, Move Concierge, Spam Detection, Predictive Maintenance, Vernacular Voice, and Plain-Language Health Summaries.
           </p>
         </div>
 
         {/* AI Safety Boundary Guard Badge */}
-        <div className="px-3.5 py-2 bg-amber-500/20 text-amber-300 rounded-xl border border-amber-500/40 text-xs font-bold flex items-center gap-2 shrink-0">
+        <div className="px-3.5 py-2 bg-[#FEF3C7] text-[#D97706] rounded-xl border border-[#FDE68A] text-xs font-extrabold flex items-center gap-2 shrink-0">
           <Lock size={16} /> Strict Human Approval Guard Active
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs - Integrated Segmented Control Container */}
       <div
         style={{
-          background: '#EBF3F7',
+          background: '#ffffff',
+          border: '1px solid #DCE8EF',
           borderRadius: '16px',
-          padding: '0.375rem',
-          display: 'flex',
-          gap: '0.375rem',
-          overflowX: 'auto',
-          scrollbarWidth: 'none',
-          boxShadow: 'inset 0 1px 3px rgba(8, 59, 86, 0.06)',
-          marginBottom: '1.25rem',
+          padding: '0.4rem',
+          boxShadow: '0 2px 8px rgba(8, 59, 86, 0.03)',
         }}
       >
-        {[
-          { key: 'CONCIERGE', label: 'AI Move Concierge', icon: Truck },
-          { key: 'CLASSIFIER', label: 'Complaint Classifier & Spam', icon: FileSearch },
-          { key: 'PREDICTIVE', label: 'Predictive Maintenance', icon: AlertTriangle },
-          { key: 'VOICE', label: 'Vernacular Staff Voice', icon: Mic },
-          { key: 'HEALTH_EXPLAIN', label: 'Plain Health Summary', icon: Activity },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.key;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key as any)}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.45rem',
-                padding: '0.6rem 1rem',
-                borderRadius: '12px',
-                border: isActive ? 'none' : '1px solid #DCE8EF',
-                background: isActive ? 'var(--aarizo-navy, #083B56)' : '#FFFFFF',
-                color: isActive ? '#FFFFFF' : '#475569',
-                fontWeight: 700,
-                fontSize: '0.8125rem',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                transition: 'all 0.15s ease',
-                boxShadow: isActive ? '0 3px 10px rgba(8, 59, 86, 0.25)' : '0 1px 3px rgba(0,0,0,0.04)',
-                flexShrink: 0,
-              }}
-            >
-              <Icon size={15} color={isActive ? 'var(--aarizo-sky, #83CBEA)' : 'var(--aarizo-blue, #176B91)'} />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+          {[
+            { key: 'CONCIERGE', label: 'AI Move Concierge', icon: Truck },
+            { key: 'CLASSIFIER', label: 'Complaint Classifier & Spam', icon: FileSearch },
+            { key: 'PREDICTIVE', label: 'Predictive Maintenance', icon: AlertTriangle },
+            { key: 'VOICE', label: 'Vernacular Staff Voice', icon: Mic },
+            { key: 'HEALTH_EXPLAIN', label: 'Plain Health Summary', icon: Activity },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveTab(tab.key as any)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.4rem',
+                  background: isActive ? '#F06543' : '#F7FBFE',
+                  color: isActive ? '#ffffff' : '#083B56',
+                  border: isActive ? '1px solid #F06543' : '1px solid #DCE8EF',
+                  borderRadius: '12px',
+                  padding: '0.6rem 0.75rem',
+                  fontSize: '0.75rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  boxShadow: isActive ? '0 3px 10px rgba(240, 101, 67, 0.28)' : 'none',
+                  whiteSpace: 'nowrap',
+                  width: '100%',
+                  transition: 'all 0.18s ease-in-out',
+                }}
+              >
+                <Icon size={15} color={isActive ? '#ffffff' : '#F06543'} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* TAB 1: AI MOVE CONCIERGE */}

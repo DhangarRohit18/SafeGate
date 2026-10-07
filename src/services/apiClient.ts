@@ -82,6 +82,11 @@ export const apiClient = {
 
   // Visitor Passes
   getVisitorPasses: (societyId?: string) => apiRequest<any[]>('/visitor-passes', { societyId }),
+  verifyVisitorPass: (codeOrQr: string, societyId?: string) =>
+    apiRequest<any>('/visitor-passes/verify', {
+      method: 'POST',
+      body: JSON.stringify({ codeOrQr, societyId }),
+    }),
   createVisitorPass: (data: any) =>
     apiRequest<any>('/visitor-passes', {
       method: 'POST',

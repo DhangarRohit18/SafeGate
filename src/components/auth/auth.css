@@ -1,9 +1,9 @@
-/* CommunityOS Shared Auth & Onboarding Styling — Canonical Sky Blue + White Theme */
+/* Safegate Auth & Onboarding Styling — Warm Off-White surface theme */
 
 .auth-container {
   min-height: 100vh;
   width: 100%;
-  background: linear-gradient(180deg, #b9e3f7 0%, #dff2fc 40%, #f4fafe 100%);
+  background: #FAF6F0;
   display: flex;
   flex-direction: column;
   color: var(--aarizo-text, #203746);
@@ -11,6 +11,27 @@
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
+}
+
+@keyframes onboardingSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.onboarding-slide-anim {
+  animation: onboardingSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.onboarding-exit {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.28s ease, transform 0.28s ease;
 }
 
 /* Header & Top Bar */

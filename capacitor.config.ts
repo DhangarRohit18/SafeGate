@@ -2,9 +2,9 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.aarizo.app',
-  appName: 'AARIZO',
+  appName: 'Safegate',
   webDir: 'dist',
-  backgroundColor: '#083B56',
+  backgroundColor: '#F7FBFE',
   server: {
     androidScheme: 'https',
     cleartext: false,
@@ -16,19 +16,21 @@ const config: CapacitorConfig = {
   },
   plugins: {
     StatusBar: {
-      style: 'Dark',
-      backgroundColor: '#083B56',
+      style: 'Light',
+      backgroundColor: '#F7FBFE',
       overlaysWebView: false,
     },
     PushNotifications: {
       presentationOptions: ['badge', 'sound', 'alert'],
     },
     SplashScreen: {
-      launchShowDuration: 2000,
-      backgroundColor: '#083B56',
+      launchShowDuration: 0,
+      launchAutoHide: true,
+      backgroundColor: '#F7FBFE',
       showSpinner: false,
     },
   },
 };
 
 export default config;
+

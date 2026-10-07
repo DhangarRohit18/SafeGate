@@ -82,52 +82,67 @@ Certified by AARIZO Society Intelligence Engine
   ] as const;
 
   return (
-    <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+    <div className="bg-white p-4 md:p-6 rounded-2xl border border-[#DCE8EF] shadow-2xs space-y-6">
       {/* Top Banner: Score Gauge & AGM Export */}
       <div
-        className="flex flex-col md:flex-row justify-between items-start md:items-center text-white p-4 md:p-6 rounded-2xl gap-6"
-        style={{ background: 'linear-gradient(135deg, #083B56 0%, #0D4767 100%)' }}
+        className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 md:p-6 rounded-2xl gap-6"
+        style={{ background: '#F4FAFE', border: '1px solid #DCE8EF' }}
       >
         <div className="flex items-center gap-5">
           {/* Main Score Badge */}
           <div
-            className="relative flex items-center justify-center w-24 h-24 rounded-2xl text-white shadow-lg shrink-0"
-            style={{ background: 'linear-gradient(135deg, #176B91 0%, #083B56 100%)', border: '1px solid rgba(131, 203, 234, 0.3)' }}
+            className="relative flex items-center justify-center w-24 h-24 rounded-2xl text-white shadow-md shrink-0"
+            style={{ background: '#083B56', border: '1px solid #DCE8EF' }}
           >
             <div className="text-center">
-              <span className="text-3xl font-black">{data.overallScore}</span>
-              <span className="text-[10px] block font-bold text-sky-200 uppercase">/ 100</span>
+              <span className="text-3xl font-extrabold">{data.overallScore}</span>
+              <span className="text-[10px] block font-bold text-[#83CBEA] uppercase">/ 100</span>
             </div>
-            <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-amber-400 text-slate-950 font-black text-xs rounded-full shadow">
+            <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-[#F06543] text-white font-black text-xs rounded-full shadow-sm">
               Grade {data.grade}
             </span>
           </div>
 
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold">Society Health & Operational Index</h2>
-              <span className="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 rounded-full text-xs font-bold border border-emerald-500/30">
+              <h2 className="text-xl font-extrabold text-[#083B56]">Society Health &amp; Operational Index</h2>
+              <span className="px-2.5 py-0.5 bg-[#ECFDF5] text-[#059669] rounded-full text-xs font-extrabold border border-[#A7F3D0]">
                 {data.status}
               </span>
             </div>
-            <p className="text-xs text-slate-300 mt-1">
+            <p className="text-xs text-slate-500 font-medium mt-1">
               Transparent score synthesized in real-time from 6 domain pillars: compliance, AMCs, SLA times, financials, sustainability, and security.
             </p>
           </div>
         </div>
 
         <button
+          type="button"
           onClick={handleExportAGMReport}
-          className="px-4 py-2.5 bg-[#176B91] hover:bg-[#083B56] text-white font-bold text-xs rounded-xl shadow-md flex items-center gap-2 transition shrink-0 border border-white/20"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            padding: '0.55rem 1rem',
+            borderRadius: '10px',
+            background: 'var(--aarizo-coral, #F06543)',
+            color: '#ffffff',
+            fontWeight: 800,
+            fontSize: '0.75rem',
+            border: 'none',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(240, 101, 67, 0.25)',
+            whiteSpace: 'nowrap',
+          }}
         >
-          <Download size={16} /> Export AGM Audit Report
+          <Download size={15} /> Export AGM Audit Report
         </button>
       </div>
 
       {/* 6 Core Pillar Grid */}
       <div>
-        <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-          <Activity size={16} className="text-[#176B91]" /> Transparent Score Components & Domain Inputs
+        <h3 className="text-sm font-extrabold text-[#083B56] mb-3 flex items-center gap-2">
+          <Activity size={16} className="text-[#F06543]" /> Transparent Score Components &amp; Domain Inputs
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

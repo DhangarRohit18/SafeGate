@@ -7,6 +7,7 @@ export interface ModalProps {
   onClose: () => void;
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
+  icon?: React.ReactNode;
   children: React.ReactNode;
   footer?: React.ReactNode;
   maxWidth?: string;
@@ -18,9 +19,10 @@ export const Modal: React.FC<ModalProps> = ({
   onClose,
   title,
   subtitle,
+  icon,
   children,
   footer,
-  maxWidth = '520px',
+  maxWidth = '560px',
   className = '',
 }) => {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -51,9 +53,9 @@ export const Modal: React.FC<ModalProps> = ({
         position: 'fixed',
         inset: 0,
         zIndex: 99999, // Guarantees overlay is above bottom nav (z-100/999) and all page chrome
-        backgroundColor: 'rgba(8, 26, 42, 0.72)',
-        backdropFilter: 'blur(6px)',
-        WebkitBackdropFilter: 'blur(6px)',
+        backgroundColor: 'rgba(8, 26, 42, 0.75)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -70,17 +72,18 @@ export const Modal: React.FC<ModalProps> = ({
         ref={contentRef}
         className={`aarizo-general-modal ${className}`}
         style={{
-          width: '100%',
+          width: 'calc(100% - 24px)',
           maxWidth,
-          maxHeight: 'min(90vh, 760px)',
+          maxHeight: 'min(88vh, 760px)',
           display: 'flex',
           flexDirection: 'column',
           backgroundColor: '#ffffff',
-          borderRadius: '20px',
-          boxShadow: '0 24px 60px -12px rgba(8, 59, 86, 0.35), 0 8px 24px -4px rgba(0, 0, 0, 0.12)',
-          border: '1px solid rgba(226, 232, 240, 0.8)',
+          borderRadius: '24px',
+          boxShadow: '0 25px 65px -12px rgba(8, 59, 86, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+          border: '1px solid rgba(226, 232, 240, 0.9)',
           overflow: 'hidden',
           animation: 'aarizoModalScaleUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+          margin: 'auto 12px',
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -88,7 +91,7 @@ export const Modal: React.FC<ModalProps> = ({
         {title && (
           <div
             style={{
-              padding: '1.125rem 1.375rem',
+              padding: '1.125rem 1.25rem',
               borderBottom: '1px solid #E8F1F5',
               display: 'flex',
               alignItems: 'center',
@@ -98,31 +101,53 @@ export const Modal: React.FC<ModalProps> = ({
               flexShrink: 0,
             }}
           >
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <h3
-                style={{
-                  margin: 0,
-                  fontSize: '1.05rem',
-                  fontWeight: 700,
-                  color: '#083B56',
-                  lineHeight: 1.3,
-                  letterSpacing: '-0.01em',
-                }}
-              >
-                {title}
-              </h3>
-              {subtitle && (
-                <p
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: 1 }}>
+              {icon && (
+                <div
                   style={{
-                    margin: '0.2rem 0 0 0',
-                    fontSize: '0.75rem',
-                    color: '#657785',
-                    fontWeight: 500,
+                    width: '38px',
+                    height: '38px',
+                    borderRadius: '14px',
+                    backgroundColor: '#FFF0EC',
+                    color: '#F06543',
+                    border: '1px solid #FDF0ED',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
                   }}
                 >
-                  {subtitle}
-                </p>
+                  {icon}
+                </div>
               )}
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <h3
+                  style={{
+                    margin: 0,
+                    fontSize: '1.05rem',
+                    fontWeight: 800,
+                    color: '#083B56',
+                    lineHeight: 1.3,
+                    letterSpacing: '-0.01em',
+                    wordBreak: 'break-word',
+                  }}
+                >
+                  {title}
+                </h3>
+                {subtitle && (
+                  <p
+                    style={{
+                      margin: '0.2rem 0 0 0',
+                      fontSize: '0.75rem',
+                      color: '#657785',
+                      fontWeight: 500,
+                      wordBreak: 'break-word',
+                    }}
+                  >
+                    {subtitle}
+                  </p>
+                )}
+              </div>
             </div>
 
             <button
@@ -134,8 +159,8 @@ export const Modal: React.FC<ModalProps> = ({
                 border: '1px solid #E8F1F5',
                 color: '#657785',
                 cursor: 'pointer',
-                width: '32px',
-                height: '32px',
+                width: '36px',
+                height: '36px',
                 borderRadius: '50%',
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -152,15 +177,15 @@ export const Modal: React.FC<ModalProps> = ({
                 e.currentTarget.style.color = '#657785';
               }}
             >
-              <X size={17} strokeWidth={2.25} />
+              <X size={18} strokeWidth={2.25} />
             </button>
           </div>
         )}
 
-        {/* Scrollable Body with Clean Custom Scrollbar */}
+        {/* Scrollable Body */}
         <div
           style={{
-            padding: '1.25rem 1.375rem',
+            padding: '1.25rem',
             overflowY: 'auto',
             flex: 1,
             WebkitOverflowScrolling: 'touch',
@@ -169,13 +194,13 @@ export const Modal: React.FC<ModalProps> = ({
           {children}
         </div>
 
-        {/* Optional Footer */}
+        {/* Sticky Action Footer */}
         {footer && (
           <div
             style={{
-              padding: '0.875rem 1.375rem',
+              padding: '0.875rem 1.25rem calc(0.875rem + env(safe-area-inset-bottom, 0px)) 1.25rem',
               borderTop: '1px solid #E8F1F5',
-              background: '#F7FBFE',
+              background: '#F8FAFC',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'flex-end',
@@ -199,8 +224,9 @@ export const Modal: React.FC<ModalProps> = ({
         }
         @media (max-width: 640px) {
           .aarizo-general-modal {
-            max-height: 85vh !important;
+            max-height: 86vh !important;
             border-radius: 20px !important;
+            width: calc(100% - 24px) !important;
           }
         }
       `}</style>
@@ -208,5 +234,79 @@ export const Modal: React.FC<ModalProps> = ({
   );
 
   return createPortal(modalNode, document.body);
+};
+
+/* Reusable Choice/Segment Pills component for standard forms */
+export interface ChoicePillOption<T extends string | number = string> {
+  value: T;
+  label: string;
+  description?: string;
+  icon?: React.ReactNode;
+}
+
+export interface ChoicePillsProps<T extends string | number = string> {
+  options: ChoicePillOption<T>[];
+  value: T;
+  onChange: (val: T) => void;
+  columns?: number;
+  size?: 'sm' | 'md';
+}
+
+export const ChoicePills = <T extends string | number>({
+  options,
+  value,
+  onChange,
+  columns,
+  size = 'md',
+}: ChoicePillsProps<T>) => {
+  const isGrid = !!columns;
+  return (
+    <div
+      style={{
+        display: isGrid ? 'grid' : 'flex',
+        gridTemplateColumns: isGrid ? `repeat(${columns}, minmax(0, 1fr))` : undefined,
+        gap: '0.5rem',
+        overflowX: isGrid ? undefined : 'auto',
+        paddingBottom: isGrid ? undefined : '0.25rem',
+        scrollbarWidth: 'none',
+      }}
+    >
+      {options.map((opt) => {
+        const isSelected = value === opt.value;
+        return (
+          <button
+            key={String(opt.value)}
+            type="button"
+            onClick={() => onChange(opt.value)}
+            style={{
+              padding: size === 'sm' ? '0.5rem 0.75rem' : '0.625rem 0.875rem',
+              borderRadius: '14px',
+              border: isSelected ? '2px solid #F06543' : '1px solid #E2E8F0',
+              backgroundColor: isSelected ? '#FFF0EC' : '#FFFFFF',
+              color: isSelected ? '#F06543' : '#334155',
+              fontWeight: isSelected ? 800 : 600,
+              fontSize: '0.75rem',
+              textAlign: opt.description ? 'left' : 'center',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+              whiteSpace: opt.description ? 'normal' : 'nowrap',
+              display: 'flex',
+              flexDirection: opt.description ? 'column' : 'row',
+              alignItems: opt.description ? 'flex-start' : 'center',
+              justifyContent: 'center',
+              gap: '0.35rem',
+              boxShadow: isSelected ? '0 2px 8px rgba(240, 101, 67, 0.15)' : 'none',
+            }}
+          >
+            {opt.icon && <span>{opt.icon}</span>}
+            <span style={{ lineHeight: 1.2 }}>{opt.label}</span>
+            {opt.description && (
+              <span style={{ fontSize: '0.65rem', opacity: 0.75, fontWeight: 500 }}>{opt.description}</span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
 };
 

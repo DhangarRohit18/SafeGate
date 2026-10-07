@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Store,
   Clock,
   AlertTriangle,
   CheckCircle2,
   FileText,
   ArrowRight,
+  ArrowLeft,
   Building2,
   Phone,
   Mail,
@@ -19,7 +19,7 @@ import { vendorRepository } from '../../../repositories/vendors/VendorRepository
 import { vendorDocumentRepository } from '../../../repositories/vendors/VendorDocumentRepository';
 import type { VendorProfile, VendorDocument, VendorDocumentType } from '../../../domains/vendors/types';
 import { FileUploader } from '../../../components/common/FileUploader';
-import { StatusBadge, PageHeader } from '../../../components/ui';
+import { StatusBadge } from '../../../components/ui';
 
 export const VendorOnboardingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -140,17 +140,60 @@ export const VendorOnboardingPage: React.FC = () => {
   const isRejected = vendorProfile?.approvalStatus === 'REJECTED';
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-5xl mx-auto space-y-6">
-        <PageHeader
-          title="Vendor Onboarding & Compliance Portal"
-          subtitle="Complete your business profile and upload statutory compliance documents for society admin verification."
-          icon={Store}
-          breadcrumbs={[
-            { label: 'Vendor', href: '/vendor' },
-            { label: 'Onboarding & Verification' },
-          ]}
-        />
+    <div style={{ background: 'var(--aarizo-page, #F7FBFE)', minHeight: '100vh', paddingBottom: '5rem', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+      {/* Subheader Bar */}
+      <div style={{ background: '#ffffff', borderBottom: '1px solid #DCE8EF', padding: '0.85rem 1.25rem' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <button
+              onClick={() => navigate(-1)}
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                background: '#F4FAFE',
+                border: '1px solid #DCE8EF',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#083B56',
+                cursor: 'pointer',
+              }}
+            >
+              <ArrowLeft size={18} />
+            </button>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <h1 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#083B56' }}>
+                  Vendor Onboarding & Compliance Portal
+                </h1>
+                <span
+                  style={{
+                    background: isApproved ? '#ECFDF5' : '#FFFBEB',
+                    border: `1px solid ${isApproved ? '#A7F3D0' : '#FDE68A'}`,
+                    color: isApproved ? '#059669' : '#D97706',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                >
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isApproved ? '#10B981' : '#F59E0B', display: 'inline-block' }}></span>
+                  {isApproved ? 'VERIFIED VENDOR' : 'KYC PENDING'}
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#52788D' }}>
+                Complete your business profile and upload statutory compliance documents for society admin verification
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: '1100px', margin: '1.25rem auto', padding: '0 1rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
         {/* Status Callout Banner */}
         {isApproved && (
@@ -219,13 +262,13 @@ export const VendorOnboardingPage: React.FC = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
           {/* Left Column: Vendor Profile Form */}
-          <div className="lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 shadow-xs space-y-5">
-            <div className="border-b border-slate-100 dark:border-slate-800 pb-3 flex items-center justify-between">
+          <div style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #DCE8EF', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div style={{ paddingBottom: '0.75rem', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-white">Business Profile</h3>
-                <p className="text-xs text-slate-500">Provide official trade details and contacts</p>
+                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#083B56' }}>Business Profile</h3>
+                <p style={{ margin: '0.2rem 0 0', fontSize: '0.8rem', color: '#52788D' }}>Provide official trade details and contacts</p>
               </div>
               <StatusBadge
                 label={vendorProfile?.approvalStatus || 'PENDING'}
@@ -233,27 +276,40 @@ export const VendorOnboardingPage: React.FC = () => {
               />
             </div>
 
-            <form onSubmit={handleSaveProfile} className="space-y-4">
+            <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#083B56', marginBottom: '0.35rem' }}>
                   Company / Agency Name *
                 </label>
-                <div className="relative">
-                  <Building2 className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+                <div style={{ position: 'relative' }}>
+                  <Building2 size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', pointerEvents: 'none' }} />
                   <input
                     type="text"
                     required
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
                     placeholder="e.g. AquaPure Mineral Water Ltd"
-                    className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#176B91]"
+                    style={{
+                      width: '100%',
+                      paddingLeft: '44px',
+                      paddingRight: '12px',
+                      paddingTop: '0.55rem',
+                      paddingBottom: '0.55rem',
+                      borderRadius: '10px',
+                      border: '1px solid #DCE8EF',
+                      background: '#ffffff',
+                      color: '#083B56',
+                      fontSize: '0.85rem',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#083B56', marginBottom: '0.35rem' }}>
                     Contact Person Name *
                   </label>
                   <input
@@ -262,17 +318,38 @@ export const VendorOnboardingPage: React.FC = () => {
                     value={contactPerson}
                     onChange={(e) => setContactPerson(e.target.value)}
                     placeholder="e.g. Ramesh Kumar"
-                    className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#176B91]"
+                    style={{
+                      width: '100%',
+                      padding: '0.55rem 0.75rem',
+                      borderRadius: '10px',
+                      border: '1px solid #DCE8EF',
+                      background: '#ffffff',
+                      color: '#083B56',
+                      fontSize: '0.85rem',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#083B56', marginBottom: '0.35rem' }}>
                     Primary Service Category *
                   </label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#176B91]"
+                    style={{
+                      width: '100%',
+                      padding: '0.55rem 0.75rem',
+                      borderRadius: '10px',
+                      border: '1px solid #DCE8EF',
+                      background: '#ffffff',
+                      color: '#083B56',
+                      fontSize: '0.85rem',
+                      fontWeight: 700,
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
                   >
                     <option value="WATER_SUPPLY">Water Supply</option>
                     <option value="CLEANING">Cleaning &amp; Housekeeping</option>
@@ -288,66 +365,116 @@ export const VendorOnboardingPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#083B56', marginBottom: '0.35rem' }}>
                     Direct Phone *
                   </label>
-                  <div className="relative">
-                    <Phone className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+                  <div style={{ position: 'relative' }}>
+                    <Phone size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', pointerEvents: 'none' }} />
                     <input
                       type="tel"
                       required
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="e.g. 9822100445"
-                      className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#176B91]"
+                      style={{
+                        width: '100%',
+                        paddingLeft: '44px',
+                        paddingRight: '12px',
+                        paddingTop: '0.55rem',
+                        paddingBottom: '0.55rem',
+                        borderRadius: '10px',
+                        border: '1px solid #DCE8EF',
+                        background: '#ffffff',
+                        color: '#083B56',
+                        fontSize: '0.85rem',
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#083B56', marginBottom: '0.35rem' }}>
                     Official Email
                   </label>
-                  <div className="relative">
-                    <Mail className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+                  <div style={{ position: 'relative' }}>
+                    <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', pointerEvents: 'none' }} />
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="e.g. sales@aquapure.com"
-                      className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#176B91]"
+                      style={{
+                        width: '100%',
+                        paddingLeft: '44px',
+                        paddingRight: '12px',
+                        paddingTop: '0.55rem',
+                        paddingBottom: '0.55rem',
+                        borderRadius: '10px',
+                        border: '1px solid #DCE8EF',
+                        background: '#ffffff',
+                        color: '#083B56',
+                        fontSize: '0.85rem',
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
                     />
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#083B56', marginBottom: '0.35rem' }}>
                   Registered Business Address
                 </label>
-                <div className="relative">
-                  <MapPin className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+                <div style={{ position: 'relative' }}>
+                  <MapPin size={16} style={{ position: 'absolute', left: '12px', top: '12px', color: '#94A3B8', pointerEvents: 'none' }} />
                   <textarea
                     rows={2}
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder="e.g. Unit 402, Apex Commercial Complex, Pune"
-                    className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#176B91]"
+                    style={{
+                      width: '100%',
+                      paddingLeft: '44px',
+                      paddingRight: '12px',
+                      paddingTop: '0.55rem',
+                      paddingBottom: '0.55rem',
+                      borderRadius: '10px',
+                      border: '1px solid #DCE8EF',
+                      background: '#ffffff',
+                      color: '#083B56',
+                      fontSize: '0.85rem',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
                   />
                 </div>
               </div>
 
-              <div className="pt-2 flex items-center justify-between">
+              <div style={{ paddingTop: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
                 {saveSuccess ? (
-                  <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+                  <span style={{ fontSize: '0.8rem', color: '#059669', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <CheckCircle2 size={14} /> Profile details saved!
                   </span>
                 ) : <span />}
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="px-5 py-2.5 rounded-xl bg-[#176B91] hover:bg-[#083B56] text-white text-xs sm:text-sm font-bold shadow-sm transition cursor-pointer disabled:opacity-50"
+                  style={{
+                    padding: '0.6rem 1.25rem',
+                    borderRadius: '10px',
+                    background: '#F06543',
+                    color: '#ffffff',
+                    fontSize: '0.85rem',
+                    fontWeight: 800,
+                    border: 'none',
+                    cursor: 'pointer',
+                    boxShadow: '0 3px 12px rgba(240, 101, 67, 0.28)',
+                    opacity: isSaving ? 0.6 : 1,
+                  }}
                 >
                   {isSaving ? 'Saving...' : 'Save Profile Details'}
                 </button>
@@ -356,29 +483,40 @@ export const VendorOnboardingPage: React.FC = () => {
           </div>
 
           {/* Right Column: Upload Compliance Documents */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs space-y-4">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #DCE8EF', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-white">Statutory Documents</h3>
-                <p className="text-xs text-slate-500">Upload documents required for society verification</p>
+                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#083B56' }}>Statutory Documents</h3>
+                <p style={{ margin: '0.2rem 0 0', fontSize: '0.8rem', color: '#52788D' }}>Upload documents required for society verification</p>
               </div>
 
               {uploadSuccessMsg && (
-                <div className="p-3 rounded-xl bg-emerald-50 text-emerald-800 text-xs font-semibold flex items-center gap-2">
+                <div style={{ padding: '0.65rem 0.85rem', borderRadius: '10px', background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#059669', fontSize: '0.8rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <CheckCircle2 size={14} />
                   <span>{uploadSuccessMsg}</span>
                 </div>
               )}
 
-              <div className="space-y-3">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#083B56', marginBottom: '0.35rem' }}>
                     Document Category
                   </label>
                   <select
                     value={selectedDocType}
                     onChange={(e) => setSelectedDocType(e.target.value as VendorDocumentType)}
-                    className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#176B91]"
+                    style={{
+                      width: '100%',
+                      padding: '0.55rem 0.75rem',
+                      borderRadius: '10px',
+                      border: '1px solid #DCE8EF',
+                      background: '#ffffff',
+                      color: '#083B56',
+                      fontSize: '0.85rem',
+                      fontWeight: 700,
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
                   >
                     <option value="GST_CERTIFICATE">GST Certificate</option>
                     <option value="BUSINESS_LICENSE">Business / Trade License</option>
@@ -390,9 +528,9 @@ export const VendorOnboardingPage: React.FC = () => {
                   </select>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#083B56', marginBottom: '0.35rem' }}>
                       Document Title (optional)
                     </label>
                     <input
@@ -400,18 +538,38 @@ export const VendorOnboardingPage: React.FC = () => {
                       value={docTitle}
                       onChange={(e) => setDocTitle(e.target.value)}
                       placeholder="e.g. GSTIN 2026"
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                      style={{
+                        width: '100%',
+                        padding: '0.55rem 0.75rem',
+                        borderRadius: '10px',
+                        border: '1px solid #DCE8EF',
+                        background: '#ffffff',
+                        color: '#083B56',
+                        fontSize: '0.85rem',
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#083B56', marginBottom: '0.35rem' }}>
                       Expiry Date (optional)
                     </label>
                     <input
                       type="date"
                       value={docExpiryDate}
                       onChange={(e) => setDocExpiryDate(e.target.value)}
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                      style={{
+                        width: '100%',
+                        padding: '0.55rem 0.75rem',
+                        borderRadius: '10px',
+                        border: '1px solid #DCE8EF',
+                        background: '#ffffff',
+                        color: '#083B56',
+                        fontSize: '0.85rem',
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
                     />
                   </div>
                 </div>
@@ -428,35 +586,44 @@ export const VendorOnboardingPage: React.FC = () => {
             </div>
 
             {/* Uploaded Documents List */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-xs space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            <div style={{ background: '#ffffff', borderRadius: '16px', border: '1px solid #DCE8EF', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <h4 style={{ margin: 0, fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#52788D' }}>
                 Uploaded Documents ({documents.length})
               </h4>
 
               {documents.length === 0 ? (
-                <div className="p-4 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
-                  <p className="text-xs text-slate-400">No compliance documents uploaded yet.</p>
+                <div style={{ padding: '1.5rem', textAlign: 'center', border: '1px dashed #DCE8EF', borderRadius: '12px' }}>
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: '#657785' }}>No compliance documents uploaded yet.</p>
                 </div>
               ) : (
-                <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', maxHeight: '280px', overflowY: 'auto' }}>
                   {documents.map((doc) => (
                     <div
                       key={doc.id}
-                      className="p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex items-center justify-between gap-3"
+                      style={{
+                        padding: '0.75rem 0.85rem',
+                        borderRadius: '10px',
+                        border: '1px solid #DCE8EF',
+                        background: '#F8FAFC',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '0.75rem',
+                      }}
                     >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <FileText className="w-4 h-4 text-[#176B91] shrink-0" />
-                        <div className="min-w-0">
-                          <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', minWidth: 0 }}>
+                        <FileText size={18} color="#083B56" style={{ flexShrink: 0 }} />
+                        <div style={{ minWidth: 0 }}>
+                          <p style={{ margin: 0, fontSize: '0.82rem', fontWeight: 800, color: '#083B56', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {doc.title}
                           </p>
-                          <p className="text-[10px] text-slate-400 truncate">
+                          <p style={{ margin: 0, fontSize: '0.72rem', color: '#52788D', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {doc.documentType} {doc.expiryDate ? `· Exp: ${doc.expiryDate}` : ''}
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
                         <StatusBadge
                           label={doc.status}
                           variant={
@@ -472,10 +639,21 @@ export const VendorOnboardingPage: React.FC = () => {
                             href={doc.fileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-1.5 rounded-lg bg-slate-200/60 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-sky-600"
+                            style={{
+                              width: '28px',
+                              height: '28px',
+                              borderRadius: '6px',
+                              background: '#F4FAFE',
+                              border: '1px solid #DCE8EF',
+                              color: '#083B56',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              textDecoration: 'none',
+                            }}
                             title="View Document"
                           >
-                            <Eye size={13} />
+                            <Eye size={14} />
                           </a>
                         )}
                       </div>

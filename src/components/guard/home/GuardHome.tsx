@@ -34,27 +34,51 @@ export const GuardHome: React.FC<GuardHomeProps> = ({
     <div>
       {/* Gate Status & Officer Overview Hero Card */}
       <div className="guard-hero-card">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
           <div>
             <span
-              className="banner-role-tag"
-              style={{ background: 'rgba(251, 191, 36, 0.15)', color: '#fbbf24', border: '1px solid rgba(251, 191, 36, 0.3)' }}
+              style={{
+                fontSize: '0.65rem',
+                fontWeight: 800,
+                padding: '0.15rem 0.5rem',
+                borderRadius: '12px',
+                background: '#F4FAFE',
+                color: '#083B56',
+                border: '1px solid #DCE8EF',
+                display: 'inline-block',
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+              }}
             >
               ACTIVE OPERATIONAL TERMINAL
             </span>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '0.25rem 0 0 0' }}>{gate.name}</h2>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', margin: '0.25rem 0 0 0', letterSpacing: '-0.01em' }}>
+              {gate.name}
+            </h2>
           </div>
 
           <div
-            className={`gate-status-pill ${gate.status === 'open' ? 'gate-status-open' : 'gate-status-closed'}`}
+            style={{
+              fontSize: '0.6875rem',
+              fontWeight: 800,
+              padding: '0.25rem 0.65rem',
+              borderRadius: '14px',
+              background: gate.status === 'open' ? '#ECFDF5' : '#FEF2F2',
+              color: gate.status === 'open' ? '#059669' : '#DC2626',
+              border: `1px solid ${gate.status === 'open' ? '#A7F3D0' : '#FECACA'}`,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              cursor: 'pointer',
+            }}
             onClick={onToggleGateStatus}
             title="Click to toggle gate status"
           >
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: gate.status === 'open' ? '#34d399' : '#f87171' }} />
+            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: gate.status === 'open' ? '#059669' : '#DC2626' }} />
             <span>{gate.status.toUpperCase()}</span>
           </div>
         </div>
-        <p style={{ fontSize: '0.8125rem', color: '#94a3b8', margin: 0 }}>
+        <p style={{ fontSize: '0.75rem', color: 'var(--aarizo-text-secondary, #657785)', margin: 0 }}>
           Officer: Officer R. Singh • Morning Shift (06:00 AM – 02:00 PM)
         </p>
       </div>

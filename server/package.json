@@ -1,7 +1,7 @@
 {
-  "name": "aarizo-backend",
+  "name": "safegate-backend",
   "version": "1.0.0",
-  "description": "AARIZO CommunityOS Backend - Node.js + Express + Prisma + PostgreSQL",
+  "description": "Safegate Smart Community Platform Backend - Node.js + Express + Prisma + PostgreSQL",
   "main": "src/index.ts",
   "type": "module",
   "scripts": {

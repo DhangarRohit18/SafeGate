@@ -130,7 +130,7 @@ export abstract class BaseRepository<T extends BaseEntity> {
     // 100% PostgreSQL via Prisma backend
     try {
       const res = await fetch(`/api/collections/${this.collectionName}`);
-      if (res.ok) {
+      if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
         const rows = await res.json();
         if (Array.isArray(rows)) return rows as T[];
       }
@@ -165,7 +165,7 @@ export abstract class BaseRepository<T extends BaseEntity> {
       const res = await fetch(`/api/collections/${this.collectionName}?societyId=${encodeURIComponent(societyId)}`, {
         headers: { 'x-society-id': societyId },
       });
-      if (res.ok) {
+      if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
         const rows = await res.json();
         if (Array.isArray(rows)) return rows as T[];
       }

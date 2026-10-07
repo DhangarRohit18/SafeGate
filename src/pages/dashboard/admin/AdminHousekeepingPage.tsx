@@ -6,13 +6,16 @@ import type { HousekeepingTask, CommonAreaCategory, GarbagePickupLog } from '../
 import { Modal } from '../../../components/ui/Modal';
 import { DataTable } from '../../../components/ui/DataTable';
 import { MobileDataCard } from '../../../components/ui/MobileDataCard';
+import { useNavigate } from 'react-router-dom';
 import {
-  Sparkles,
   CheckCircle2,
   AlertTriangle,
-  Building,
   CheckSquare,
-  Plus
+  Plus,
+  ArrowLeft,
+  Search,
+  Eye,
+  MapPin
 } from 'lucide-react';
 
 const COMMON_AREA_CATEGORIES: CommonAreaCategory[] = [
@@ -28,6 +31,7 @@ const COMMON_AREA_CATEGORIES: CommonAreaCategory[] = [
 ];
 
 export const AdminHousekeepingPage: React.FC = () => {
+  const navigate = useNavigate();
   const { currentUser } = useAuth();
   const societyId = (currentUser as any)?.societyId || 'soc-1';
   const adminName = currentUser?.name || 'Society Admin';
@@ -36,7 +40,8 @@ export const AdminHousekeepingPage: React.FC = () => {
   const [garbageLogs, setGarbageLogs] = useState<GarbagePickupLog[]>([]);
   const [selectedTask, setSelectedTask] = useState<HousekeepingTask | null>(null);
 
-  const [activeTab, setActiveTab] = useState<'ALL' | 'MISSED_LATE' | 'GARBAGE'>('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<'ALL' | 'MISSED_LATE' | 'GARBAGE' | 'COMPLETED'>('ALL');
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   // Form State
@@ -120,201 +125,315 @@ export const AdminHousekeepingPage: React.FC = () => {
   const completedTasks = tasks.filter(t => t.status === 'COMPLETED' || t.status === 'VERIFIED');
 
   const filteredTasks = tasks.filter(t => {
-    if (activeTab === 'MISSED_LATE') return t.status === 'MISSED' || t.status === 'LATE';
-    return true;
+    const matchesTab =
+      activeTab === 'ALL' ||
+      (activeTab === 'MISSED_LATE' && (t.status === 'MISSED' || t.status === 'LATE')) ||
+      (activeTab === 'COMPLETED' && (t.status === 'COMPLETED' || t.status === 'VERIFIED'));
+
+    const matchesSearch =
+      t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.areaLocation.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.assignedStaffName.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesTab && matchesSearch;
   });
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 p-4 md:p-6 pb-24">
-      {/* Header */}
-      <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="p-2 bg-[#EAF6FC] text-[#083B56] rounded-xl">
-              <Sparkles className="w-5 h-5" />
-            </span>
-            <h1 className="text-2xl font-bold text-slate-900">Housekeeping & Common Area Operations</h1>
+    <div style={{ minHeight: '100%', background: 'var(--aarizo-page, #F7FBFE)', paddingBottom: '2rem' }}>
+      {/* ── Subheader with Back Button & Breadcrumbs ── */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '1rem 1rem 0.75rem',
+          background: 'var(--aarizo-card-blue, #F4FAFE)',
+          borderBottom: '1px solid var(--aarizo-border, #DCE8EF)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+          <button
+            onClick={() => navigate(-1)}
+            aria-label="Back"
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              background: '#ffffff',
+              border: '1px solid var(--aarizo-border, #DCE8EF)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--aarizo-navy, #083B56)',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <div>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--aarizo-navy, #083B56)', margin: 0, letterSpacing: '-0.02em' }}>
+              Housekeeping &amp; Operations
+            </h2>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--aarizo-text-secondary, #657785)', margin: 0 }}>
+              Green Valley Society · {tasks.length} operational tasks &amp; checklists
+            </p>
           </div>
-          <p className="text-slate-500 text-sm mt-1">
-            Manage recurring operational tasks, swimming pool chemical checklists, photo proof verification, and missed task alerts.
-          </p>
         </div>
+
         <button
           onClick={() => setShowCreateModal(true)}
-          style={{ background: 'var(--aarizo-blue, #176B91)', color: '#FFFFFF' }}
-          className="px-4 py-2.5 font-semibold text-sm rounded-xl shadow-sm flex items-center gap-2 hover:opacity-95 transition"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            padding: '0.45rem 0.875rem',
+            borderRadius: '10px',
+            background: 'var(--aarizo-coral, #F06543)',
+            color: '#ffffff',
+            fontWeight: 800,
+            fontSize: '0.75rem',
+            border: 'none',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(240, 101, 67, 0.25)'
+          }}
         >
-          <Plus className="w-4 h-4" /> Create Operational Task
+          <Plus size={15} /> Create Task
         </button>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
-          <span className="text-[11px] text-slate-500 block">Total Scheduled</span>
-          <span className="text-xl font-bold text-slate-900 mt-0.5 block">{tasks.length}</span>
-        </div>
-        <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
-          <span className="text-[11px] text-slate-500 block">Verified / Done</span>
-          <span className="text-xl font-bold text-emerald-600 mt-0.5 block">{completedTasks.length}</span>
-        </div>
-        <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
-          <span className="text-[11px] text-slate-500 block">Missed / Late</span>
-          <span className="text-xl font-bold text-rose-600 mt-0.5 block">{missedOrLateTasks.length}</span>
-        </div>
-        <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
-          <span className="text-[11px] text-slate-500 block">Garbage Today</span>
-          <span className="text-xl font-bold text-[#083B56] mt-0.5 block">{garbageLogs.length}</span>
-        </div>
-      </div>
-
-      {/* Missed / Late Tasks Warning Widget */}
+      {/* ── Operational Warning Banner if Missed Tasks Exist ── */}
       {missedOrLateTasks.length > 0 && (
-        <div className="p-5 bg-rose-50 border border-rose-200 rounded-2xl text-rose-900 space-y-3">
-          <div className="flex items-center gap-2 font-bold text-base">
-            <AlertTriangle className="w-5 h-5 text-rose-600" />
-            <span>Operational Alert: {missedOrLateTasks.length} Missed or Late Task(s) Require Attention</span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {missedOrLateTasks.map(task => (
-              <div key={task.id} className="p-3 bg-white rounded-xl border border-rose-200 text-xs">
-                <div className="flex items-center justify-between font-bold text-slate-900">
-                  <span>{task.title}</span>
-                  <span className="px-2 py-0.5 bg-rose-100 text-rose-800 text-[10px] rounded-full">{task.status}</span>
-                </div>
-                <p className="text-slate-500 mt-1">{task.areaLocation} · Assigned: {task.assignedStaffName}</p>
-                {task.missedReason && <p className="text-rose-700 italic mt-0.5">Reason: {task.missedReason}</p>}
-              </div>
-            ))}
+        <div className="max-w-7xl mx-auto w-full px-4 pt-3">
+          <div
+            style={{
+              background: '#FEF2F2',
+              border: '1px solid #FECACA',
+              borderRadius: '12px',
+              padding: '0.625rem 0.875rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: '0.75rem',
+              color: '#991B1B',
+              fontWeight: 700
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <AlertTriangle size={16} color="#DC2626" />
+              <span>{missedOrLateTasks.length} Missed or Late Task(s) Require Attention</span>
+            </div>
+            <button
+              onClick={() => setActiveTab('MISSED_LATE')}
+              style={{ background: '#DC2626', color: '#ffffff', border: 'none', padding: '0.25rem 0.6rem', borderRadius: '6px', fontSize: '0.6875rem', cursor: 'pointer', fontWeight: 700 }}
+            >
+              Review Now
+            </button>
           </div>
         </div>
       )}
 
-      {/* Tabs */}
-      <div
-        style={{
-          background: '#EBF3F7',
-          borderRadius: '16px',
-          padding: '0.375rem',
-          display: 'flex',
-          gap: '0.375rem',
-          overflowX: 'auto',
-          scrollbarWidth: 'none',
-          boxShadow: 'inset 0 1px 3px rgba(8, 59, 86, 0.06)',
-          marginBottom: '1.25rem',
-        }}
-      >
-        {[
-          { key: 'ALL', label: `All Tasks (${tasks.length})`, icon: CheckSquare },
-          { key: 'MISSED_LATE', label: `Missed & Late (${missedOrLateTasks.length})`, icon: AlertTriangle },
-          { key: 'GARBAGE', label: `Garbage Pickup Logs (${garbageLogs.length})`, icon: Sparkles },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.key;
-          return (
+      {/* ── Search Bar & Filter Strip ── */}
+      <div className="max-w-7xl mx-auto w-full" style={{ padding: '1rem 1rem 0.5rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.625rem',
+            background: '#ffffff',
+            border: '1px solid var(--aarizo-border, #DCE8EF)',
+            borderRadius: '12px',
+            padding: '0 0.875rem',
+            height: '46px',
+            boxShadow: '0 1px 4px rgba(8, 59, 86, 0.04)',
+          }}
+        >
+          <Search size={18} color="var(--aarizo-text-secondary, #657785)" />
+          <input
+            type="text"
+            placeholder="Search task title, staff, area, or location..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              flex: 1,
+              border: 'none',
+              outline: 'none',
+              fontSize: '0.8125rem',
+              color: 'var(--aarizo-text, #203746)',
+              background: 'transparent',
+              minHeight: 'auto',
+            }}
+          />
+        </div>
+
+        {/* Filter Pills matching Residents & NGO Tabs */}
+        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', overflowX: 'auto', scrollbarWidth: 'none' }}>
+          {[
+            { key: 'ALL', label: `All Tasks (${tasks.length})` },
+            { key: 'MISSED_LATE', label: `Missed & Late (${missedOrLateTasks.length})` },
+            { key: 'COMPLETED', label: `Completed (${completedTasks.length})` },
+            { key: 'GARBAGE', label: `Garbage Logs (${garbageLogs.length})` }
+          ].map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key as any)}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.45rem',
-                padding: '0.6rem 1rem',
-                borderRadius: '12px',
-                border: isActive ? 'none' : '1px solid #DCE8EF',
-                background: isActive ? 'var(--aarizo-navy, #083B56)' : '#FFFFFF',
-                color: isActive ? '#FFFFFF' : '#475569',
-                fontWeight: 700,
-                fontSize: '0.8125rem',
+                gap: '0.375rem',
+                background: activeTab === tab.key ? 'var(--aarizo-coral, #F06543)' : '#ffffff',
+                border: '1px solid var(--aarizo-border, #DCE8EF)',
+                borderRadius: '10px',
+                padding: '0.4rem 0.75rem',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                color: activeTab === tab.key ? '#ffffff' : 'var(--aarizo-text, #203746)',
                 cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                transition: 'all 0.15s ease',
-                boxShadow: isActive ? '0 3px 10px rgba(8, 59, 86, 0.25)' : '0 1px 3px rgba(0,0,0,0.04)',
-                flexShrink: 0,
+                whiteSpace: 'nowrap'
               }}
             >
-              <Icon size={15} color={isActive ? 'var(--aarizo-sky, #83CBEA)' : 'var(--aarizo-blue, #176B91)'} />
+              <CheckSquare size={14} color={activeTab === tab.key ? '#ffffff' : 'var(--aarizo-coral, #F06543)'} />
               <span>{tab.label}</span>
             </button>
-          );
-        })}
+          ))}
+        </div>
       </div>
 
-      {/* TAB: TASKS LIST */}
+      {/* ── Count Heading ── */}
+      <div className="max-w-7xl mx-auto w-full" style={{ padding: '0.5rem 1rem 0.25rem' }}>
+        <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--aarizo-text-secondary, #657785)' }}>
+          {activeTab === 'GARBAGE' ? garbageLogs.length : filteredTasks.length} items found
+        </span>
+      </div>
+
+      {/* ── Operational Task Cards Grid ── */}
       {activeTab !== 'GARBAGE' ? (
-        <div className="grid grid-cols-1 gap-4">
-          {filteredTasks.map(task => (
-            <div key={task.id} className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col justify-between">
-              <div className="p-5">
-                <div className="flex items-center justify-between">
-                  <span className="px-2.5 py-0.5 bg-slate-100 text-slate-700 text-[11px] font-bold rounded-full">
-                    {task.category}
-                  </span>
-                  <span className={`px-2.5 py-1 text-xs rounded-full font-bold ${
-                    task.status === 'VERIFIED' ? 'bg-emerald-100 text-emerald-800' :
-                    task.status === 'COMPLETED' ? 'bg-[#EAF6FC] text-[#083B56]' :
-                    task.status === 'MISSED' ? 'bg-rose-100 text-rose-800' :
-                    task.status === 'LATE' ? 'bg-amber-100 text-amber-800' :
-                    'bg-slate-100 text-slate-600'
-                  }`}>
-                    {task.status}
-                  </span>
-                </div>
+        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 p-3 sm:p-4">
+          {filteredTasks.map((t) => {
+            const isDone = t.status === 'COMPLETED' || t.status === 'VERIFIED';
+            const isMissed = t.status === 'MISSED' || t.status === 'LATE';
 
-                <h3 className="text-base font-bold text-slate-900 mt-2">{task.title}</h3>
-                <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                  <Building className="w-3.5 h-3.5 text-slate-400" /> {task.areaLocation}
-                </p>
-
-                <div className="mt-3 pt-3 border-t border-slate-100 text-xs space-y-1 text-slate-600">
-                  <div className="flex items-center justify-between">
-                    <span>Scheduled Time:</span>
-                    <strong className="text-slate-800">{task.startTime} - {task.endTime}</strong>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Assigned Staff:</span>
-                    <strong className="text-slate-800">{task.assignedStaffName}</strong>
-                  </div>
-                </div>
-
-                {/* Checklist Summary */}
-                <div className="mt-3 bg-slate-50 p-2.5 rounded-xl border text-xs">
-                  <span className="font-bold text-slate-700 block mb-1">Checklist Progress:</span>
-                  <div className="space-y-1">
-                    {task.checklist.map(chk => (
-                      <div key={chk.id} className="flex items-center gap-1.5 text-[11px]">
-                        <CheckSquare className={`w-3.5 h-3.5 ${chk.isCompleted ? 'text-emerald-600' : 'text-slate-300'}`} />
-                        <span className={chk.isCompleted ? 'line-through text-slate-400' : 'text-slate-700'}>{chk.label}</span>
+            return (
+              <div
+                key={t.id}
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid var(--aarizo-border-soft, #E8F1F5)',
+                  borderRadius: '16px',
+                  padding: '0.875rem 1rem',
+                  boxShadow: '0 2px 10px rgba(8, 59, 86, 0.05)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  gap: '0.625rem',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    {/* Initial Avatar Circle */}
+                    <div
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: '50%',
+                        background: 'var(--aarizo-pale-blue, #F4FAFE)',
+                        border: '1px solid var(--aarizo-border, #DCE8EF)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'var(--aarizo-coral, #F06543)',
+                        fontWeight: 800,
+                        fontSize: '1rem',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {t.title.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--aarizo-text, #203746)' }}>
+                        {t.title}
                       </div>
-                    ))}
+                      <div style={{ fontSize: '0.75rem', color: 'var(--aarizo-text-secondary, #657785)', marginTop: '0.125rem' }}>
+                        <MapPin size={12} style={{ display: 'inline', marginRight: 3 }} /> {t.areaLocation}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--aarizo-text-secondary, #657785)' }}>
+                        👤 {t.assignedStaffName} · ⏰ {t.startTime}-{t.endTime}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Status Badge & View Button */}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.75rem' }}>
+                    <span
+                      style={{
+                        fontSize: '0.625rem',
+                        fontWeight: 800,
+                        color: isDone ? '#059669' : isMissed ? '#DC2626' : '#D97706',
+                        background: isDone ? '#ECFDF5' : isMissed ? '#FEF2F2' : '#FFFBEB',
+                        border: `1px solid ${isDone ? '#A7F3D0' : isMissed ? '#FECACA' : '#FDE68A'}`,
+                        padding: '0.2rem 0.5rem',
+                        borderRadius: '9999px',
+                        letterSpacing: '0.04em',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      {t.status}
+                    </span>
+
+                    <button
+                      onClick={() => setSelectedTask(t)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
+                        padding: '0.35rem 0.75rem',
+                        borderRadius: '8px',
+                        background: 'var(--aarizo-light-blue, #EAF6FC)',
+                        border: '1px solid var(--aarizo-border, #DCE8EF)',
+                        color: 'var(--aarizo-navy, #083B56)',
+                        fontWeight: 700,
+                        fontSize: '0.75rem',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <Eye size={13} color="var(--aarizo-blue, #176B91)" />
+                      <span>View</span>
+                    </button>
                   </div>
                 </div>
 
-                {task.photoProofUrl && (
-                  <div className="mt-3">
-                    <span className="text-[11px] font-semibold text-slate-500 block mb-1">Photo Proof Attached:</span>
-                    <img src={task.photoProofUrl} alt="Task proof" className="w-full h-32 object-cover rounded-xl border" />
-                  </div>
-                )}
-              </div>
-
-              <div className="p-5 pt-0">
-                <button
-                  onClick={() => setSelectedTask(task)}
-                  style={{ background: '#F0F9FF', color: 'var(--aarizo-blue, #176B91)', border: '1px solid #BAE6FD' }}
-                  className="w-full py-2 font-semibold text-xs rounded-xl hover:bg-sky-100 transition"
+                {/* Checklist count bar */}
+                <div
+                  style={{
+                    background: '#F4FAFE',
+                    border: '1px solid #DCE8EF',
+                    borderRadius: '10px',
+                    padding: '0.4rem 0.625rem',
+                    fontSize: '0.71875rem',
+                    color: 'var(--aarizo-navy, #083B56)',
+                    fontWeight: 600,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}
                 >
-                  View Details & Inspect Proof
-                </button>
+                  <span className="flex items-center gap-1">
+                    <CheckSquare size={13} color="var(--aarizo-coral, #F06543)" />
+                    <span>Checklist Items</span>
+                  </span>
+                  <span className="font-extrabold">
+                    {t.checklist.filter(c => c.isCompleted).length} / {t.checklist.length} Done
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         /* TAB: GARBAGE PICKUP LOGS */
-        <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-200/80 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-900 mb-4">Area-Wise Garbage Collection Logs</h2>
-          <div className="mt-4">
+        <div className="max-w-7xl mx-auto w-full p-4">
+          <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+            <h2 className="text-sm font-extrabold text-slate-900 mb-3">Area-Wise Garbage Collection Logs</h2>
             <DataTable
               columns={[
                 { key: 'tower', header: 'Tower' },
@@ -378,37 +497,50 @@ export const AdminHousekeepingPage: React.FC = () => {
       {selectedTask && (
         <Modal isOpen={!!selectedTask} onClose={() => setSelectedTask(null)} title={`Task Details: ${selectedTask.title}`}>
           <div className="space-y-4 py-2">
-            <div className="bg-slate-50 p-4 rounded-xl border text-xs space-y-1 text-slate-700">
-              <p><strong>Category:</strong> {selectedTask.category}</p>
-              <p><strong>Location:</strong> {selectedTask.areaLocation}</p>
-              <p><strong>Assigned Staff:</strong> {selectedTask.assignedStaffName}</p>
-              <p><strong>Scheduled:</strong> {selectedTask.scheduledDate} ({selectedTask.startTime} - {selectedTask.endTime})</p>
-              {selectedTask.staffNotes && <p className="italic text-slate-600"><strong>Staff Notes:</strong> "{selectedTask.staffNotes}"</p>}
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1.5 text-slate-700">
+              <p className="flex justify-between"><span className="text-slate-400">Category:</span> <strong>{selectedTask.category}</strong></p>
+              <p className="flex justify-between"><span className="text-slate-400">Location:</span> <strong>{selectedTask.areaLocation}</strong></p>
+              <p className="flex justify-between"><span className="text-slate-400">Assigned Staff:</span> <strong>{selectedTask.assignedStaffName}</strong></p>
+              <p className="flex justify-between"><span className="text-slate-400">Scheduled:</span> <strong>{selectedTask.scheduledDate} ({selectedTask.startTime} - {selectedTask.endTime})</strong></p>
+              {selectedTask.staffNotes && <p className="italic text-slate-600 pt-1">"{selectedTask.staffNotes}"</p>}
+            </div>
+
+            {/* Checklist */}
+            <div className="p-3 bg-white rounded-xl border border-slate-200 text-xs">
+              <h4 className="font-bold text-slate-900 mb-2">Checklist Items:</h4>
+              <div className="space-y-1.5">
+                {selectedTask.checklist.map(chk => (
+                  <div key={chk.id} className="flex items-center gap-2">
+                    <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${chk.isCompleted ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-400'}`}>
+                      {chk.isCompleted ? '✓' : '○'}
+                    </span>
+                    <span className={chk.isCompleted ? 'line-through text-slate-400' : 'text-slate-800 font-medium'}>{chk.label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {selectedTask.photoProofUrl && (
               <div>
                 <h4 className="font-bold text-slate-900 text-xs mb-1">Attached Completion Photo Proof:</h4>
-                <img src={selectedTask.photoProofUrl} alt="Photo proof" className="w-full h-48 object-cover rounded-xl border" />
+                <img src={selectedTask.photoProofUrl} alt="Photo proof" className="w-full h-44 object-cover rounded-xl border" />
               </div>
             )}
 
-            <div className="pt-4 flex justify-end gap-2">
+            <div className="pt-2 flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setSelectedTask(null)}
-                style={{ background: '#F1F5F9', color: '#475569', border: '1px solid #CBD5E1' }}
-                className="px-4 py-2 text-sm font-semibold rounded-lg hover:bg-slate-200 transition"
+                className="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl"
               >
                 Close
               </button>
               {selectedTask.status !== 'VERIFIED' && (
                 <button
                   onClick={() => handleVerifyTask(selectedTask.id)}
-                  style={{ background: '#059669', color: '#FFFFFF' }}
-                  className="px-4 py-2 font-bold text-sm rounded-lg flex items-center gap-1 hover:opacity-95 transition"
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1 shadow-sm"
                 >
-                  <CheckCircle2 className="w-4 h-4" /> Verify Photo Proof & Close Task
+                  <CheckCircle2 className="w-4 h-4" /> Verify Photo Proof &amp; Close Task
                 </button>
               )}
             </div>
@@ -515,15 +647,13 @@ export const AdminHousekeepingPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowCreateModal(false)}
-              style={{ background: '#F1F5F9', color: '#475569', border: '1px solid #CBD5E1' }}
-              className="px-4 py-2 text-sm font-semibold rounded-lg hover:bg-slate-200 transition"
+              className="px-4 py-2 text-slate-600 hover:bg-slate-100 text-sm font-semibold rounded-lg"
             >
               Cancel
             </button>
             <button
               type="submit"
-              style={{ background: 'var(--aarizo-blue, #176B91)', color: '#FFFFFF' }}
-              className="px-4 py-2 font-bold text-sm rounded-lg hover:opacity-95 transition"
+              className="px-4 py-2 bg-[#F06543] hover:bg-[#D85332] text-white text-sm font-bold rounded-lg shadow-sm"
             >
               Create Task
             </button>

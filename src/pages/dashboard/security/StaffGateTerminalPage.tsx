@@ -1,37 +1,58 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   QrCode,
   CheckCircle,
   XCircle,
-  Shield,
+  ShieldCheck,
   UserCheck,
   Search,
   Phone,
-  FileCheck,
   UserX,
+  ArrowLeft,
+  Users,
+  Clock,
+  ArrowDownLeft,
+  ArrowUpRight,
+  Camera,
 } from 'lucide-react';
+import { useAuth } from '../../../context/AuthContext';
 import { staffService } from '../../../services/staffService';
 import { realtimeService } from '../../../services/realtimeService';
 import type { DomesticWorkerProfile, StaffAttendanceLog, AttendanceStatus } from '../../../types/staff';
 import { StatusBadge } from '../../../components/ui/StatusBadge';
+import { Modal } from '../../../components/ui/Modal';
+import { QRScanner } from '../../../components/ui/QRScanner';
 
 export const StaffGateTerminalPage: React.FC = () => {
-  const currentSocietyId = 'soc-gvs';
-  const currentUser = { id: 'sec-guard-1', name: 'Officer Vikram Singh', role: 'SECURITY' };
+  const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const currentSocietyId = (currentUser as any)?.societyId || 'soc-gvs';
+  const officerActor = {
+    id: currentUser?.id || 'sec-guard-1',
+    name: currentUser?.name || 'Officer Vikram Singh',
+    role: 'SECURITY',
+  };
 
   const [workers, setWorkers] = useState<DomesticWorkerProfile[]>([]);
   const [attendanceLogs, setAttendanceLogs] = useState<StaffAttendanceLog[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedWorker, setSelectedWorker] = useState<DomesticWorkerProfile | null>(null);
   const [scanResult, setScanResult] = useState<{ status: 'SUCCESS' | 'DENIED'; message: string } | null>(null);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   const reloadData = () => {
     const list = staffService.getWorkers(currentSocietyId);
     setWorkers(list);
     setAttendanceLogs(staffService.getAttendanceLogs(currentSocietyId));
-    if (selectedWorker) {
-      const updated = list.find((w: DomesticWorkerProfile) => w.id === selectedWorker.id);
-      if (updated) setSelectedWorker(updated);
+    
+    // Auto-select first worker if none selected
+    if (list.length > 0) {
+      setSelectedWorker((prev) => {
+        if (!prev) return list[0];
+        const updated = list.find((w) => w.id === prev.id);
+        return updated || list[0];
+      });
     }
   };
 
@@ -45,7 +66,7 @@ export const StaffGateTerminalPage: React.FC = () => {
     });
 
     return () => unsub();
-  }, []);
+  }, [currentSocietyId]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -67,7 +88,7 @@ export const StaffGateTerminalPage: React.FC = () => {
 
   const handleEntry = (worker: DomesticWorkerProfile) => {
     try {
-      const updated = staffService.scanWorkerEntry(worker.id, currentUser);
+      const updated = staffService.scanWorkerEntry(worker.id, officerActor);
       if (updated) {
         setSelectedWorker(updated);
         setScanResult({
@@ -86,7 +107,7 @@ export const StaffGateTerminalPage: React.FC = () => {
 
   const handleExit = (worker: DomesticWorkerProfile) => {
     try {
-      const updated = staffService.scanWorkerExit(worker.id, currentUser);
+      const updated = staffService.scanWorkerExit(worker.id, officerActor);
       if (updated) {
         setSelectedWorker(updated);
         setScanResult({
@@ -128,75 +149,175 @@ export const StaffGateTerminalPage: React.FC = () => {
       w.assignedFlatCodes.some((f: string) => f.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
+  const activeInSocietyCount = workers.filter((w) => w.attendanceStatus === 'IN').length;
+  const verifiedCount = workers.filter((w) => w.verificationStatus === 'VERIFIED').length;
+
   return (
-    <div style={{ background: 'var(--aarizo-page, #F7FBFE)', minHeight: '100%' }}>
-      <div className="max-w-7xl mx-auto p-4 md:p-6 pb-24 space-y-6">
-        {/* Aarizo Gradient Header */}
-        <div
-          className="p-5 md:p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-white"
-          style={{ background: 'linear-gradient(135deg, var(--aarizo-navy, #083B56) 0%, #0D4767 100%)' }}
-        >
-          <div>
-            <div className="flex items-center gap-2.5">
-              <Shield className="w-6 h-6" style={{ color: 'var(--aarizo-sky, #83CBEA)' }} />
-              <h1 className="text-xl md:text-2xl font-extrabold text-white">Staff &amp; Worker Gate Scanner</h1>
+    <div style={{ background: 'var(--aarizo-page, #F7FBFE)', minHeight: '100vh', paddingBottom: '5rem', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+      {/* Subheader */}
+      <div style={{ background: '#ffffff', borderBottom: '1px solid #DCE8EF', padding: '0.85rem 1.25rem' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <button
+              onClick={() => navigate(-1)}
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                background: '#F4FAFE',
+                border: '1px solid #DCE8EF',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#083B56',
+                cursor: 'pointer',
+              }}
+            >
+              <ArrowLeft size={18} />
+            </button>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <h1 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#083B56' }}>
+                  Staff & Domestic Worker Hub
+                </h1>
+                <span
+                  style={{
+                    background: '#ECFDF5',
+                    border: '1px solid #A7F3D0',
+                    color: '#059669',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                >
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981', display: 'inline-block' }}></span>
+                  Gate Terminal Active
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#52788D' }}>
+                Verify staff QR passes, inspect background verification, and log gate entry/exit
+              </p>
             </div>
-            <p className="text-xs md:text-sm mt-1" style={{ color: 'var(--aarizo-sky, #83CBEA)' }}>
-              Verify staff QR codes, inspect background verification status, and log attendance entries &amp; exits.
-            </p>
           </div>
-          <div className="flex items-center gap-2">
-            <span style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', padding: '0.35rem 0.75rem', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 700 }}>
-              Main Gate 1
-            </span>
-            <span style={{ background: 'var(--aarizo-blue, #176B91)', color: '#ffffff', padding: '0.35rem 0.75rem', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 700 }}>
-              {currentUser.name}
-            </span>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: '1100px', margin: '1.25rem auto', padding: '0 1rem' }}>
+        {/* Metrics Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem', marginBottom: '1.25rem' }}>
+          <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '12px', padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#F4FAFE', border: '1px solid #DCE8EF', color: '#083B56', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Users size={20} />
+            </div>
+            <div>
+              <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#52788D', textTransform: 'uppercase' }}>Registered Staff</div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#083B56' }}>{workers.length}</div>
+            </div>
+          </div>
+
+          <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '12px', padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#ECFDF5', border: '1px solid #6EE7B7', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <UserCheck size={20} />
+            </div>
+            <div>
+              <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#52788D', textTransform: 'uppercase' }}>Currently Inside</div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#059669' }}>{activeInSocietyCount}</div>
+            </div>
+          </div>
+
+          <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '12px', padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#F4FAFE', border: '1px solid #BAE6FD', color: '#0284C7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <ShieldCheck size={20} />
+            </div>
+            <div>
+              <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#52788D', textTransform: 'uppercase' }}>Verified Staff</div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#0284C7' }}>{verifiedCount}</div>
+            </div>
           </div>
         </div>
 
-      {scanResult && (
-        <div
-          className={`p-4 rounded-xl border flex items-center justify-between transition-all ${
-            scanResult.status === 'SUCCESS'
-              ? 'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-200'
-              : 'bg-rose-50 border-rose-200 text-rose-900 dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-200'
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            {scanResult.status === 'SUCCESS' ? (
-              <CheckCircle className="w-6 h-6 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            ) : (
-              <XCircle className="w-6 h-6 text-rose-600 dark:text-rose-400 shrink-0" />
-            )}
-            <span className="font-semibold text-sm">{scanResult.message}</span>
-          </div>
-          <button
-            onClick={() => setScanResult(null)}
-            className="text-xs font-semibold hover:underline opacity-80"
+        {/* Action Result Alert Banner */}
+        {scanResult && (
+          <div
+            style={{
+              marginBottom: '1.25rem',
+              padding: '0.85rem 1.25rem',
+              borderRadius: '12px',
+              border: '1px solid',
+              borderColor: scanResult.status === 'SUCCESS' ? '#A7F3D0' : '#FECACA',
+              background: scanResult.status === 'SUCCESS' ? '#ECFDF5' : '#FEF2F2',
+              color: scanResult.status === 'SUCCESS' ? '#065F46' : '#991B1B',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
           >
-            Dismiss
-          </button>
-        </div>
-      )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              {scanResult.status === 'SUCCESS' ? <CheckCircle size={20} color="#059669" /> : <XCircle size={20} color="#DC2626" />}
+              <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{scanResult.message}</span>
+            </div>
+            <button
+              onClick={() => setScanResult(null)}
+              style={{ background: 'none', border: 'none', fontSize: '0.8rem', fontWeight: 700, color: 'inherit', cursor: 'pointer', textDecoration: 'underline' }}
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Search & Worker List */}
-        <div className="flex flex-col gap-4">
-          <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-4">
-            <h2 className="font-bold text-slate-900 dark:text-white">Search Worker / QR Scan</h2>
-            <div className="relative">
-              <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+        {/* Mobile Responsive Layout */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+          {/* Search & Worker Selection Box */}
+          <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '16px', padding: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+              <h2 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#083B56' }}>Search Worker / Pass Tag</h2>
+              <button
+                onClick={() => setIsScannerOpen(true)}
+                style={{
+                  padding: '0.45rem 0.85rem',
+                  background: '#F4FAFE',
+                  border: '1px solid #DCE8EF',
+                  borderRadius: '8px',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  color: '#083B56',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                <Camera size={14} color="#F06543" /> Camera Scan
+              </button>
+            </div>
+
+            <div style={{ position: 'relative', marginBottom: '1rem' }}>
+              <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
               <input
                 type="text"
-                placeholder="Scan QR or search by code/phone/name..."
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#083B56] dark:text-white"
+                placeholder="Scan QR or search pass code, phone, name..."
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.7rem 1rem 0.7rem 2.3rem',
+                  borderRadius: '10px',
+                  border: '1px solid #CBD5E1',
+                  fontSize: '0.88rem',
+                  outline: 'none',
+                  background: '#F8FAFC',
+                  color: '#083B56',
+                  fontWeight: 600,
+                  boxSizing: 'border-box',
+                }}
               />
             </div>
 
-            <div className="flex flex-col gap-2 max-h-[420px] overflow-y-auto pr-1">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', maxHeight: '440px', overflowY: 'auto' }}>
               {filteredWorkers.map((w: DomesticWorkerProfile) => (
                 <div
                   key={w.id}
@@ -204,213 +325,271 @@ export const StaffGateTerminalPage: React.FC = () => {
                     setSelectedWorker(w);
                     setScanResult(null);
                   }}
-                  className={`p-3 rounded-lg border cursor-pointer transition-all flex items-center justify-between ${
-                    selectedWorker?.id === w.id
-                      ? 'border-[#083B56] bg-[#EAF6FC] dark:bg-[#083B56]/30'
-                      : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800'
-                  }`}
+                  style={{
+                    padding: '0.85rem',
+                    borderRadius: '10px',
+                    border: '1px solid',
+                    borderColor: selectedWorker?.id === w.id ? '#083B56' : '#E2E8F0',
+                    background: selectedWorker?.id === w.id ? '#F4FAFE' : '#ffffff',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '0.5rem',
+                    transition: 'all 0.15s ease-in-out',
+                  }}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[#EAF6FC] dark:bg-[#083B56]/30 flex items-center justify-center font-bold text-[#083B56] dark:text-[#83CBEA] overflow-hidden shrink-0">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
+                    <div
+                      style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        background: '#F4FAFE',
+                        border: '1px solid #DCE8EF',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: 800,
+                        color: '#083B56',
+                        overflow: 'hidden',
+                        flexShrink: 0,
+                      }}
+                    >
                       {w.photoUrl ? (
-                        <img src={w.photoUrl} alt={w.name} className="w-full h-full object-cover" />
+                        <img src={w.photoUrl} alt={w.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
                         w.name.charAt(0)
                       )}
                     </div>
-                    <div>
-                      <div className="font-semibold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontWeight: 800, fontSize: '0.88rem', color: '#083B56', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                         {w.name}
-                        <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded text-xs">
+                        <span style={{ padding: '2px 6px', background: '#F1F5F9', color: '#475569', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600, flexShrink: 0 }}>
                           {w.workerType}
                         </span>
                       </div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2 mt-0.5">
-                        <span>{w.phone}</span>
-                        <span>·</span>
-                        <span>Flats: {w.assignedFlatCodes.join(', ') || 'None'}</span>
+                      <div style={{ fontSize: '0.78rem', color: '#52788D', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {w.phone} • Flats: {w.assignedFlatCodes.join(', ') || 'None'}
                       </div>
                     </div>
                   </div>
-                  <div className="text-right">{getAttendanceBadge(w.attendanceStatus)}</div>
+                  <div style={{ flexShrink: 0 }}>{getAttendanceBadge(w.attendanceStatus)}</div>
                 </div>
               ))}
 
               {filteredWorkers.length === 0 && (
-                <div className="text-center py-8 text-slate-500 text-sm">No domestic workers matched search.</div>
+                <div style={{ padding: '2rem', textAlign: 'center', color: '#52788D', fontSize: '0.85rem' }}>
+                  No domestic workers matched search.
+                </div>
               )}
             </div>
           </div>
-        </div>
 
-        {/* Worker Pass Verification & Actions */}
-        <div className="flex flex-col gap-6">
-          {selectedWorker ? (
-            <div className="bg-white dark:bg-slate-800 p-4 md:p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col gap-6">
-              <div className="flex items-center justify-between border-b pb-4 border-slate-200 dark:border-slate-700">
-                <div>
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">Staff Gate Pass Verification</h2>
-                  <p className="text-xs text-slate-500">Pass Code: {selectedWorker.passCode}</p>
-                </div>
-                <StatusBadge
-                  variant={selectedWorker.verificationStatus === 'VERIFIED' ? 'success' : 'warning'}
-                  label={selectedWorker.verificationStatus}
-                />
-              </div>
-
-              {/* Profile Card */}
-              <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-200 dark:border-slate-700">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden shrink-0 border-2 border-[#176B91]">
-                    {selectedWorker.photoUrl ? (
-                      <img src={selectedWorker.photoUrl} alt={selectedWorker.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center font-bold text-slate-600 dark:text-slate-300 text-xl">
-                        {selectedWorker.name.charAt(0)}
-                      </div>
-                    )}
-                  </div>
+          {/* Right Column: Active Selected Worker Details & Gate Actions */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            {selectedWorker ? (
+              <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '16px', padding: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #E2E8F0', paddingBottom: '0.85rem', marginBottom: '1rem' }}>
                   <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                      {selectedWorker.name}
-                      {getAttendanceBadge(selectedWorker.attendanceStatus)}
-                    </h3>
-                    <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2 mt-1">
-                      <span className="px-2 py-0.5 bg-[#EAF6FC] dark:bg-[#083B56]/30 text-[#083B56] dark:text-[#83CBEA] rounded font-semibold">
-                        {selectedWorker.workerType}
-                      </span>
-                      <span>Phone: {selectedWorker.phone}</span>
-                    </div>
+                    <h2 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#083B56' }}>Pass Gate Verification</h2>
+                    <span style={{ fontSize: '0.78rem', color: '#52788D', fontWeight: 600 }}>Pass Code: {selectedWorker.passCode}</span>
                   </div>
-                </div>
-
-                <div className="flex flex-col items-end gap-1">
                   <StatusBadge
-                    variant={selectedWorker.accessStatus === 'ACTIVE' ? 'success' : 'danger'}
-                    label={`ACCESS: ${selectedWorker.accessStatus}`}
+                    variant={selectedWorker.verificationStatus === 'VERIFIED' ? 'success' : 'warning'}
+                    label={selectedWorker.verificationStatus}
                   />
                 </div>
-              </div>
 
-              {selectedWorker.accessStatus !== 'ACTIVE' && (
-                <div className="p-4 bg-rose-50 border border-rose-200 text-rose-900 rounded-xl dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-200 flex items-center gap-3">
-                  <UserX className="w-6 h-6 text-rose-600 shrink-0" />
+                {/* Profile Detail Box */}
+                <div style={{ padding: '1rem', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '1rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                    <div style={{ width: '54px', height: '54px', borderRadius: '50%', background: '#F4FAFE', border: '2px solid #083B56', overflow: 'hidden', flexShrink: 0 }}>
+                      {selectedWorker.photoUrl ? (
+                        <img src={selectedWorker.photoUrl} alt={selectedWorker.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: '#083B56', fontSize: '1.2rem' }}>
+                          {selectedWorker.name.charAt(0)}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#083B56' }}>
+                        {selectedWorker.name}
+                      </h3>
+                      <div style={{ fontSize: '0.8rem', color: '#52788D', marginTop: '3px' }}>
+                        <span style={{ fontWeight: 700, color: '#083B56' }}>{selectedWorker.workerType}</span> • Ph: {selectedWorker.phone}
+                      </div>
+                    </div>
+                  </div>
+
                   <div>
-                    <div className="font-bold text-sm">ACCESS RESTRICTED</div>
-                    <div className="text-xs">
-                      This worker is currently <strong>{selectedWorker.accessStatus}</strong>. Gate entry must be denied immediately.
+                    <StatusBadge
+                      variant={selectedWorker.accessStatus === 'ACTIVE' ? 'success' : 'danger'}
+                      label={`ACCESS: ${selectedWorker.accessStatus}`}
+                    />
+                  </div>
+                </div>
+
+                {selectedWorker.accessStatus !== 'ACTIVE' && (
+                  <div style={{ padding: '0.85rem 1rem', background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '10px', color: '#DC2626', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <UserX size={22} color="#DC2626" />
+                    <div>
+                      <div style={{ fontWeight: 800, fontSize: '0.88rem' }}>ACCESS RESTRICTED</div>
+                      <div style={{ fontSize: '0.78rem' }}>Worker is currently {selectedWorker.accessStatus}. Gate entry must be denied immediately.</div>
+                    </div>
+                  </div>
+                )}
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.25rem', fontSize: '0.82rem' }}>
+                  <div style={{ padding: '0.75rem', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px' }}>
+                    <div style={{ color: '#52788D', fontWeight: 600 }}>Assigned Flats</div>
+                    <div style={{ fontWeight: 800, color: '#083B56', marginTop: '2px' }}>
+                      {selectedWorker.assignedFlatCodes.length > 0 ? selectedWorker.assignedFlatCodes.join(', ') : 'No flat assigned'}
+                    </div>
+                  </div>
+
+                  <div style={{ padding: '0.75rem', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px' }}>
+                    <div style={{ color: '#52788D', fontWeight: 600 }}>Emergency Contact</div>
+                    <div style={{ fontWeight: 800, color: '#083B56', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Phone size={13} color="#52788D" /> {selectedWorker.emergencyContactPhone}
                     </div>
                   </div>
                 </div>
-              )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                <div className="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
-                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Assigned Flats</span>
-                  <div className="font-semibold text-slate-900 dark:text-white mt-1">
-                    {selectedWorker.assignedFlatCodes.length > 0
-                      ? selectedWorker.assignedFlatCodes.join(', ')
-                      : 'No flat assigned'}
-                  </div>
-                </div>
-                <div className="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
-                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Emergency Contact</span>
-                  <div className="font-semibold text-slate-900 dark:text-white mt-1 flex items-center gap-2">
-                    <Phone className="w-3.5 h-3.5 text-slate-400" />
-                    {selectedWorker.emergencyContactName} ({selectedWorker.emergencyContactPhone})
-                  </div>
-                </div>
-                <div className="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
-                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Documents Status</span>
-                  <div className="font-semibold text-slate-900 dark:text-white mt-1 flex items-center gap-1 text-xs">
-                    <FileCheck className="w-4 h-4 text-emerald-500" />
-                    {selectedWorker.documents.filter((d: { isVerified: boolean }) => d.isVerified).length} / {selectedWorker.documents.length} Verified
-                  </div>
-                </div>
-                <div className="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
-                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Last Entry / Exit</span>
-                  <div className="text-xs text-slate-700 dark:text-slate-300 mt-1">
-                    <div>IN: {selectedWorker.lastEntryTime || 'N/A'}</div>
-                    <div>OUT: {selectedWorker.lastExitTime || 'N/A'}</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Gate Entry / Exit Buttons */}
-              <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
-                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Record Gate Attendance Action
-                </span>
-                <div className="grid grid-cols-2 gap-3">
+                {/* Gate Action Buttons */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                   <button
                     disabled={selectedWorker.accessStatus !== 'ACTIVE'}
                     onClick={() => handleEntry(selectedWorker)}
-                    className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-semibold rounded-lg transition-colors text-sm"
+                    style={{
+                      padding: '0.85rem',
+                      borderRadius: '10px',
+                      border: 'none',
+                      background: '#059669',
+                      color: '#ffffff',
+                      fontWeight: 700,
+                      fontSize: '0.88rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      opacity: selectedWorker.accessStatus !== 'ACTIVE' ? 0.5 : 1,
+                    }}
                   >
-                    <UserCheck className="w-5 h-5" />
-                    ALLOW ENTRY (IN)
+                    <UserCheck size={18} /> ALLOW ENTRY (IN)
                   </button>
+
                   <button
                     onClick={() => handleExit(selectedWorker)}
-                    className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-lg transition-colors text-sm"
+                    style={{
+                      padding: '0.85rem',
+                      borderRadius: '10px',
+                      border: 'none',
+                      background: '#DC2626',
+                      color: '#ffffff',
+                      fontWeight: 700,
+                      fontSize: '0.88rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                    }}
                   >
-                    <XCircle className="w-5 h-5" />
-                    RECORD EXIT (OUT)
+                    <XCircle size={18} /> RECORD EXIT (OUT)
                   </button>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="bg-white dark:bg-slate-800 p-12 rounded-xl border border-slate-200 dark:border-slate-700 text-center text-slate-500">
-              <QrCode className="w-12 h-12 mx-auto mb-3 text-slate-300 dark:text-slate-700" />
-              <div className="font-semibold text-slate-700 dark:text-slate-300">No Worker Selected</div>
-              <div className="text-sm mt-1">Scan a worker QR code or select a profile from the left list.</div>
-            </div>
-          )}
+            ) : (
+              <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '16px', padding: '3rem 1.5rem', textAlign: 'center', color: '#52788D' }}>
+                <QrCode size={48} color="#CBD5E1" style={{ marginBottom: '0.75rem' }} />
+                <div style={{ fontWeight: 800, fontSize: '1rem', color: '#083B56' }}>No Worker Selected</div>
+                <div style={{ fontSize: '0.85rem', marginTop: '4px' }}>Select a domestic worker from the left list or search by code.</div>
+              </div>
+            )}
 
-          {/* Attendance Activity Log */}
-          <div className="bg-white dark:bg-slate-800 p-4 md:p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
-            <h2 className="font-bold text-slate-900 dark:text-white">Recent Staff Gate Activity Log</h2>
-            <div className="space-y-3">
-              {attendanceLogs.slice(0, 5).map((log: StaffAttendanceLog) => (
-                <div
-                  key={log.id}
-                  className="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg flex items-center justify-between text-sm"
-                >
-                  <div className="flex items-center gap-3">
-                    {log.action === 'IN' ? (
-                      <CheckCircle className="w-5 h-5 text-emerald-500" />
-                    ) : (
-                      <XCircle className="w-5 h-5 text-slate-400" />
-                    )}
-                    <div>
-                      <div className="font-semibold text-slate-900 dark:text-white">
-                        {log.workerName} ({log.workerType})
+            {/* Attendance Activity Log */}
+            <div style={{ background: '#ffffff', border: '1px solid #DCE8EF', borderRadius: '16px', padding: '1.25rem' }}>
+              <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 800, color: '#083B56', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Clock size={16} /> Recent Gate Activity Log
+              </h3>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                {attendanceLogs.slice(0, 4).map((log: StaffAttendanceLog) => (
+                  <div
+                    key={log.id}
+                    style={{
+                      padding: '0.75rem 1rem',
+                      borderRadius: '10px',
+                      background: '#F8FAFC',
+                      border: '1px solid #E2E8F0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <div
+                        style={{
+                          width: '34px',
+                          height: '34px',
+                          borderRadius: '8px',
+                          background: log.action === 'IN' ? '#ECFDF5' : '#FEF2F2',
+                          color: log.action === 'IN' ? '#059669' : '#DC2626',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        {log.action === 'IN' ? <ArrowDownLeft size={16} /> : <ArrowUpRight size={16} />}
                       </div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400">
-                        Scanned by {log.scannedBy}
+                      <div>
+                        <div style={{ fontWeight: 800, fontSize: '0.88rem', color: '#083B56' }}>
+                          {log.workerName} ({log.workerType})
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: '#52788D' }}>
+                          Officer: {log.scannedBy}
+                        </div>
                       </div>
                     </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <span
+                        style={{
+                          background: log.action === 'IN' ? '#ECFDF5' : '#FEF2F2',
+                          color: log.action === 'IN' ? '#059669' : '#DC2626',
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                        }}
+                      >
+                        {log.action}
+                      </span>
+                      <div style={{ fontSize: '0.75rem', color: '#94A3B8', marginTop: '2px' }}>{log.timestamp}</div>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <StatusBadge
-                      variant={log.action === 'IN' ? 'success' : 'neutral'}
-                      label={log.action}
-                    />
-                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{log.timestamp}</div>
-                  </div>
-                </div>
-              ))}
+                ))}
 
-              {attendanceLogs.length === 0 && (
-                <div className="text-center py-4 text-slate-500 text-sm">No gate activity logged today.</div>
-              )}
+                {attendanceLogs.length === 0 && (
+                  <div style={{ padding: '1.5rem', textAlign: 'center', color: '#52788D', fontSize: '0.85rem' }}>
+                    No gate activity logged today.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
-      </div>
+
+      {/* Camera Scanner Modal */}
+      <Modal isOpen={isScannerOpen} onClose={() => setIsScannerOpen(false)} title="Camera Worker Pass Scanner">
+        <QRScanner onScan={(code) => {
+          handleSearch(code);
+          setIsScannerOpen(false);
+        }} />
+      </Modal>
     </div>
   );
 };
-

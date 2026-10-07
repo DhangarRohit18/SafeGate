@@ -4,42 +4,55 @@
    ============================================================ */
 
 :root {
-  /* ── 1. Canonical Color System ── */
+  /* ── 1. Canonical Coral + Gold + Espresso Design System ── */
+  --aarizo-coral: #F06543;
+  --aarizo-coral-hover: #D85332;
+  --aarizo-coral-light: #FFF0EC;
+
+  --aarizo-gold: #E5B842;
+  --aarizo-gold-hover: #D4A731;
+  --aarizo-gold-light: #FEF9E7;
+
+  --aarizo-espresso: #231715;
+  --aarizo-espresso-dark: #180F0E;
+
   --aarizo-navy: #083B56;
-  --aarizo-navy-dark: #062F45;
-  --aarizo-blue: #176B91;
-  --aarizo-blue-deep: #0E5578;
-  --aarizo-sky: #83CBEA;
-  --aarizo-light-blue: #EAF6FC;
-  --aarizo-pale-blue: #F4FAFE;
+  --aarizo-navy-dark: #052A3E;
+  --aarizo-blue: #F06543; /* Set primary interactive color to Coral */
+  --aarizo-blue-deep: #D85332;
+  --aarizo-sky: #F3C649; /* Set highlight accent to Warm Gold */
+  --aarizo-light-blue: #FFF0EC;
+  --aarizo-pale-blue: #FAFAFA;
   --aarizo-page: #F7FBFE;
   --aarizo-white: #FFFFFF;
+
 
   --aarizo-text: #203746;
   --aarizo-text-secondary: #657785;
   --aarizo-text-muted: #8B9AA5;
 
-  --aarizo-border: #DCE8EF;
-  --aarizo-border-soft: #E8F1F5;
+  --aarizo-border: #E5E9EC;
+  --aarizo-border-soft: #EEF2F5;
 
-  --aarizo-success: #3F8F58;
+  --aarizo-success: #2E7D32;
   --aarizo-success-bg: #EDF8F0;
 
-  --aarizo-warning: #D99A2B;
-  --aarizo-warning-bg: #FFF8E8;
+  --aarizo-warning: #E5B842;
+  --aarizo-warning-bg: #FEF9E7;
 
   --aarizo-danger: #D9535B;
   --aarizo-danger-bg: #FFF0F1;
 
-  --aarizo-info: #176B91;
+  --aarizo-info: #083B56;
   --aarizo-info-bg: #EAF6FC;
 
   /* ── 2. Semantic Aliases ── */
-  --color-primary: var(--aarizo-blue);
-  --color-primary-hover: var(--aarizo-blue-deep);
+  --color-primary: var(--aarizo-coral);
+  --color-primary-hover: var(--aarizo-coral-hover);
+  --color-secondary: var(--aarizo-gold);
   --color-background: var(--aarizo-page);
   --color-surface: var(--aarizo-white);
-  --color-surface-subtle: var(--aarizo-light-blue);
+  --color-surface-subtle: var(--aarizo-coral-light);
   --color-surface-card: var(--aarizo-white);
   --color-surface-section: var(--aarizo-pale-blue);
 
@@ -64,9 +77,9 @@
   --color-bg-app: var(--aarizo-page);
   --color-text-primary: var(--aarizo-text);
   --color-text-secondary: var(--aarizo-text-secondary);
-  --brand-blue: var(--aarizo-blue);
-  --brand-blue-dark: var(--aarizo-navy);
-  --brand-blue-light: var(--aarizo-light-blue);
+  --brand-blue: var(--aarizo-coral);
+  --brand-blue-dark: var(--aarizo-espresso);
+  --brand-blue-light: var(--aarizo-coral-light);
 
   /* ── 3. Typography Scale ── */
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -100,24 +113,25 @@
   --space-10: 2.5rem;  /* 40px */
   --space-12: 3rem;    /* 48px */
 
-  /* ── 5. Border Radii ── */
-  --radius-xs: 4px;
-  --radius-sm: 8px;
+  /* ── 5. Border Radii Hierarchy ── */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 20px;
   --radius-full: 9999px;
 
-  /* ── 6. Shadows / Elevation (Soft Blue/Navy Tint) ── */
+  /* ── 6. Shadows / Elevation ── */
   --shadow-sm: 0 1px 4px rgba(8, 59, 86, 0.04);
-  --shadow-card: 0 2px 10px rgba(8, 59, 86, 0.05);
-  --shadow-fab: 0 6px 18px rgba(8, 59, 86, 0.16);
-  --shadow-modal: 0 20px 40px rgba(8, 59, 86, 0.18);
+  --shadow-card: 0 4px 14px rgba(8, 59, 86, 0.06);
+  --shadow-fab: 0 6px 20px rgba(240, 101, 67, 0.3);
+  --shadow-modal: 0 20px 40px rgba(35, 23, 21, 0.22);
 
   /* ── 7. Layout Dimensions ── */
   --header-height: 58px;
   --mobile-nav-height: 64px;
   --bottom-nav-height: 64px;
+  --max-content-width: 1440px;
 
   /* ── 8. Transitions ── */
   --transition-fast: 150ms ease-in-out;
@@ -125,123 +139,41 @@
 }
 
 /* ============================================================
-   Theme 2: Coral Sunrise (Coral, Coral Red & Soft Warm Yellow)
+   Theme 2: Coral Sunrise
    ============================================================ */
 [data-theme="coral"] {
-  --aarizo-navy: #2B1816;
-  --aarizo-navy-dark: #1F100E;
-  --aarizo-blue: #E76F51;
-  --aarizo-blue-deep: #D45B3D;
-  --aarizo-sky: #F4A261;
-  --aarizo-light-blue: #FFF3EB;
-  --aarizo-pale-blue: #FFF8F3;
-  --aarizo-page: #FAF7F5;
+  --aarizo-coral: #F06543;
+  --aarizo-coral-hover: #D85332;
+  --aarizo-gold: #E5B842;
+  --aarizo-espresso: #231715;
+  --aarizo-navy: #083B56;
+  --aarizo-page: #F8F9FA;
   --aarizo-white: #FFFFFF;
-
-  --aarizo-text: #2D1E1D;
-  --aarizo-text-secondary: #705856;
-  --aarizo-text-muted: #9E8583;
-
-  --aarizo-border: #F0D5CC;
-  --aarizo-border-soft: #F9EBE6;
-
-  --aarizo-warning: #E9C46A;
-  --aarizo-warning-bg: #FEF9E7;
-
-  --color-primary: var(--aarizo-blue);
-  --color-primary-hover: var(--aarizo-blue-deep);
-  --color-background: var(--aarizo-page);
-  --color-surface: var(--aarizo-white);
-  --color-surface-subtle: var(--aarizo-light-blue);
-  --color-surface-card: var(--aarizo-white);
-  --color-surface-section: var(--aarizo-pale-blue);
-  --color-border: var(--aarizo-border);
-  --color-border-subtle: var(--aarizo-border-soft);
-  --color-text: var(--aarizo-text);
-  --color-text-muted: var(--aarizo-text-secondary);
-  --color-text-subtle: var(--aarizo-text-muted);
-  --color-warning: var(--aarizo-warning);
-  --color-warning-bg: var(--aarizo-warning-bg);
-
-  --brand-blue: var(--aarizo-blue);
-  --brand-blue-dark: var(--aarizo-navy);
-  --brand-blue-light: var(--aarizo-light-blue);
 }
 
 /* ============================================================
-   Theme 3: Royal Emerald & Mint (Deep Forest, Mint Sage & Cream)
+   Theme 3: Royal Emerald & Mint
    ============================================================ */
 [data-theme="emerald"] {
-  --aarizo-navy: #0E3B2E;
-  --aarizo-navy-dark: #09261D;
-  --aarizo-blue: #2A9D74;
-  --aarizo-blue-deep: #1E7B5A;
-  --aarizo-sky: #7FE0B8;
-  --aarizo-light-blue: #E8F9F1;
-  --aarizo-pale-blue: #F2FCF7;
+  --aarizo-coral: #2A9D74;
+  --aarizo-coral-hover: #1E7B5A;
+  --aarizo-gold: #E5B842;
+  --aarizo-espresso: #0E3B2E;
+  --aarizo-navy: #09261D;
   --aarizo-page: #F6FBF8;
   --aarizo-white: #FFFFFF;
-
-  --aarizo-text: #19382B;
-  --aarizo-text-secondary: #56786A;
-  --aarizo-text-muted: #8FAEA1;
-
-  --aarizo-border: #D1EFE2;
-  --aarizo-border-soft: #E2F6ED;
-
-  --color-primary: var(--aarizo-blue);
-  --color-primary-hover: var(--aarizo-blue-deep);
-  --color-background: var(--aarizo-page);
-  --color-surface: var(--aarizo-white);
-  --color-surface-subtle: var(--aarizo-light-blue);
-  --color-surface-card: var(--aarizo-white);
-  --color-surface-section: var(--aarizo-pale-blue);
-  --color-border: var(--aarizo-border);
-  --color-border-subtle: var(--aarizo-border-soft);
-  --color-text: var(--aarizo-text);
-  --color-text-muted: var(--aarizo-text-secondary);
-  --color-text-subtle: var(--aarizo-text-muted);
-
-  --brand-blue: var(--aarizo-blue);
-  --brand-blue-dark: var(--aarizo-navy);
-  --brand-blue-light: var(--aarizo-light-blue);
 }
 
 /* ============================================================
-   Theme 4: Luxury Noir & Champagne Gold (Onyx, Amber Gold & Ivory)
+   Theme 4: Luxury Noir & Gold
    ============================================================ */
 [data-theme="luxury"] {
-  --aarizo-navy: #1A1A1E;
-  --aarizo-navy-dark: #121215;
-  --aarizo-blue: #C59B27;
-  --aarizo-blue-deep: #A37F1C;
-  --aarizo-sky: #E6CB7A;
-  --aarizo-light-blue: #FAF5E6;
-  --aarizo-pale-blue: #FDFBF4;
+  --aarizo-coral: #C59B27;
+  --aarizo-coral-hover: #A37F1C;
+  --aarizo-gold: #F3C649;
+  --aarizo-espresso: #1A1A1E;
+  --aarizo-navy: #121215;
   --aarizo-page: #FAF9F6;
   --aarizo-white: #FFFFFF;
-
-  --aarizo-text: #222226;
-  --aarizo-text-secondary: #6B6A72;
-  --aarizo-text-muted: #9E9DA6;
-
-  --aarizo-border: #E8E2D2;
-  --aarizo-border-soft: #F2EEE3;
-
-  --color-primary: var(--aarizo-blue);
-  --color-primary-hover: var(--aarizo-blue-deep);
-  --color-background: var(--aarizo-page);
-  --color-surface: var(--aarizo-white);
-  --color-surface-subtle: var(--aarizo-light-blue);
-  --color-surface-card: var(--aarizo-white);
-  --color-surface-section: var(--aarizo-pale-blue);
-  --color-border: var(--aarizo-border);
-  --color-border-subtle: var(--aarizo-border-soft);
-  --color-text: var(--aarizo-text);
-  --color-text-muted: var(--aarizo-text-secondary);
-  --color-text-subtle: var(--aarizo-text-muted);
-
-  --brand-blue: var(--aarizo-blue);
-  --brand-blue-dark: var(--aarizo-navy);
-  --brand-blue-light: var(--aarizo-light-blue);
 }
+
