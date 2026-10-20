@@ -59,7 +59,7 @@ export class ErrorBoundary extends Component<Props, State> {
             Something went wrong
           </h1>
           <p style={{ fontSize: '0.875rem', color: '#94a3b8', maxWidth: '360px', marginBottom: '24px' }}>
-            An unexpected error occurred in Safegate. You can retry to refresh the active state.
+            An unexpected error occurred in Dwellora. You can retry to refresh the active state.
           </p>
           <button
             onClick={this.handleReload}

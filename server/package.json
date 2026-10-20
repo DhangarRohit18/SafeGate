@@ -1,7 +1,7 @@
 {
-  "name": "safegate-backend",
+  "name": "dwellora-backend",
   "version": "1.0.0",
-  "description": "Safegate Smart Community Platform Backend - Node.js + Express + Prisma + PostgreSQL",
+  "description": "Dwellora Smart Community Platform Backend - Node.js + Express + Prisma + PostgreSQL",
   "main": "src/index.ts",
   "type": "module",
   "scripts": {

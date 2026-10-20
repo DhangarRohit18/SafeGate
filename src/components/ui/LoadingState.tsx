@@ -5,7 +5,7 @@ interface LoadingStateProps {
   message?: string;
 }
 
-export const LoadingState: React.FC<LoadingStateProps> = ({ message = 'Loading Safegate...' }) => {
+export const LoadingState: React.FC<LoadingStateProps> = ({ message = 'Loading Dwellora...' }) => {
   return (
     <div
       style={{

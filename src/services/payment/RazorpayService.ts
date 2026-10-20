@@ -125,6 +125,7 @@ export class RazorpayService {
       razorpayOrderId: params.razorpayOrderId,
       razorpayPaymentId: params.razorpayPaymentId,
       amount: 0,
+      razorpaySignature: params.razorpaySignature,
     });
 
     if (!apiRes || !apiRes.success) {
@@ -194,17 +195,23 @@ export class RazorpayService {
         key: orderData.keyId || RAZORPAY_PUBLIC_KEY,
         amount: orderData.amount, // amount in paise
         currency: orderData.currency || 'INR',
-        name: options.societyName || 'AARIZO Community Society',
+        name: options.societyName || 'Dwellora Community Society',
         description: `Maintenance Bill: ${options.invoiceNumber}`,
         order_id: orderData.orderId,
         prefill: {
           name: options.userName || 'Resident',
-          email: options.userEmail || 'resident@aarizo.com',
+          email: options.userEmail || 'resident@dwellora.com',
           contact: options.userPhone || '9876543210',
         },
         theme: {
           color: '#083B56',
         },
+        // Brand logo is only passed if a valid, publicly accessible HTTPS URL is configured
+        ...(((import.meta as any).env?.VITE_PUBLIC_LOGO_URL &&
+          typeof (import.meta as any).env.VITE_PUBLIC_LOGO_URL === 'string' &&
+          (import.meta as any).env.VITE_PUBLIC_LOGO_URL.startsWith('https://'))
+          ? { image: (import.meta as any).env.VITE_PUBLIC_LOGO_URL }
+          : {}),
         modal: {
           ondismiss: () => {
             if (!isVerified) {

@@ -1,0 +1,10 @@
+# Server dependencies & build output
+node_modules/
+dist/
+uploads/
+
+# Environment files & secrets
+.env
+.env.*
+*.env
+!.env.example

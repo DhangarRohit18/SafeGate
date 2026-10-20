@@ -191,7 +191,7 @@ const SEED_SESSIONS: SessionRecord[] = [
     role: 'RESIDENT',
     societyId: 'soc-gvs',
     ipAddress: '192.168.1.102',
-    deviceInfo: 'CommunityOS iOS App v4.2',
+    deviceInfo: 'Dwellora Mobile App v1.0',
     createdAt: '2026-09-13T09:10:00Z',
     lastActiveAt: '2026-09-13T12:30:00Z',
     isExpired: false,

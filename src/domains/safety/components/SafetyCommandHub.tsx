@@ -1290,11 +1290,22 @@ export const SafetyCommandHub: React.FC<SafetyCommandHubProps> = ({ initialTab =
         icon={<QrCode size={20} />}
         maxWidth="460px"
         footer={
-          <div className="flex gap-2 w-full">
+          <div style={{ display: 'flex', gap: '0.625rem', width: '100%' }}>
             <button
               type="button"
               onClick={() => setModalMode(null)}
-              className="flex-1 py-3 bg-slate-100 text-slate-700 font-bold text-xs rounded-xl border border-slate-200"
+              style={{
+                flex: 1,
+                padding: '0.75rem 1rem',
+                borderRadius: '12px',
+                background: '#FFFFFF',
+                border: '1px solid #DCE8EF',
+                color: '#475569',
+                fontWeight: 800,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                minHeight: '44px',
+              }}
             >
               Cancel
             </button>
@@ -1305,9 +1316,26 @@ export const SafetyCommandHub: React.FC<SafetyCommandHubProps> = ({ initialTab =
                 setAlertSuccess('Child Gate Exit Pass generated and active for 4 hours!');
                 setTimeout(() => setAlertSuccess(null), 5000);
               }}
-              className="flex-1 py-3 bg-[#F06543] text-white font-extrabold text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+              style={{
+                flex: 1,
+                padding: '0.75rem 1rem',
+                borderRadius: '12px',
+                background: 'var(--aarizo-coral, #F06543)',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                fontSize: '0.8125rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.45rem',
+                boxShadow: '0 2px 8px rgba(240, 101, 67, 0.25)',
+                minHeight: '44px',
+              }}
             >
-              <QrCode size={15} /> Confirm Pass
+              <QrCode size={15} />
+              <span>Confirm Pass</span>
             </button>
           </div>
         }
@@ -1394,20 +1422,69 @@ export const SafetyCommandHub: React.FC<SafetyCommandHubProps> = ({ initialTab =
         </form>
       </Modal>
 
-      {/* Modal: Missing Alert */}
+      {/* Modal: Missing Alert / High Priority Security Alarm */}
       <Modal
         isOpen={modalMode === 'MISSING_ALERT'}
         onClose={() => setModalMode(null)}
-        title="High Priority Security Alarm"
-        subtitle="Immediate security alarm & gate exit lockdown"
-        icon={<AlertTriangle size={20} className="text-rose-600" />}
-        maxWidth="460px"
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '1.05rem', fontWeight: 900, color: '#991B1B' }}>
+              High Priority Security Alarm
+            </span>
+            <span
+              style={{
+                fontSize: '0.625rem',
+                fontWeight: 900,
+                padding: '0.2rem 0.55rem',
+                borderRadius: '6px',
+                background: '#FEE2E2',
+                color: '#DC2626',
+                border: '1px solid #FCA5A5',
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+              }}
+            >
+              CRITICAL
+            </span>
+          </div>
+        }
+        subtitle="Immediate perimeter lockdown & gate alarm broadcast"
+        icon={
+          <div
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: '12px',
+              background: '#FEE2E2',
+              color: '#DC2626',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 0 0 3px rgba(220, 38, 38, 0.12)',
+            }}
+          >
+            <ShieldAlert size={20} />
+          </div>
+        }
+        maxWidth="480px"
         footer={
-          <div className="flex gap-2 w-full">
+          <div style={{ display: 'flex', gap: '0.625rem', width: '100%' }}>
             <button
               type="button"
               onClick={() => setModalMode(null)}
-              className="flex-1 py-3 bg-slate-100 text-slate-700 font-bold text-xs rounded-xl border border-slate-200"
+              style={{
+                flex: 1,
+                padding: '0.75rem 1rem',
+                borderRadius: '12px',
+                background: '#FFFFFF',
+                border: '1px solid #DCE8EF',
+                color: '#475569',
+                fontWeight: 800,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                minHeight: '44px',
+              }}
             >
               Cancel
             </button>
@@ -1418,16 +1495,108 @@ export const SafetyCommandHub: React.FC<SafetyCommandHubProps> = ({ initialTab =
                 setAlertSuccess('HIGH PRIORITY CHILD MISSING ALERT DISPATCHED TO MAIN GATE SECURITY TERMINAL!');
                 setTimeout(() => setAlertSuccess(null), 6000);
               }}
-              className="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer"
+              style={{
+                flex: 1.6,
+                padding: '0.75rem 1.25rem',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)',
+                color: '#FFFFFF',
+                fontWeight: 900,
+                fontSize: '0.8125rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.45rem',
+                boxShadow: '0 4px 14px rgba(220, 38, 38, 0.35)',
+                minHeight: '44px',
+                transition: 'all 0.15s ease',
+              }}
             >
-              DISPATCH ALARM NOW
+              <ShieldAlert size={16} />
+              <span>DISPATCH ALARM NOW</span>
             </button>
           </div>
         }
       >
-        <p className="text-xs text-slate-600 font-medium leading-relaxed">
-          This will trigger an immediate audio alarm and gate lockdown notification on all Security Gate Terminals for Flat {flatNumber} ({currentChild?.childName}).
-        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', fontSize: '0.75rem' }}>
+          {/* Urgent Protocol Notice Banner */}
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #FEF2F2 0%, #FFF1F2 100%)',
+              border: '1px solid #FECDD3',
+              borderRadius: '16px',
+              padding: '0.875rem 1rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.35rem',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#B91C1C', fontWeight: 900, fontSize: '0.6875rem', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+              <Radio size={15} style={{ color: '#DC2626' }} />
+              <span>Emergency Broadcast Activation</span>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.8125rem', color: '#881337', fontWeight: 600, lineHeight: 1.45 }}>
+              Audio sirens will immediately sound on all Security Gate Terminals and mobile guard units. Exit barriers will lock down.
+            </p>
+          </div>
+
+          {/* Incident Target Details Grid */}
+          <div
+            style={{
+              background: '#F8FAFC',
+              border: '1px solid #E2E8F0',
+              borderRadius: '14px',
+              padding: '0.875rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #E2E8F0', paddingBottom: '0.4rem' }}>
+              <span style={{ color: '#64748B', fontWeight: 600, fontSize: '0.75rem' }}>Child / Subject:</span>
+              <span style={{ color: '#083B56', fontWeight: 900, fontSize: '0.8125rem' }}>
+                {currentChild?.childName || 'Aarav Joshi'}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #E2E8F0', paddingBottom: '0.4rem' }}>
+              <span style={{ color: '#64748B', fontWeight: 600, fontSize: '0.75rem' }}>Residence Flat:</span>
+              <span style={{ color: '#083B56', fontWeight: 800, fontSize: '0.75rem' }}>
+                Flat {flatNumber}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ color: '#64748B', fontWeight: 600, fontSize: '0.75rem' }}>Security Protocol:</span>
+              <span style={{ color: '#DC2626', fontWeight: 800, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <Lock size={12} /> Gate Exit Barrier Freeze
+              </span>
+            </div>
+          </div>
+
+          {/* Security Instruction Disclaimer */}
+          <div
+            style={{
+              background: '#FFFBEB',
+              border: '1px solid #FDE68A',
+              borderRadius: '12px',
+              padding: '0.75rem',
+              color: '#92400E',
+              fontSize: '0.725rem',
+              lineHeight: 1.45,
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.5rem',
+            }}
+          >
+            <AlertTriangle size={15} style={{ color: '#D97706', flexShrink: 0, marginTop: 2 }} />
+            <span>
+              Security guards will halt and inspect all pedestrian and vehicular departures at perimeter gates until identity is verified.
+            </span>
+          </div>
+        </div>
       </Modal>
     </div>
   );

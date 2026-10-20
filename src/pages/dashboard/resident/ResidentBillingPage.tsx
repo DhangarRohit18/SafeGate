@@ -881,6 +881,7 @@ export const ResidentBillingPage: React.FC = () => {
           onClose={() => setCheckoutInvoice(null)}
           amount={paymentAmount || checkoutInvoice.outstandingBalance}
           purpose={checkoutInvoice.cycleName}
+          societyName="Green Valley Society"
           invoiceNumber={checkoutInvoice.invoiceNumber}
           invoiceId={checkoutInvoice.id}
           userPhone={currentResident.phone}

@@ -280,7 +280,7 @@ export const DeveloperDatabaseStudio: React.FC = () => {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <h1 style={{ fontSize: '1.0625rem', fontWeight: 800, color: '#F8FAFC', margin: 0, letterSpacing: '-0.02em' }}>
-                  AARIZO Developer Database Studio
+                  Dwellora Developer Database Studio
                 </h1>
                 <span
                   style={{

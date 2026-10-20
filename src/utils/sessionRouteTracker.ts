@@ -1,8 +1,8 @@
 import type { UserRole } from '../domains/auth/types';
 
-const ACTIVE_SESSION_KEY = 'safegate_active_session';
-const LAST_ROUTE_KEY = 'safegate_last_route';
-const LAST_ROLE_KEY = 'safegate_last_role';
+const ACTIVE_SESSION_KEY = 'dwellora_active_session';
+const LAST_ROUTE_KEY = 'dwellora_last_route';
+const LAST_ROLE_KEY = 'dwellora_last_role';
 
 /**
  * List of sensitive or transient paths/modals that should NEVER be restored after fresh launch or reload

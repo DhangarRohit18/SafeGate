@@ -39,11 +39,11 @@ interface AuthContextProps {
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
-const ONBOARDING_STORAGE_KEY = 'communityos_onboarding_completed';
-const USER_STORAGE_KEY = 'aarizo_user';
-const ACTIVE_SESSION_KEY = 'safegate_active_session';
-const LAST_ROUTE_KEY = 'safegate_last_route';
-const LAST_ROLE_KEY = 'safegate_last_role';
+const ONBOARDING_STORAGE_KEY = 'dwellora_onboarding_completed';
+const USER_STORAGE_KEY = 'dwellora_user';
+const ACTIVE_SESSION_KEY = 'dwellora_active_session';
+const LAST_ROUTE_KEY = 'dwellora_last_route';
+const LAST_ROLE_KEY = 'dwellora_last_role';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {

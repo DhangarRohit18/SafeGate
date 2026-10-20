@@ -18,10 +18,10 @@ export const initNativeMobileFeatures = async () => {
   if (!isNativeApp()) return;
 
   try {
-    // Set status bar background to Safegate warm off-white brand background
-    await StatusBar.setBackgroundColor({ color: '#F7FBFE' });
-    // Style.Light sets the status bar text/icons to dark
-    await StatusBar.setStyle({ style: Style.Light });
+    // Set status bar background for Dwellora native styling
+    await StatusBar.setBackgroundColor({ color: '#000000' });
+    // Style.Dark sets the status bar text/icons to light/white
+    await StatusBar.setStyle({ style: Style.Dark });
     await StatusBar.setOverlaysWebView({ overlay: false });
   } catch (err) {
     console.debug('StatusBar initialization fallback:', err);

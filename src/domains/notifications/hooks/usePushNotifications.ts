@@ -34,7 +34,7 @@ export function usePushNotifications() {
         try {
           await PushNotifications.register();
         } catch (regErr) {
-          console.warn('[AARIZO Push] Push registration skipped or not configured:', regErr);
+          console.warn('[Dwellora Push] Push registration skipped or not configured:', regErr);
           return;
         }
 
@@ -42,7 +42,7 @@ export function usePushNotifications() {
         const tokenListener = await PushNotifications.addListener(
           'registration',
           (token) => {
-            console.debug('[AARIZO Push] Device token:', token.value);
+            console.debug('[Dwellora Push] Device token:', token.value);
           }
         );
 
@@ -50,7 +50,7 @@ export function usePushNotifications() {
         const receivedListener = await PushNotifications.addListener(
           'pushNotificationReceived',
           (notification) => {
-            console.debug('[AARIZO Push] Received:', notification.title);
+            console.debug('[Dwellora Push] Received:', notification.title);
           }
         );
 
@@ -91,7 +91,7 @@ export function usePushNotifications() {
           actionListener.remove().catch(() => {});
         };
       } catch (err) {
-        console.warn('[AARIZO Push] Push notification setup failed:', err);
+        console.warn('[Dwellora Push] Push notification setup failed:', err);
       }
     };
 

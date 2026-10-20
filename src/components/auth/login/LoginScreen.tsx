@@ -34,7 +34,7 @@ export const LoginScreen: React.FC = () => {
     setError,
   } = useAuth();
 
-  const [password, setPassword] = useState<string>('safegate@2026');
+  const [password, setPassword] = useState<string>('dwellora@2026');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [otpInput, setOtpInput] = useState<string>('');
   const [showOtpModal, setShowOtpModal] = useState<boolean>(false);
@@ -152,19 +152,28 @@ export const LoginScreen: React.FC = () => {
           {/* Logo Badge */}
           <div
             style={{
-              width: 52,
-              height: 52,
+              width: 56,
+              height: 56,
               borderRadius: '16px',
-              background: '#083B56',
+              background: '#000000',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#ffffff',
-              boxShadow: '0 8px 24px rgba(8, 59, 86, 0.25)',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
               marginBottom: '0.75rem',
+              overflow: 'hidden',
             }}
           >
-            <ShieldCheck size={30} strokeWidth={2.2} />
+            <img
+              src="/dwellora-symbol.png"
+              alt="Dwellora"
+              style={{
+                width: 40,
+                height: 40,
+                objectFit: 'contain',
+                display: 'block',
+              }}
+            />
           </div>
 
           <h1
@@ -177,7 +186,7 @@ export const LoginScreen: React.FC = () => {
               lineHeight: 1.2,
             }}
           >
-            Sign In to Safegate
+            Sign In to Dwellora
           </h1>
 
           <p

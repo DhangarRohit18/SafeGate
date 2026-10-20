@@ -602,8 +602,8 @@ model Payment {
   amount                    Decimal       @db.Decimal(10, 2)
   currency                  String        @default("INR")
   status                    String        @default("PENDING") // PENDING, SUCCESS, FAILED, REFUNDED
-  razorpayOrderId           String?       @map("razorpay_order_id")
-  razorpayPaymentId         String?       @map("razorpay_payment_id")
+  razorpayOrderId           String?       @unique @map("razorpay_order_id")
+  razorpayPaymentId         String?       @unique @map("razorpay_payment_id")
   razorpaySignatureVerified Boolean       @default(false) @map("razorpay_signature_verified")
   paymentMethod             String?       @default("RAZORPAY") @map("payment_method")
   failureReason             String?       @map("failure_reason")
@@ -620,7 +620,20 @@ model Payment {
   resident                  Resident?     @relation(fields: [residentId], references: [id], onDelete: SetNull)
   user                      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
 
+  @@index([societyId, status])
+  @@index([createdAt])
   @@map("payments")
+}
+
+model WebhookEvent {
+  id          String   @id @default(uuid())
+  eventId     String   @unique @map("event_id")
+  eventType   String   @map("event_type")
+  payload     Json
+  status      String   @default("PROCESSED") // PROCESSED, FAILED, IGNORED
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("webhook_events")
 }
 
 model EntityRecord {

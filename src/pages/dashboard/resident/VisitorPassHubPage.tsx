@@ -155,7 +155,7 @@ export const VisitorPassHubPage: React.FC = () => {
 
   const shareViaWhatsApp = (pass: SmartVisitorPass) => {
     const text = encodeURIComponent(
-      `*AARIZO Gate Pass - Flat ${currentFlat}*\n` +
+      `*Dwellora Gate Pass - Flat ${currentFlat}*\n` +
       `Visitor Name: ${pass.visitorName}\n` +
       `Pass Code: *${pass.passCode}*\n` +
       `Category: ${pass.category.replace(/_/g, ' ')}\n` +

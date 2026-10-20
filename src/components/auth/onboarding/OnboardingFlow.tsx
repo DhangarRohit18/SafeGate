@@ -4,7 +4,6 @@ import { useAuth } from '../../../context/AuthContext';
 import {
   ArrowRight,
   ChevronRight,
-  ShieldCheck,
   Users,
   QrCode,
   Building,
@@ -261,15 +260,24 @@ export const OnboardingFlow: React.FC = () => {
               width: 38,
               height: 38,
               borderRadius: '12px',
-              background: '#083B56',
+              background: '#000000',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#ffffff',
-              boxShadow: '0 4px 12px rgba(8, 59, 86, 0.25)',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
+              overflow: 'hidden',
             }}
           >
-            <ShieldCheck size={22} strokeWidth={2.2} />
+            <img
+              src="/dwellora-symbol.png"
+              alt="Dwellora"
+              style={{
+                width: 26,
+                height: 26,
+                objectFit: 'contain',
+                display: 'block',
+              }}
+            />
           </div>
           <div>
             <div
@@ -281,7 +289,7 @@ export const OnboardingFlow: React.FC = () => {
                 lineHeight: 1.1,
               }}
             >
-              Safegate
+              Dwellora
             </div>
             <div
               style={{

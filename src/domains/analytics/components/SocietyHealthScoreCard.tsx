@@ -61,7 +61,7 @@ ${data.historicalTrends
   .join('\n')}
 
 =====================================================
-Certified by AARIZO Society Intelligence Engine
+Certified by Dwellora Society Intelligence Engine
     `;
 
     const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8;' });

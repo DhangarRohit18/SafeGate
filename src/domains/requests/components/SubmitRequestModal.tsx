@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { SocietyRequestCategory } from '../types';
 import { FileUpload } from '../../../components/ui/FileUpload';
 import { Modal } from '../../../components/ui/Modal';
-import { FileText, CheckCircle2 } from 'lucide-react';
+import { FileText, CheckCircle2, Send, Tag, Clock } from 'lucide-react';
 
 interface SubmitRequestModalProps {
   isOpen: boolean;
@@ -47,11 +47,61 @@ export const SubmitRequestModal: React.FC<SubmitRequestModalProps> = ({
       onClose={onClose}
       title="Submit New Request / NOC"
       subtitle="Apply for society certificates, approvals, and permissions"
+      icon={<FileText size={20} />}
       maxWidth="540px"
+      footer={
+        <div style={{ display: 'flex', gap: '0.625rem', width: '100%' }}>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              flex: 1,
+              padding: '0.75rem 1rem',
+              borderRadius: '12px',
+              background: '#FFFFFF',
+              border: '1px solid #DCE8EF',
+              color: '#475569',
+              fontWeight: 800,
+              fontSize: '0.8125rem',
+              cursor: 'pointer',
+              minHeight: '44px',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="societyRequestForm"
+            style={{
+              flex: 1.5,
+              padding: '0.75rem 1.25rem',
+              borderRadius: '12px',
+              background: 'var(--aarizo-coral, #F06543)',
+              color: '#FFFFFF',
+              fontWeight: 800,
+              fontSize: '0.8125rem',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.45rem',
+              boxShadow: '0 2px 8px rgba(240, 101, 67, 0.25)',
+              minHeight: '44px',
+              transition: 'all 0.15s ease',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <Send size={15} />
+            <span>Submit Request</span>
+          </button>
+        </div>
+      }
     >
       <form onSubmit={handleCreateRequest} id="societyRequestForm" className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+          <label className="block text-xs font-bold text-slate-700 mb-1.5">
             Request Title <span className="text-rose-500">*</span>
           </label>
           <input
@@ -59,18 +109,41 @@ export const SubmitRequestModal: React.FC<SubmitRequestModalProps> = ({
             placeholder="e.g. Balcony Grill Expansion Permission"
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
-            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#176B91]/20 focus:border-[#176B91] transition-all"
+            style={{
+              width: '100%',
+              padding: '0.65rem 0.875rem',
+              borderRadius: '12px',
+              background: '#F8FAFC',
+              border: '1px solid #DCE8EF',
+              fontSize: '0.8125rem',
+              fontWeight: 600,
+              color: '#083B56',
+              outline: 'none',
+            }}
             required
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Category</label>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
+              <Tag size={13} className="text-[#0284C7]" />
+              Category
+            </label>
             <select
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value as any)}
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#176B91]/20 focus:border-[#176B91] transition-all"
+              style={{
+                width: '100%',
+                padding: '0.65rem 0.875rem',
+                borderRadius: '12px',
+                background: '#F8FAFC',
+                border: '1px solid #DCE8EF',
+                fontSize: '0.8125rem',
+                fontWeight: 700,
+                color: '#083B56',
+                outline: 'none',
+              }}
             >
               <option value="NOC">No Objection Certificate (NOC)</option>
               <option value="TENANT_REGISTRATION">Tenant Registration</option>
@@ -83,11 +156,24 @@ export const SubmitRequestModal: React.FC<SubmitRequestModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Priority Level</label>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
+              <Clock size={13} className="text-[#F06543]" />
+              Priority Level
+            </label>
             <select
               value={newPriority}
               onChange={(e) => setNewPriority(e.target.value as any)}
-              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#176B91]/20 focus:border-[#176B91] transition-all"
+              style={{
+                width: '100%',
+                padding: '0.65rem 0.875rem',
+                borderRadius: '12px',
+                background: '#F8FAFC',
+                border: '1px solid #DCE8EF',
+                fontSize: '0.8125rem',
+                fontWeight: 700,
+                color: '#083B56',
+                outline: 'none',
+              }}
             >
               <option value="LOW">Low (72 hrs)</option>
               <option value="MEDIUM">Medium (48 hrs)</option>
@@ -98,7 +184,7 @@ export const SubmitRequestModal: React.FC<SubmitRequestModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+          <label className="block text-xs font-bold text-slate-700 mb-1.5">
             Description &amp; Details <span className="text-rose-500">*</span>
           </label>
           <textarea
@@ -106,15 +192,25 @@ export const SubmitRequestModal: React.FC<SubmitRequestModalProps> = ({
             placeholder="Provide complete explanation for committee review..."
             value={newDescription}
             onChange={(e) => setNewDescription(e.target.value)}
-            className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#176B91]/20 focus:border-[#176B91] transition-all"
+            style={{
+              width: '100%',
+              padding: '0.65rem 0.875rem',
+              borderRadius: '12px',
+              background: '#F8FAFC',
+              border: '1px solid #DCE8EF',
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+              color: '#083B56',
+              outline: 'none',
+            }}
             required
           />
         </div>
 
-        {/* Real Interactive File Upload Section */}
+        {/* File Upload Section */}
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
-            <FileText size={14} className="text-[#176B91]" />
+          <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
+            <FileText size={14} className="text-[#0284C7]" />
             Supporting Document / Agreement (Optional)
           </label>
 
@@ -141,24 +237,6 @@ export const SubmitRequestModal: React.FC<SubmitRequestModalProps> = ({
               <span className="truncate">Attached: <strong>{newFileName}</strong></span>
             </div>
           )}
-        </div>
-
-        <div className="flex items-center justify-end gap-3 pt-3.5 border-t border-slate-150">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-all"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            form="societyRequestForm"
-            className="px-5 py-2 bg-[#083B56] hover:bg-[#176B91] text-white text-xs font-bold rounded-xl shadow-sm hover:shadow-md transition-all active:scale-[0.99]"
-            style={{ backgroundColor: 'var(--aarizo-navy, #083B56)' }}
-          >
-            Submit Request
-          </button>
         </div>
       </form>
     </Modal>

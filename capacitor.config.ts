@@ -2,9 +2,9 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.aarizo.app',
-  appName: 'Safegate',
+  appName: 'Dwellora',
   webDir: 'dist',
-  backgroundColor: '#F7FBFE',
+  backgroundColor: '#000000',
   server: {
     androidScheme: 'https',
     cleartext: false,
@@ -16,8 +16,8 @@ const config: CapacitorConfig = {
   },
   plugins: {
     StatusBar: {
-      style: 'Light',
-      backgroundColor: '#F7FBFE',
+      style: 'Dark',
+      backgroundColor: '#000000',
       overlaysWebView: false,
     },
     PushNotifications: {
@@ -26,7 +26,7 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchShowDuration: 0,
       launchAutoHide: true,
-      backgroundColor: '#F7FBFE',
+      backgroundColor: '#000000',
       showSpinner: false,
     },
   },

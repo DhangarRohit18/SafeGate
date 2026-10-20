@@ -854,7 +854,29 @@ export const QRParkingHub: React.FC = () => {
             <button
               type="button"
               onClick={() => setModalMode(null)}
-              className="px-4 py-3 text-xs font-bold rounded-xl border border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
+              style={{
+                padding: '0.8125rem 1.25rem',
+                borderRadius: '14px',
+                border: '1.5px solid #E2E8F0',
+                backgroundColor: '#FFFFFF',
+                color: '#475569',
+                fontSize: '0.8125rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#F8FAFC';
+                e.currentTarget.style.borderColor = '#CBD5E1';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#FFFFFF';
+                e.currentTarget.style.borderColor = '#E2E8F0';
+              }}
             >
               Cancel
             </button>
@@ -864,10 +886,41 @@ export const QRParkingHub: React.FC = () => {
                 const form = document.getElementById('qr-pass-request-form') as HTMLFormElement;
                 if (form) form.requestSubmit();
               }}
-              className="flex-1 py-3 px-4 text-xs font-extrabold rounded-xl text-white shadow-md active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2 hover:brightness-110"
-              style={{ background: '#F06543', border: 'none' }}
+              style={{
+                flex: 1,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                padding: '0.8125rem 1.25rem',
+                borderRadius: '14px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #F06543 0%, #E05332 100%)',
+                color: '#FFFFFF',
+                fontSize: '0.875rem',
+                fontWeight: 800,
+                letterSpacing: '0.015em',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(240, 101, 67, 0.38)',
+                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 6px 18px rgba(240, 101, 67, 0.45)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 14px rgba(240, 101, 67, 0.38)';
+              }}
+              onMouseDown={(e) => {
+                e.currentTarget.style.transform = 'scale(0.98)';
+              }}
+              onMouseUp={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
             >
-              <Zap size={15} /> Generate Pass
+              <Zap size={16} style={{ color: '#FFFFFF', fill: 'rgba(255,255,255,0.3)' }} />
+              <span>Generate Pass</span>
             </button>
           </div>
         }
@@ -892,14 +945,55 @@ export const QRParkingHub: React.FC = () => {
           <div className="space-y-1.5">
             <label className="block text-xs font-extrabold text-[#083B56] uppercase tracking-wider">Vehicle Registration Number</label>
             <div className="relative">
-              <Car size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <div
+                style={{
+                  position: 'absolute',
+                  left: '14px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#94A3B8',
+                  pointerEvents: 'none',
+                }}
+              >
+                <Car size={18} />
+              </div>
               <input
                 type="text"
                 required
                 placeholder="e.g. MH-12-RS-9988"
                 value={passRequestForm.vehicleNumber}
                 onChange={(e) => setPassRequestForm({ ...passRequestForm, vehicleNumber: e.target.value.toUpperCase() })}
-                className="w-full pl-10.5 pr-3.5 py-3 border border-slate-300 rounded-xl text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-[#F06543]/30 focus:border-[#F06543] focus:outline-none uppercase tracking-wider"
+                style={{
+                  width: '100%',
+                  paddingLeft: '44px',
+                  paddingRight: '14px',
+                  paddingTop: '0.75rem',
+                  paddingBottom: '0.75rem',
+                  border: '1.5px solid #E2E8F0',
+                  borderRadius: '14px',
+                  fontSize: '0.875rem',
+                  fontFamily: 'monospace',
+                  fontWeight: 800,
+                  color: '#083B56',
+                  backgroundColor: '#F8FAFC',
+                  letterSpacing: '0.05em',
+                  outline: 'none',
+                  transition: 'all 0.15s ease',
+                  boxSizing: 'border-box',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#F06543';
+                  e.currentTarget.style.backgroundColor = '#FFFFFF';
+                  e.currentTarget.style.boxShadow = '0 0 0 3px rgba(240, 101, 67, 0.15)';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#E2E8F0';
+                  e.currentTarget.style.backgroundColor = '#F8FAFC';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               />
             </div>
             <p className="text-[11px] text-slate-400 font-medium flex items-center gap-1">
@@ -913,9 +1007,17 @@ export const QRParkingHub: React.FC = () => {
               <Calendar size={13} className="text-[#F06543]" /> Validity Period
             </label>
             <ChoicePills
+              columns={5}
+              size="sm"
               value={passRequestForm.durationDays}
               onChange={(val) => setPassRequestForm({ ...passRequestForm, durationDays: Number(val) })}
-              options={[1, 3, 7, 15, 30].map((d) => ({ value: d, label: `${d} ${d === 1 ? 'Day' : 'Days'}` }))}
+              options={[
+                { value: 1, label: '1 Day' },
+                { value: 3, label: '3 Days' },
+                { value: 7, label: '7 Days' },
+                { value: 15, label: '15 Days' },
+                { value: 30, label: '30 Days' },
+              ]}
             />
           </div>
         </form>
@@ -933,8 +1035,19 @@ export const QRParkingHub: React.FC = () => {
           <button
             type="button"
             onClick={() => setModalMode(null)}
-            className="w-full py-3 text-xs font-extrabold rounded-xl text-white shadow-md active:scale-95 transition-all cursor-pointer hover:brightness-110"
-            style={{ background: '#083B56', border: 'none' }}
+            style={{
+              width: '100%',
+              padding: '0.8125rem 1.25rem',
+              borderRadius: '14px',
+              border: 'none',
+              background: 'linear-gradient(135deg, #083B56 0%, #052638 100%)',
+              color: '#FFFFFF',
+              fontSize: '0.875rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              boxShadow: '0 4px 14px rgba(8, 59, 86, 0.25)',
+              transition: 'all 0.15s ease',
+            }}
           >
             Done &amp; Close Ticket
           </button>
@@ -1048,14 +1161,34 @@ export const QRParkingHub: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setModalMode(null)}
-                  className="flex-1 py-2.5 text-xs font-bold rounded-2xl border border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
+                  style={{
+                    flex: 1,
+                    padding: '0.75rem 1rem',
+                    borderRadius: '14px',
+                    border: '1.5px solid #E2E8F0',
+                    backgroundColor: '#FFFFFF',
+                    color: '#475569',
+                    fontSize: '0.8125rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 text-xs font-extrabold rounded-2xl text-white shadow-md active:scale-95 transition-all cursor-pointer hover:brightness-110"
-                  style={{ background: 'linear-gradient(135deg, #083B56 0%, #1A232E 100%)', border: 'none' }}
+                  style={{
+                    flex: 1,
+                    padding: '0.75rem 1rem',
+                    borderRadius: '14px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #083B56 0%, #1A232E 100%)',
+                    color: '#FFFFFF',
+                    fontSize: '0.8125rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(8, 59, 86, 0.25)',
+                  }}
                 >
                   Save Allocation
                 </button>
@@ -1158,13 +1291,34 @@ export const QRParkingHub: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setModalMode(null)}
-                  className="flex-1 py-2.5 text-xs font-bold rounded-2xl border border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
+                  style={{
+                    flex: 1,
+                    padding: '0.75rem 1rem',
+                    borderRadius: '14px',
+                    border: '1.5px solid #E2E8F0',
+                    backgroundColor: '#FFFFFF',
+                    color: '#475569',
+                    fontSize: '0.8125rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 text-xs font-extrabold rounded-2xl text-white shadow-md active:scale-95 transition-all cursor-pointer bg-rose-600 hover:bg-rose-700"
+                  style={{
+                    flex: 1,
+                    padding: '0.75rem 1rem',
+                    borderRadius: '14px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #E11D48 0%, #BE123C 100%)',
+                    color: '#FFFFFF',
+                    fontSize: '0.8125rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(225, 29, 72, 0.3)',
+                  }}
                 >
                   Dispatch Warning
                 </button>
@@ -1241,13 +1395,34 @@ export const QRParkingHub: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setModalMode(null)}
-                  className="flex-1 py-2.5 text-xs font-bold rounded-2xl border border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
+                  style={{
+                    flex: 1,
+                    padding: '0.75rem 1rem',
+                    borderRadius: '14px',
+                    border: '1.5px solid #E2E8F0',
+                    backgroundColor: '#FFFFFF',
+                    color: '#475569',
+                    fontSize: '0.8125rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 text-xs font-extrabold rounded-2xl text-white shadow-md active:scale-95 transition-all cursor-pointer bg-emerald-600 hover:bg-emerald-700"
+                  style={{
+                    flex: 1,
+                    padding: '0.75rem 1rem',
+                    borderRadius: '14px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                    color: '#FFFFFF',
+                    fontSize: '0.8125rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(5, 150, 105, 0.3)',
+                  }}
                 >
                   Create Slot
                 </button>

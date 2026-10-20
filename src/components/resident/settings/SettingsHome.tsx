@@ -136,7 +136,7 @@ export const SettingsHome: React.FC<SettingsHomeProps> = ({ onBackToMore }) => {
         <div className="res-about-card">
           <Info size={18} className="about-ic" />
           <div>
-            <h4 className="about-title">CommunityOS Prototype v2.5</h4>
+            <h4 className="about-title">Dwellora Platform v1.0.0</h4>
             <p className="about-sub">Multi-tenant Residential Community Management Platform</p>
           </div>
         </div>

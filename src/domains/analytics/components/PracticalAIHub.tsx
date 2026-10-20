@@ -63,7 +63,7 @@ export const PracticalAIHub: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-[#F06543]" />
-            <h2 className="text-lg font-extrabold text-[#083B56]">AARIZO Practical AI Intelligence Suite</h2>
+            <h2 className="text-lg font-extrabold text-[#083B56]">Dwellora Practical AI Intelligence Suite</h2>
           </div>
           <p className="text-xs text-slate-500 font-medium mt-1">
             6 Focused AI Use Cases: Complaint Classification, Move Concierge, Spam Detection, Predictive Maintenance, Vernacular Voice, and Plain-Language Health Summaries.

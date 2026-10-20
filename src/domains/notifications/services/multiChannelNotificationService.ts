@@ -21,7 +21,7 @@ const STORAGE_KEY_NOTIF_PREFS = 'aarizo_notification_prefs_v2';
 
 // 1. Provider Adapter Implementations
 class MockInAppAdapter implements InAppNotificationAdapter {
-  name = 'AARIZO Real-Time Websocket In-App Engine';
+  name = 'Dwellora Real-Time In-App Engine';
   async sendInApp(event: NotificationRecord): Promise<DeliveryLog> {
     const timestamp = new Date().toISOString();
     return {
@@ -536,7 +536,7 @@ class MultiChannelNotificationService {
         eventId: 'evt-seed-1',
         recipientUserId: 'res-1',
         channel: 'IN_APP',
-        providerName: 'AARIZO Real-Time Websocket In-App Engine',
+        providerName: 'Dwellora Real-Time In-App Engine',
         providerRefId: 'inapp_seed_101',
         status: 'DELIVERED',
         sentAt: new Date(now - 10 * 60 * 1000).toISOString(),
@@ -569,7 +569,7 @@ class MultiChannelNotificationService {
         eventId: 'evt-seed-2',
         recipientUserId: 'res-1',
         channel: 'IN_APP',
-        providerName: 'AARIZO Real-Time Websocket In-App Engine',
+        providerName: 'Dwellora Real-Time In-App Engine',
         providerRefId: 'inapp_seed_201',
         status: 'DELIVERED',
         sentAt: new Date(now - 45 * 60 * 1000).toISOString(),
@@ -591,7 +591,7 @@ class MultiChannelNotificationService {
         eventId: 'evt-seed-3',
         recipientUserId: 'res-1',
         channel: 'IN_APP',
-        providerName: 'AARIZO Real-Time Websocket In-App Engine',
+        providerName: 'Dwellora Real-Time In-App Engine',
         providerRefId: 'inapp_seed_301',
         status: 'DELIVERED',
         sentAt: new Date(now - 120 * 60 * 1000).toISOString(),

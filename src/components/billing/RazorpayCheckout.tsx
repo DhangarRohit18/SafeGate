@@ -9,6 +9,13 @@ import {
   RefreshCw,
   Printer,
   XCircle,
+  Building2,
+  User,
+  Smartphone,
+  Building,
+  Sparkles,
+  FileText,
+  X,
 } from 'lucide-react';
 import { RazorpayService, type CheckoutResult } from '../../services/payment/RazorpayService';
 import { ReceiptModal } from './ReceiptModal';
@@ -36,12 +43,12 @@ export const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
   invoiceId,
   invoiceNumber,
   amount,
-  societyName = 'AARIZO Smart Society',
-  purpose = 'Society Maintenance Dues',
-  residentName = 'Resident',
-  residentEmail = 'resident@aarizo.com',
-  residentPhone = '9876543210',
-  flatCode = 'Flat Unit',
+  societyName = 'Green Valley Society',
+  purpose = 'Society Maintenance & Utility Bill',
+  residentName = 'Sarvesh Kulkarni',
+  residentEmail = 'resident@dwellora.com',
+  residentPhone = '9822399887',
+  flatCode = 'B-1204',
   onSuccess,
   onFailure,
   onClose,
@@ -89,7 +96,9 @@ export const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
     } catch (err: any) {
       console.error('[RazorpayCheckout] Payment error:', err);
       setUiState('FAILED');
-      const errText = err?.message || 'Payment verification encountered a network error. If amount was deducted, it will auto-reconcile within 10 minutes.';
+      const errText =
+        err?.message ||
+        'Payment verification encountered a network error. If amount was deducted, it will auto-reconcile within 10 minutes.';
       setErrorMessage(errText);
       onFailure?.(errText);
     }
@@ -136,65 +145,248 @@ export const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
     : undefined;
 
   const content = (
-    <div className="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl max-w-lg w-full font-sans transition-all">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-[#083B56] via-[#0D4767] to-[#176B91] p-5 text-white flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center font-bold text-lg text-white shadow-xs">
-            ₹
+    <div
+      style={{
+        background: '#ffffff',
+        borderRadius: '24px',
+        border: '1px solid #DCE8EF',
+        boxShadow: '0 25px 65px -12px rgba(8, 59, 86, 0.35)',
+        maxWidth: '480px',
+        width: '100%',
+        fontFamily: 'Plus Jakarta Sans, sans-serif',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      {/* 1. Header (Uniform Dwellora Modal Header) */}
+      <div
+        style={{
+          padding: '1.125rem 1.25rem',
+          borderBottom: '1px solid #E8F1F5',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '0.75rem',
+          background: '#ffffff',
+          flexShrink: 0,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: 1 }}>
+          <div
+            style={{
+              width: 42,
+              height: 42,
+              borderRadius: '14px',
+              backgroundColor: '#FFF0EC',
+              color: '#F06543',
+              border: '1px solid #FDF0ED',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <CreditCard size={20} />
           </div>
-          <div>
-            <div className="text-[11px] font-bold text-[#A3D4E8] uppercase tracking-wider flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-300" /> Razorpay Verified
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: '1.05rem',
+                  fontWeight: 900,
+                  color: '#083B56',
+                  lineHeight: 1.2,
+                  letterSpacing: '-0.01em',
+                }}
+              >
+                Dwellora Pay
+              </h3>
+              <span
+                style={{
+                  padding: '0.15rem 0.5rem',
+                  borderRadius: '9999px',
+                  background: '#ECFDF5',
+                  color: '#059669',
+                  border: '1px solid #A7F3D0',
+                  fontSize: '0.625rem',
+                  fontWeight: 900,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.03em',
+                }}
+              >
+                <ShieldCheck size={11} /> Razorpay Verified
+              </span>
             </div>
-            <div className="font-extrabold text-base truncate max-w-[240px]">{societyName}</div>
+            <p
+              style={{
+                margin: '0.2rem 0 0 0',
+                fontSize: '0.75rem',
+                color: '#657785',
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {societyName} · Secure Payment Gateway
+            </p>
           </div>
         </div>
+
         {onClose && (
           <button
             type="button"
             onClick={onClose}
             disabled={uiState === 'PROCESSING'}
-            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors text-white disabled:opacity-40"
+            aria-label="Close checkout"
+            style={{
+              background: '#F8FAFC',
+              border: '1px solid #DCE8EF',
+              color: '#657785',
+              cursor: uiState === 'PROCESSING' ? 'not-allowed' : 'pointer',
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              transition: 'all 0.15s ease',
+              opacity: uiState === 'PROCESSING' ? 0.4 : 1,
+            }}
           >
-            ✕
+            <X size={18} strokeWidth={2.25} />
           </button>
         )}
       </div>
 
-      {/* Bill Summary Strip */}
-      <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
-        <div>
-          <span className="font-semibold text-slate-400 uppercase tracking-wider block">
-            {invoiceNumber}
+      {/* 2. Bill Highlight Strip */}
+      <div
+        style={{
+          background: '#F8FAFC',
+          borderBottom: '1px solid #E8F1F5',
+          padding: '1rem 1.25rem',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+          <span
+            style={{
+              fontFamily: 'monospace',
+              fontSize: '0.75rem',
+              fontWeight: 800,
+              color: '#083B56',
+              background: '#ffffff',
+              border: '1px solid #DCE8EF',
+              padding: '0.2rem 0.55rem',
+              borderRadius: '8px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+            }}
+          >
+            <FileText size={12} style={{ color: '#0284C7' }} />
+            <span>{invoiceNumber}</span>
           </span>
-          <span className="font-bold text-slate-800 dark:text-slate-200 text-sm">{purpose}</span>
+
+          <span
+            style={{
+              fontSize: '0.6875rem',
+              fontWeight: 900,
+              padding: '0.2rem 0.6rem',
+              borderRadius: '9999px',
+              background: '#FEF3C7',
+              color: '#92400E',
+              border: '1px solid #FDE68A',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+            }}
+          >
+            PAYABLE DUES
+          </span>
         </div>
-        <div className="text-right">
-          <span className="font-semibold text-slate-400 block">Payable Dues</span>
-          <span className="text-xl font-black text-[#083B56] dark:text-[#83CBEA]">
-            ₹{Number(amount).toLocaleString('en-IN')}
-          </span>
+
+        <div style={{ marginTop: '0.6rem', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <div>
+            <h4
+              style={{
+                fontSize: '0.875rem',
+                fontWeight: 900,
+                color: '#083B56',
+                margin: 0,
+                lineHeight: 1.3,
+              }}
+            >
+              {purpose}
+            </h4>
+            <div
+              style={{
+                fontSize: '0.725rem',
+                color: '#657785',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                marginTop: '0.25rem',
+                fontWeight: 600,
+              }}
+            >
+              <Building2 size={12} style={{ color: '#0284C7' }} />
+              <span>{residentName} · {flatCode}</span>
+            </div>
+          </div>
+
+          <div style={{ textAlign: 'right' }}>
+            <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>
+              Total Payable
+            </span>
+            <span
+              style={{
+                fontSize: '1.75rem',
+                fontWeight: 900,
+                color: '#083B56',
+                lineHeight: 1,
+                display: 'block',
+                marginTop: '0.15rem',
+                letterSpacing: '-0.02em',
+              }}
+            >
+              ₹{Number(amount).toLocaleString('en-IN')}
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Body States */}
-      <div className="p-6">
+      {/* 3. Body States */}
+      <div style={{ padding: '1.25rem', overflowY: 'auto', flex: 1 }}>
         {/* STATE: PROCESSING */}
         {uiState === 'PROCESSING' && (
-          <div className="py-6 flex flex-col items-center text-center space-y-4">
-            <div className="relative">
-              <div className="w-16 h-16 rounded-full border-4 border-slate-100 dark:border-slate-800 border-t-[#083B56] dark:border-t-sky-400 animate-spin" />
-              <CreditCard className="w-6 h-6 text-[#083B56] dark:text-sky-400 absolute inset-0 m-auto" />
+          <div style={{ padding: '2rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '1rem' }}>
+            <div style={{ position: 'relative', width: 64, height: 64 }}>
+              <div
+                style={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: '50%',
+                  border: '4px solid #F1F5F9',
+                  borderTopColor: 'var(--aarizo-coral, #F06543)',
+                  animation: 'spin 0.8s linear infinite',
+                }}
+              />
+              <CreditCard size={24} style={{ color: '#083B56', position: 'absolute', inset: 0, margin: 'auto' }} />
             </div>
-            <div className="space-y-1">
-              <h3 className="text-base font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 900, color: '#083B56', margin: 0 }}>
                 Payment Processing
               </h3>
-              <p className="text-sm font-semibold text-amber-600 dark:text-amber-400">
-                Do not close or refresh this window.
+              <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#D97706', margin: '0.25rem 0 0 0' }}>
+                Please do not close or refresh this window.
               </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto pt-1">
+              <p style={{ fontSize: '0.75rem', color: '#657785', margin: '0.5rem auto 0 auto', maxWidth: 280 }}>
                 {statusMessage || 'Verifying transaction status with Razorpay servers...'}
               </p>
             </div>
@@ -203,65 +395,119 @@ export const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
 
         {/* STATE: SUCCESS */}
         {uiState === 'SUCCESS' && completedPayment && (
-          <div className="py-4 flex flex-col items-center text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border-2 border-emerald-400 text-emerald-600 flex items-center justify-center animate-in zoom-in-50 duration-300">
-              <CheckCircle className="w-9 h-9" />
+          <div style={{ padding: '1rem 0', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '1rem' }}>
+            <div
+              style={{
+                width: 64,
+                height: 64,
+                borderRadius: '50%',
+                background: '#ECFDF5',
+                border: '2px solid #A7F3D0',
+                color: '#059669',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <CheckCircle size={36} />
             </div>
-            <div className="space-y-1">
-              <div className="text-xs font-bold text-emerald-600 uppercase tracking-widest">
-                Verified by Server
+
+            <div>
+              <div style={{ fontSize: '0.6875rem', fontWeight: 900, color: '#059669', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Verified Cryptographically by Server
               </div>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white">
+              <h3 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#083B56', margin: '0.25rem 0' }}>
                 ₹{Number(completedPayment.amount || amount).toLocaleString('en-IN')}
               </h3>
-              <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                Payment Received Successfully!
+              <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#16A34A', margin: 0 }}>
+                Payment Received &amp; Ledger Updated!
               </p>
             </div>
 
             {/* Receipt Summary Box */}
-            <div className="w-full bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 text-left text-xs space-y-2">
-              <div className="flex justify-between">
-                <span className="text-slate-500">Transaction ID:</span>
-                <span className="font-mono font-bold text-slate-800 dark:text-slate-200 select-all">
+            <div
+              style={{
+                width: '100%',
+                background: '#F8FAFC',
+                borderRadius: '16px',
+                padding: '1rem',
+                border: '1px solid #DCE8EF',
+                textAlign: 'left',
+                fontSize: '0.75rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748B' }}>Transaction ID:</span>
+                <span style={{ fontFamily: 'monospace', fontWeight: 800, color: '#083B56' }}>
                   {completedPayment.paymentId}
                 </span>
               </div>
               {completedPayment.orderId && (
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Razorpay Order ID:</span>
-                  <span className="font-mono text-slate-600 dark:text-slate-400">
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#64748B' }}>Razorpay Order:</span>
+                  <span style={{ fontFamily: 'monospace', color: '#64748B' }}>
                     {completedPayment.orderId}
                   </span>
                 </div>
               )}
-              <div className="flex justify-between">
-                <span className="text-slate-500">Date &amp; Time:</span>
-                <span className="text-slate-700 dark:text-slate-300">
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748B' }}>Payment Date:</span>
+                <span style={{ fontWeight: 600, color: '#334155' }}>
                   {new Date().toLocaleString('en-IN')}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Status:</span>
-                <span className="font-bold text-emerald-600 flex items-center gap-1">
-                  <CheckCircle className="w-3.5 h-3.5" /> PAID
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #E2E8F0', paddingTop: '0.4rem' }}>
+                <span style={{ color: '#64748B' }}>Status:</span>
+                <span style={{ fontWeight: 900, color: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <CheckCircle size={14} /> PAID
                 </span>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-2 w-full pt-2">
+            <div style={{ display: 'flex', gap: '0.5rem', width: '100%', paddingTop: '0.5rem' }}>
               <button
                 type="button"
                 onClick={() => setShowReceipt(true)}
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-xs"
+                style={{
+                  flex: 1,
+                  padding: '0.75rem 1rem',
+                  borderRadius: '12px',
+                  background: '#FFFFFF',
+                  border: '1px solid #DCE8EF',
+                  color: '#083B56',
+                  fontWeight: 800,
+                  fontSize: '0.8125rem',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.4rem',
+                  minHeight: '44px',
+                }}
               >
-                <Printer className="w-4 h-4 text-[#176B91]" /> View / Print Receipt
+                <Printer size={15} style={{ color: '#0284C7' }} />
+                <span>View Receipt</span>
               </button>
               {onClose && (
                 <button
                   type="button"
                   onClick={onClose}
-                  className="w-full py-2.5 px-4 rounded-xl bg-[#083B56] hover:bg-[#0D4767] text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md"
+                  style={{
+                    flex: 1,
+                    padding: '0.75rem 1rem',
+                    borderRadius: '12px',
+                    background: 'var(--aarizo-coral, #F06543)',
+                    color: '#FFFFFF',
+                    fontWeight: 800,
+                    fontSize: '0.8125rem',
+                    border: 'none',
+                    cursor: 'pointer',
+                    minHeight: '44px',
+                    boxShadow: '0 2px 8px rgba(240, 101, 67, 0.25)',
+                  }}
                 >
                   Done
                 </button>
@@ -272,104 +518,316 @@ export const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
 
         {/* STATE: FAILED */}
         {uiState === 'FAILED' && (
-          <div className="py-4 flex flex-col items-center text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-rose-100 dark:bg-rose-950/60 border-2 border-rose-400 text-rose-600 flex items-center justify-center">
-              <XCircle className="w-9 h-9" />
+          <div style={{ padding: '1.5rem 0', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '1rem' }}>
+            <div
+              style={{
+                width: 60,
+                height: 60,
+                borderRadius: '50%',
+                background: '#FEF2F2',
+                border: '2px solid #FECACA',
+                color: '#DC2626',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <XCircle size={32} />
             </div>
-            <div className="space-y-1">
-              <h3 className="text-base font-extrabold text-rose-700 dark:text-rose-400">
-                Payment Declined or Failed
+
+            <div>
+              <h3 style={{ fontSize: '1rem', fontWeight: 900, color: '#991B1B', margin: 0 }}>
+                Payment Declined or Interrupted
               </h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 max-w-sm mx-auto">
-                {errorMessage || 'The issuing bank or gateway declined the transaction.'}
+              <p style={{ fontSize: '0.75rem', color: '#64748B', maxWidth: 320, margin: '0.35rem auto 0 auto' }}>
+                {errorMessage || 'The bank or gateway declined the transaction. No funds were debited.'}
               </p>
             </div>
+
             <button
               type="button"
               onClick={handleStartPayment}
-              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#083B56] to-[#176B91] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md hover:brightness-110 transition-all"
+              style={{
+                width: '100%',
+                padding: '0.875rem 1.25rem',
+                borderRadius: '12px',
+                background: 'var(--aarizo-coral, #F06543)',
+                color: '#FFFFFF',
+                fontWeight: 900,
+                fontSize: '0.8125rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                boxShadow: '0 2px 8px rgba(240, 101, 67, 0.25)',
+                minHeight: '44px',
+              }}
             >
-              <RefreshCw className="w-4 h-4" /> Retry Payment via Razorpay
+              <RefreshCw size={15} />
+              <span>Retry Payment via Razorpay</span>
             </button>
           </div>
         )}
 
         {/* STATE: CANCELLED */}
         {uiState === 'CANCELLED' && (
-          <div className="py-4 flex flex-col items-center text-center space-y-4">
-            <div className="w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-950/60 border border-amber-300 text-amber-600 flex items-center justify-center">
-              <AlertCircle className="w-8 h-8" />
+          <div style={{ padding: '1.5rem 0', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '1rem' }}>
+            <div
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: '50%',
+                background: '#FEF3C7',
+                border: '1px solid #FDE68A',
+                color: '#D97706',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <AlertCircle size={28} />
             </div>
-            <div className="space-y-1">
-              <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">
-                Payment Cancelled
+
+            <div>
+              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#083B56', margin: 0 }}>
+                Payment Session Cancelled
               </h3>
-              <p className="text-xs text-slate-500">
-                You cancelled the checkout session. No funds were debited.
+              <p style={{ fontSize: '0.75rem', color: '#657785', margin: '0.25rem 0 0 0' }}>
+                You closed the checkout session. No funds were debited from your account.
               </p>
             </div>
+
             <button
               type="button"
               onClick={handleStartPayment}
-              className="w-full py-3 px-4 rounded-xl bg-[#083B56] text-white font-bold text-xs flex items-center justify-center gap-2 hover:bg-[#0D4767] transition-all"
+              style={{
+                width: '100%',
+                padding: '0.875rem 1.25rem',
+                borderRadius: '12px',
+                background: '#083B56',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                fontSize: '0.8125rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.45rem',
+                minHeight: '44px',
+              }}
             >
-              <RefreshCw className="w-4 h-4" /> Start Over
+              <RefreshCw size={15} />
+              <span>Start Over</span>
             </button>
           </div>
         )}
 
         {/* STATE: READY */}
         {uiState === 'READY' && (
-          <div className="space-y-5">
-            {/* Accepted Methods Pills */}
-            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 space-y-3">
-              <div className="flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-400">
-                <span>Available Payment Modes:</span>
-                <span className="text-[11px] text-emerald-600 font-bold bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-md border border-emerald-200">
-                  Instant Verification
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {/* Accepted Methods Card */}
+            <div
+              style={{
+                background: '#F8FAFC',
+                border: '1px solid #DCE8EF',
+                borderRadius: '16px',
+                padding: '0.875rem',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  fontSize: '0.75rem',
+                  fontWeight: 800,
+                  color: '#083B56',
+                  marginBottom: '0.6rem',
+                }}
+              >
+                <span>Available Payment Modes</span>
+                <span
+                  style={{
+                    fontSize: '0.625rem',
+                    fontWeight: 900,
+                    color: '#059669',
+                    background: '#ECFDF5',
+                    border: '1px solid #A7F3D0',
+                    padding: '0.15rem 0.45rem',
+                    borderRadius: '6px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.2rem',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  <Sparkles size={10} /> Instant Verification
                 </span>
               </div>
-              <div className="grid grid-cols-4 gap-2 text-center text-[11px] font-semibold text-slate-700 dark:text-slate-300">
-                <div className="p-2 bg-white dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600 shadow-2xs">
-                  UPI / QR
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.45rem' }}>
+                <div
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #DCE8EF',
+                    borderRadius: '10px',
+                    padding: '0.5rem 0.25rem',
+                    textAlign: 'center',
+                    fontSize: '0.6875rem',
+                    fontWeight: 800,
+                    color: '#083B56',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    boxShadow: '0 1px 2px rgba(8, 59, 86, 0.02)',
+                  }}
+                >
+                  <Smartphone size={14} style={{ color: '#0284C7' }} />
+                  <span style={{ fontSize: '0.625rem', whiteSpace: 'nowrap' }}>UPI / QR</span>
                 </div>
-                <div className="p-2 bg-white dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600 shadow-2xs">
-                  Debit Cards
+
+                <div
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #DCE8EF',
+                    borderRadius: '10px',
+                    padding: '0.5rem 0.25rem',
+                    textAlign: 'center',
+                    fontSize: '0.6875rem',
+                    fontWeight: 800,
+                    color: '#083B56',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    boxShadow: '0 1px 2px rgba(8, 59, 86, 0.02)',
+                  }}
+                >
+                  <CreditCard size={14} style={{ color: '#059669' }} />
+                  <span style={{ fontSize: '0.625rem', whiteSpace: 'nowrap' }}>Debit Cards</span>
                 </div>
-                <div className="p-2 bg-white dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600 shadow-2xs">
-                  Credit Cards
+
+                <div
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #DCE8EF',
+                    borderRadius: '10px',
+                    padding: '0.5rem 0.25rem',
+                    textAlign: 'center',
+                    fontSize: '0.6875rem',
+                    fontWeight: 800,
+                    color: '#083B56',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    boxShadow: '0 1px 2px rgba(8, 59, 86, 0.02)',
+                  }}
+                >
+                  <CreditCard size={14} style={{ color: '#F06543' }} />
+                  <span style={{ fontSize: '0.625rem', whiteSpace: 'nowrap' }}>Credit Cards</span>
                 </div>
-                <div className="p-2 bg-white dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600 shadow-2xs">
-                  Net Banking
+
+                <div
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #DCE8EF',
+                    borderRadius: '10px',
+                    padding: '0.5rem 0.25rem',
+                    textAlign: 'center',
+                    fontSize: '0.6875rem',
+                    fontWeight: 800,
+                    color: '#083B56',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    boxShadow: '0 1px 2px rgba(8, 59, 86, 0.02)',
+                  }}
+                >
+                  <Building size={14} style={{ color: '#9333EA' }} />
+                  <span style={{ fontSize: '0.625rem', whiteSpace: 'nowrap' }}>Net Banking</span>
                 </div>
               </div>
             </div>
 
-            {/* Resident Context */}
-            <div className="text-xs text-slate-500 space-y-1 border-t border-slate-100 dark:border-slate-800 pt-3">
-              <div className="flex justify-between">
-                <span>Paying For:</span>
-                <strong className="text-slate-800 dark:text-slate-200">{residentName} ({flatCode})</strong>
+            {/* Resident Breakdown Details */}
+            <div
+              style={{
+                fontSize: '0.75rem',
+                color: '#657785',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.4rem',
+                borderTop: '1px solid #E8F1F5',
+                paddingTop: '0.75rem',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <User size={13} style={{ color: '#0284C7' }} />
+                  <span>Paying For:</span>
+                </span>
+                <strong style={{ color: '#083B56', fontWeight: 800 }}>
+                  {residentName} ({flatCode})
+                </strong>
               </div>
-              <div className="flex justify-between">
-                <span>Invoice ID:</span>
-                <span className="font-mono">{invoiceNumber}</span>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <Building2 size={13} style={{ color: '#0284C7' }} />
+                  <span>Society Ledger:</span>
+                </span>
+                <span style={{ color: '#083B56', fontWeight: 700 }}>
+                  {societyName}
+                </span>
               </div>
             </div>
 
-            {/* Pay Button */}
+            {/* Pay Button (Primary Dwellora Coral CTA) */}
             <button
               type="button"
               onClick={handleStartPayment}
-              className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#083B56] to-[#176B91] hover:from-[#0D4767] hover:to-[#1B7FA6] text-white font-extrabold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+              style={{
+                width: '100%',
+                padding: '0.95rem 1.25rem',
+                borderRadius: '14px',
+                background: 'var(--aarizo-coral, #F06543)',
+                color: '#FFFFFF',
+                fontWeight: 900,
+                fontSize: '0.9375rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                boxShadow: '0 4px 16px rgba(240, 101, 67, 0.35)',
+                minHeight: '48px',
+                transition: 'all 0.15s ease',
+              }}
             >
               <span>Pay ₹{Number(amount).toLocaleString('en-IN')} via Razorpay</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight size={18} />
             </button>
 
-            {/* Security Assurance */}
-            <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 font-medium">
-              <Lock className="w-3.5 h-3.5 text-emerald-600" />
+            {/* Security Assurance Footer */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.4rem',
+                fontSize: '0.6875rem',
+                color: '#657785',
+                fontWeight: 600,
+              }}
+            >
+              <Lock size={13} style={{ color: '#059669' }} />
               <span>256-Bit SSL Encrypted &amp; PCI-DSS Level 1 Verified</span>
             </div>
           </div>
@@ -389,8 +847,26 @@ export const RazorpayCheckout: React.FC<RazorpayCheckoutProps> = ({
 
   if (asModal) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-        {content}
+      <div
+        role="dialog"
+        aria-modal="true"
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 99999,
+          background: 'rgba(8, 20, 32, 0.72)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1rem',
+        }}
+        onClick={onClose}
+      >
+        <div onClick={(e) => e.stopPropagation()}>
+          {content}
+        </div>
       </div>
     );
   }

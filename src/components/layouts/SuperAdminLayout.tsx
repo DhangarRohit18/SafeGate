@@ -19,7 +19,7 @@ export const SuperAdminLayout = () => {
   return (
     <MobileAppShell
       roleTitle="System Admin"
-      societyName="AARIZO Platform"
+      societyName="Dwellora Platform"
       accentColor="#176B91"
       drawerItems={DRAWER_NAV}
       bottomItems={BOTTOM_NAV}

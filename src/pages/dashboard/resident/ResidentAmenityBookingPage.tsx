@@ -34,6 +34,7 @@ import {
   ArrowLeft,
   Search,
   Wrench,
+  Info,
 } from 'lucide-react';
 
 type FilterCategory = 'ALL' | 'FITNESS' | 'SPORTS' | 'EVENTS' | 'RECREATION';
@@ -747,38 +748,82 @@ export const ResidentAmenityBookingPage: React.FC = () => {
         {/* FULL AMENITY DETAIL VIEW (Responsive Sheet / Modal) */}
         {selectedDetailAmenity && (
           <div
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+            className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"
             onClick={() => setSelectedDetailAmenity(null)}
           >
             <div
-              className="bg-white w-full max-h-[92vh] sm:max-h-[88vh] sm:max-w-2xl lg:max-w-3xl rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col relative animate-in slide-in-from-bottom-5 sm:zoom-in-95 duration-200"
+              className="bg-white w-full max-h-[92vh] sm:max-h-[88vh] sm:max-w-2xl lg:max-w-3xl rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col relative animate-in slide-in-from-bottom-5 sm:zoom-in-95 duration-200 border border-[#DCE8EF]"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Top Banner Image with Overlay & Floating Badges */}
-              <div className="relative aspect-[16/9] sm:aspect-[21/9] w-full bg-slate-900 shrink-0 overflow-hidden">
+              <div className="relative aspect-[16/10] sm:aspect-[21/9] w-full bg-slate-950 shrink-0 overflow-hidden">
                 {selectedDetailAmenity.imageUrl ? (
                   <img
                     src={selectedDetailAmenity.imageUrl}
                     alt={selectedDetailAmenity.name}
-                    className="w-full h-full object-cover opacity-90"
+                    className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full bg-slate-800 flex items-center justify-center text-slate-400">
                     <Building size={48} />
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-black/30" />
+                {/* Multi-stop rich dark gradient overlay ensuring 100% white text readability */}
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      'linear-gradient(180deg, rgba(8, 20, 32, 0.7) 0%, rgba(8, 20, 32, 0.15) 35%, rgba(8, 20, 32, 0.85) 75%, rgba(8, 20, 32, 0.98) 100%)',
+                  }}
+                />
 
                 {/* Top Badges */}
-                <div className="absolute top-3 left-3 bg-[#083B56]/95 backdrop-blur-md text-white text-xs px-3 py-1.5 rounded-full font-bold flex items-center gap-1.5 shadow-md border border-white/20">
-                  {selectedDetailAmenity.bookingFee && selectedDetailAmenity.bookingFee > 0 ? (
-                    <span className="text-[#E5B842] font-extrabold">₹{selectedDetailAmenity.bookingFee} / slot</span>
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 12,
+                    left: 12,
+                    background: (selectedDetailAmenity.bookingFee ?? 0) > 0 ? 'rgba(8, 59, 86, 0.9)' : 'rgba(5, 150, 105, 0.9)',
+                    backdropFilter: 'blur(8px)',
+                    color: '#ffffff',
+                    padding: '0.25rem 0.65rem',
+                    borderRadius: '9999px',
+                    fontWeight: 800,
+                    fontSize: '0.75rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                    border: '1px solid rgba(255, 255, 255, 0.25)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                  }}
+                >
+                  {(selectedDetailAmenity.bookingFee ?? 0) > 0 ? (
+                    <span>₹{selectedDetailAmenity.bookingFee} <span className="font-normal opacity-80 text-[10px]">/ slot</span></span>
                   ) : (
-                    <span className="text-emerald-300 font-bold">Complimentary (₹0)</span>
+                    <span className="flex items-center gap-1">
+                      <Sparkles size={12} className="text-emerald-300" /> Complimentary (₹0)
+                    </span>
                   )}
                 </div>
 
-                <div className="absolute top-3 right-14 bg-[#083B56]/95 backdrop-blur-md text-white text-xs tracking-wider uppercase px-3 py-1.5 rounded-full font-extrabold shadow-md border border-white/20">
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 12,
+                    right: 56,
+                    background: 'rgba(8, 59, 86, 0.85)',
+                    backdropFilter: 'blur(8px)',
+                    color: '#ffffff',
+                    padding: '0.25rem 0.65rem',
+                    borderRadius: '9999px',
+                    fontWeight: 800,
+                    fontSize: '0.6875rem',
+                    letterSpacing: '0.04em',
+                    textTransform: 'uppercase',
+                    border: '1px solid rgba(255, 255, 255, 0.25)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                  }}
+                >
                   {selectedDetailAmenity.type.replace(/_/g, ' ')}
                 </div>
 
@@ -786,21 +831,72 @@ export const ResidentAmenityBookingPage: React.FC = () => {
                 <button
                   onClick={() => setSelectedDetailAmenity(null)}
                   aria-label="Close detail view"
-                  className="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/50 hover:bg-black/80 backdrop-blur-md text-white flex items-center justify-center transition-colors cursor-pointer border border-white/20 z-10"
+                  style={{
+                    position: 'absolute',
+                    top: 12,
+                    right: 12,
+                    width: 36,
+                    height: 36,
+                    borderRadius: '50%',
+                    background: 'rgba(0, 0, 0, 0.55)',
+                    backdropFilter: 'blur(8px)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    color: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    zIndex: 10,
+                    transition: 'all 0.15s ease',
+                  }}
+                  className="hover:bg-black/80"
                 >
-                  <X size={20} />
+                  <X size={18} />
                 </button>
 
                 {/* Title Overlay at bottom of banner image */}
-                <div className="absolute bottom-3 left-4 right-4 text-white">
-                  <div className="text-[11px] font-bold text-[#E5B842] tracking-wider uppercase flex items-center gap-1 mb-0.5">
-                    <Sparkles size={14} />
+                <div style={{ position: 'absolute', bottom: 14, left: 16, right: 16, color: '#ffffff' }}>
+                  <div
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      fontSize: '0.6875rem',
+                      fontWeight: 800,
+                      color: '#FBBF24',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      marginBottom: 4,
+                    }}
+                  >
+                    <Sparkles size={13} />
                     <span>{selectedDetailAmenity.type.replace(/_/g, ' ')}</span>
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-black text-white drop-shadow-md leading-tight">
+                  <h2
+                    style={{
+                      fontSize: '1.375rem',
+                      fontWeight: 900,
+                      color: '#ffffff',
+                      margin: 0,
+                      lineHeight: 1.2,
+                      textShadow: '0 2px 10px rgba(0,0,0,0.7)',
+                    }}
+                  >
                     {selectedDetailAmenity.name}
                   </h2>
-                  <p className="text-xs text-slate-200 flex items-center gap-1 mt-1 font-medium">
+                  <p
+                    style={{
+                      fontSize: '0.78125rem',
+                      color: '#F1F5F9',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      margin: 0,
+                      marginTop: 4,
+                      fontWeight: 500,
+                      textShadow: '0 1px 4px rgba(0,0,0,0.6)',
+                    }}
+                  >
                     <MapPin size={14} style={{ color: '#F06543' }} />
                     <span>{selectedDetailAmenity.location}</span>
                   </p>
@@ -808,108 +904,341 @@ export const ResidentAmenityBookingPage: React.FC = () => {
               </div>
 
               {/* Detail Content Scroll Area */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
-
-                {/* Description */}
-                <div>
-                  <h4 className="text-xs font-bold text-slate-400 tracking-wider uppercase mb-1.5">Facility Description</h4>
-                  <p className="text-sm text-slate-700 leading-relaxed font-normal">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 text-xs">
+                {/* Description Box */}
+                <div
+                  style={{
+                    background: '#F8FAFC',
+                    border: '1px solid #DCE8EF',
+                    borderRadius: '16px',
+                    padding: '1rem',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: '0.6875rem',
+                      fontWeight: 800,
+                      color: '#657785',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      marginBottom: '0.4rem',
+                    }}
+                  >
+                    <Info size={13} style={{ color: '#0284C7' }} />
+                    <span>Facility Description</span>
+                  </div>
+                  <p
+                    style={{
+                      fontSize: '0.8125rem',
+                      color: '#1E293B',
+                      lineHeight: 1.5,
+                      margin: 0,
+                      fontWeight: 500,
+                    }}
+                  >
                     {selectedDetailAmenity.description}
                   </p>
                 </div>
 
                 {/* Operating Hours & Capacity Highlights Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="bg-slate-50 border border-slate-200/80 p-3 rounded-xl flex flex-col justify-between">
-                    <span className="text-[11px] font-semibold text-slate-400 block">Available Hours</span>
-                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5 mt-1">
-                      <Clock size={16} style={{ color: '#F06543' }} />
-                      <span>{selectedDetailAmenity.openTime} – {selectedDetailAmenity.closeTime}</span>
-                    </span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  <div
+                    style={{
+                      background: '#ffffff',
+                      border: '1px solid #DCE8EF',
+                      borderRadius: '14px',
+                      padding: '0.75rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.65rem',
+                      boxShadow: '0 1px 3px rgba(8, 59, 86, 0.03)',
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 34,
+                        height: 34,
+                        borderRadius: '10px',
+                        background: '#FFF5F2',
+                        color: '#F06543',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Clock size={16} />
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <span style={{ fontSize: '0.625rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block' }}>
+                        Available Hours
+                      </span>
+                      <span style={{ fontSize: '0.78125rem', fontWeight: 800, color: '#083B56', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {selectedDetailAmenity.openTime} – {selectedDetailAmenity.closeTime}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="bg-slate-50 border border-slate-200/80 p-3 rounded-xl flex flex-col justify-between">
-                    <span className="text-[11px] font-semibold text-slate-400 block">Slot Capacity</span>
-                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5 mt-1">
-                      <Users size={16} style={{ color: '#059669' }} />
-                      <span>Max {selectedDetailAmenity.capacityPerSlot} Pax</span>
-                    </span>
+                  <div
+                    style={{
+                      background: '#ffffff',
+                      border: '1px solid #DCE8EF',
+                      borderRadius: '14px',
+                      padding: '0.75rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.65rem',
+                      boxShadow: '0 1px 3px rgba(8, 59, 86, 0.03)',
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 34,
+                        height: 34,
+                        borderRadius: '10px',
+                        background: '#ECFDF5',
+                        color: '#059669',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Users size={16} />
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <span style={{ fontSize: '0.625rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block' }}>
+                        Slot Capacity
+                      </span>
+                      <span style={{ fontSize: '0.78125rem', fontWeight: 800, color: '#083B56', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        Max {selectedDetailAmenity.capacityPerSlot} Pax
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="bg-slate-50 border border-slate-200/80 p-3 rounded-xl flex flex-col justify-between">
-                    <span className="text-[11px] font-semibold text-slate-400 block">Slot Duration</span>
-                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5 mt-1">
-                      <Calendar size={16} style={{ color: '#083B56' }} />
-                      <span>{selectedDetailAmenity.slotDurationMinutes || 60} mins</span>
-                    </span>
+                  <div
+                    style={{
+                      background: '#ffffff',
+                      border: '1px solid #DCE8EF',
+                      borderRadius: '14px',
+                      padding: '0.75rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.65rem',
+                      boxShadow: '0 1px 3px rgba(8, 59, 86, 0.03)',
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 34,
+                        height: 34,
+                        borderRadius: '10px',
+                        background: '#F0F9FF',
+                        color: '#0284C7',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Calendar size={16} />
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <span style={{ fontSize: '0.625rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block' }}>
+                        Slot Duration
+                      </span>
+                      <span style={{ fontSize: '0.78125rem', fontWeight: 800, color: '#083B56', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {selectedDetailAmenity.slotDurationMinutes || 60} mins
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="bg-slate-50 border border-slate-200/80 p-3 rounded-xl flex flex-col justify-between">
-                    <span className="text-[11px] font-semibold text-slate-400 block">Approval Policy</span>
-                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5 mt-1">
-                      <Shield size={16} style={{ color: '#D97706' }} />
-                      <span>{selectedDetailAmenity.requiresApproval ? 'Admin Approval' : 'Instant Confirm'}</span>
-                    </span>
+                  <div
+                    style={{
+                      background: '#ffffff',
+                      border: '1px solid #DCE8EF',
+                      borderRadius: '14px',
+                      padding: '0.75rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.65rem',
+                      boxShadow: '0 1px 3px rgba(8, 59, 86, 0.03)',
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 34,
+                        height: 34,
+                        borderRadius: '10px',
+                        background: '#FEF3C7',
+                        color: '#D97706',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Shield size={16} />
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <span style={{ fontSize: '0.625rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block' }}>
+                        Approval Policy
+                      </span>
+                      <span style={{ fontSize: '0.78125rem', fontWeight: 800, color: '#083B56', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {selectedDetailAmenity.requiresApproval ? 'Admin Approval' : 'Instant Confirm'}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
                 {/* Facility Rules */}
                 {selectedDetailAmenity.rules && selectedDetailAmenity.rules.length > 0 && (
-                  <div className="bg-amber-50/50 border border-amber-200/60 p-4 rounded-2xl">
-                    <h4 className="text-xs font-bold text-amber-900 tracking-wider uppercase mb-2.5 flex items-center gap-1.5">
-                      <AlertCircle size={16} style={{ color: '#F06543' }} />
+                  <div
+                    style={{
+                      background: '#F0FDF4',
+                      border: '1px solid #BBF7D0',
+                      borderRadius: '16px',
+                      padding: '1rem',
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: '0.6875rem',
+                        fontWeight: 800,
+                        color: '#166534',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.4rem',
+                        marginBottom: '0.6rem',
+                      }}
+                    >
+                      <ShieldCheck size={15} style={{ color: '#16A34A' }} />
                       <span>Facility Rules &amp; Guidelines</span>
-                    </h4>
-                    <ul className="space-y-2">
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                       {selectedDetailAmenity.rules.map((rule, idx) => (
-                        <li key={idx} className="flex items-start gap-2 text-xs text-slate-700 font-medium">
-                          <CheckCircle2 size={16} style={{ color: '#059669' }} />
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78125rem', color: '#14532D', fontWeight: 600 }}>
+                          <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#DCFCE7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <CheckCircle2 size={13} style={{ color: '#16A34A' }} />
+                          </div>
                           <span>{rule}</span>
-                        </li>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                 )}
 
-                {/* Booking & Pricing Details Card */}
-                <div className="bg-[#F8FAFC] border border-slate-200/80 p-4 rounded-2xl space-y-2">
-                  <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                    <CreditCard size={16} style={{ color: '#083B56' }} />
+                {/* Booking & Pricing Details Card (Guaranteed no stray zero) */}
+                <div
+                  style={{
+                    background: '#F8FAFC',
+                    border: '1px solid #DCE8EF',
+                    borderRadius: '16px',
+                    padding: '1rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.65rem',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: '0.6875rem',
+                      fontWeight: 800,
+                      color: '#083B56',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                    }}
+                  >
+                    <CreditCard size={15} style={{ color: '#083B56' }} />
                     <span>Booking Information</span>
-                  </h4>
-                  <div className="flex justify-between items-center text-xs pt-1">
-                    <span className="text-slate-600 font-medium">Fee Status:</span>
-                    {selectedDetailAmenity.bookingFee && selectedDetailAmenity.bookingFee > 0 ? (
-                      <span className="font-extrabold text-[#F06543] bg-orange-50 px-2.5 py-1 rounded-md border border-orange-200">
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', paddingTop: '0.25rem' }}>
+                    <span style={{ fontSize: '0.78125rem', color: '#64748B', fontWeight: 600 }}>Fee Status:</span>
+                    {(selectedDetailAmenity.bookingFee ?? 0) > 0 ? (
+                      <span
+                        style={{
+                          fontWeight: 800,
+                          fontSize: '0.78125rem',
+                          color: '#F06543',
+                          background: '#FFF5F2',
+                          border: '1px solid #FED7AA',
+                          padding: '0.25rem 0.65rem',
+                          borderRadius: '8px',
+                        }}
+                      >
                         ₹{selectedDetailAmenity.bookingFee} per slot
                       </span>
                     ) : (
-                      <span className="font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
-                        Complimentary Resident Facility
+                      <span
+                        style={{
+                          fontWeight: 800,
+                          fontSize: '0.78125rem',
+                          color: '#047857',
+                          background: '#ECFDF5',
+                          border: '1px solid #A7F3D0',
+                          padding: '0.25rem 0.65rem',
+                          borderRadius: '8px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                        }}
+                      >
+                        <Sparkles size={12} /> Complimentary Resident Facility
                       </span>
                     )}
                   </div>
-                  {selectedDetailAmenity.bookingFee && selectedDetailAmenity.bookingFee > 0 && (
-                    <p className="text-[11px] text-slate-500 flex items-center gap-1 pt-1">
-                      <ShieldCheck size={14} style={{ color: '#059669' }} />
+
+                  {(selectedDetailAmenity.bookingFee ?? 0) > 0 ? (
+                    <p style={{ fontSize: '0.6875rem', color: '#64748B', display: 'flex', alignItems: 'center', gap: '0.35rem', margin: 0, paddingTop: '0.25rem', borderTop: '1px solid #E2E8F0' }}>
+                      <ShieldCheck size={14} style={{ color: '#059669', flexShrink: 0 }} />
                       <span>Instant online checkout backed by Razorpay payments engine.</span>
                     </p>
-                  )}
+                  ) : null}
                 </div>
-
               </div>
 
               {/* Sticky Bottom Action Bar */}
-              <div className="sticky bottom-0 bg-white border-t border-slate-100 p-4 sm:p-5 flex items-center justify-between gap-4 z-10 shadow-lg shrink-0">
+              <div
+                style={{
+                  position: 'sticky',
+                  bottom: 0,
+                  background: '#ffffff',
+                  borderTop: '1px solid #DCE8EF',
+                  padding: '1rem 1.25rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '1rem',
+                  boxShadow: '0 -4px 16px rgba(8, 59, 86, 0.08)',
+                  zIndex: 10,
+                  flexShrink: 0,
+                }}
+              >
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Reservation</span>
-                  <span className="text-base font-extrabold text-slate-900">
-                    {selectedDetailAmenity.bookingFee && selectedDetailAmenity.bookingFee > 0 ? (
-                      <span className="text-[#F06543]">₹{selectedDetailAmenity.bookingFee} <span className="text-xs text-slate-500 font-normal">/ slot</span></span>
-                    ) : (
-                      <span className="text-emerald-600">Free Booking</span>
-                    )}
+                  <span style={{ fontSize: '0.625rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block' }}>
+                    RESERVATION
                   </span>
+                  <div style={{ marginTop: 2 }}>
+                    {(selectedDetailAmenity.bookingFee ?? 0) > 0 ? (
+                      <span style={{ fontSize: '1.125rem', fontWeight: 900, color: '#F06543' }}>
+                        ₹{selectedDetailAmenity.bookingFee}{' '}
+                        <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 500 }}>/ slot</span>
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: '1rem', fontWeight: 900, color: '#059669', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <Sparkles size={14} /> Free Booking
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <button
@@ -920,10 +1249,30 @@ export const ResidentAmenityBookingPage: React.FC = () => {
                     setSelectedDetailAmenity(null);
                     handleOpenBookingModal(target);
                   }}
-                  className="px-6 py-3 text-white font-extrabold text-sm rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer active:scale-95 min-h-[44px]"
                   style={{
-                    background: (!selectedDetailAmenity.isBookable || !selectedDetailAmenity.isActive) ? '#cbd5e1' : 'var(--aarizo-coral, #F06543)',
-                    cursor: (!selectedDetailAmenity.isBookable || !selectedDetailAmenity.isActive) ? 'not-allowed' : 'pointer'
+                    padding: '0.75rem 1.5rem',
+                    borderRadius: '12px',
+                    background:
+                      !selectedDetailAmenity.isBookable || !selectedDetailAmenity.isActive
+                        ? '#CBD5E1'
+                        : 'var(--aarizo-coral, #F06543)',
+                    color: '#ffffff',
+                    fontSize: '0.875rem',
+                    fontWeight: 800,
+                    border: 'none',
+                    cursor:
+                      !selectedDetailAmenity.isBookable || !selectedDetailAmenity.isActive
+                        ? 'not-allowed'
+                        : 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.45rem',
+                    boxShadow:
+                      !selectedDetailAmenity.isBookable || !selectedDetailAmenity.isActive
+                        ? 'none'
+                        : '0 4px 12px rgba(240, 101, 67, 0.3)',
+                    transition: 'all 0.15s ease',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   <Calendar size={16} />

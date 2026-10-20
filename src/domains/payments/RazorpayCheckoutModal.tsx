@@ -27,18 +27,21 @@ export const RazorpayCheckoutModal: React.FC<RazorpayCheckoutModalProps> = ({
   onSuccess,
   amount,
   purpose,
-  societyName = 'AARIZO Community Society',
+  societyName = 'Green Valley Society',
   invoiceNumber = 'INV-2026-001',
   invoiceId = 'inv-101',
   userPhone = '9876543210',
-  userEmail = 'resident@aarizo.com',
+  userEmail = 'resident@dwellora.com',
   userName = 'Resident',
   flatCode = 'Flat Unit',
 }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-xs p-3 sm:p-4">
+    <div
+      className="fixed inset-0 flex items-center justify-center bg-black/65 backdrop-blur-xs p-3 sm:p-4"
+      style={{ zIndex: 99999 }}
+    >
       <RazorpayCheckout
         invoiceId={invoiceId}
         invoiceNumber={invoiceNumber}
