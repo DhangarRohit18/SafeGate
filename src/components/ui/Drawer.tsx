@@ -68,14 +68,16 @@ export const Drawer: React.FC<DrawerProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
+              gap: '0.75rem',
+              minWidth: 0,
             }}
           >
-            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, color: '#0f172a' }}>
+            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', minWidth: 0, flex: 1, wordBreak: 'break-word', overflowWrap: 'break-word', lineHeight: 1.35 }}>
               {title}
             </h3>
             <button
               onClick={onClose}
-              style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+              style={{ background: 'transparent', border: 'none', color: '#475569', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
               <X size={20} />
             </button>

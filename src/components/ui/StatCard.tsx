@@ -80,8 +80,8 @@ export const StatCard: React.FC<StatCardProps> = ({
         onClick ? 'cursor-pointer hover:shadow-md hover:-translate-y-0.5' : ''
       } ${styles.border} ${className}`}
     >
-      <div className="flex items-center justify-between gap-3 mb-2">
-        <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
+      <div className="flex items-center justify-between gap-3 mb-2 min-w-0">
+        <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 truncate min-w-0 flex-1">
           {title}
         </span>
         {Icon && (
@@ -95,17 +95,17 @@ export const StatCard: React.FC<StatCardProps> = ({
         )}
       </div>
 
-      <div className="flex items-baseline gap-2">
-        <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+      <div className="flex items-baseline gap-2 min-w-0">
+        <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight tabular-nums whitespace-nowrap">
           {value}
         </span>
       </div>
 
       {(subtitle || trend) && (
-        <div className="flex items-center gap-2 mt-2 pt-1 text-xs">
+        <div className="flex items-center gap-2 mt-2 pt-1 text-xs min-w-0">
           {trend && (
             <span
-              className={`inline-flex items-center gap-0.5 font-bold ${
+              className={`inline-flex items-center gap-0.5 font-bold shrink-0 ${
                 trend.isPositive
                   ? 'text-emerald-600 dark:text-emerald-400'
                   : 'text-rose-600 dark:text-rose-400'
@@ -116,7 +116,7 @@ export const StatCard: React.FC<StatCardProps> = ({
             </span>
           )}
           {subtitle && (
-            <span className="text-slate-400 dark:text-slate-500 font-medium truncate">
+            <span className="text-slate-600 dark:text-slate-300 font-medium truncate min-w-0 flex-1">
               {subtitle}
             </span>
           )}

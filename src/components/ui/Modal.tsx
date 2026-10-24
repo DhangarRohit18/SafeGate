@@ -149,9 +149,10 @@ export const Modal: React.FC<ModalProps> = ({
                     style={{
                       margin: '0.2rem 0 0 0',
                       fontSize: '0.75rem',
-                      color: '#657785',
+                      color: '#475569',
                       fontWeight: 500,
                       wordBreak: 'break-word',
+                      lineHeight: 1.35,
                     }}
                   >
                     {subtitle}
@@ -330,9 +331,9 @@ export const ChoicePills = <T extends string | number>({
             }}
           >
             {opt.icon && <span>{opt.icon}</span>}
-            <span style={{ lineHeight: 1.2 }}>{opt.label}</span>
+            <span style={{ lineHeight: 1.25, wordBreak: 'break-word' }}>{opt.label}</span>
             {opt.description && (
-              <span style={{ fontSize: '0.65rem', opacity: 0.75, fontWeight: 500 }}>{opt.description}</span>
+              <span style={{ fontSize: '0.7rem', color: isSelected ? '#C2410C' : '#475569', fontWeight: 500, lineHeight: 1.25, wordBreak: 'break-word' }}>{opt.description}</span>
             )}
           </button>
         );

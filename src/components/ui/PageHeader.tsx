@@ -69,9 +69,9 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
               )}
             </div>
           )}
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white break-words">
                 {title}
               </h1>
               {badge}
@@ -80,7 +80,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
               )}
             </div>
             {subtitle && (
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium mt-1 leading-relaxed break-words">
                 {subtitle}
               </p>
             )}

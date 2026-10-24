@@ -63,7 +63,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       }
     >
       <div className="py-1">
-        <p className="text-xs text-slate-600 leading-relaxed font-medium">{message}</p>
+        <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed font-medium break-words">{message}</p>
       </div>
     </Modal>
   );

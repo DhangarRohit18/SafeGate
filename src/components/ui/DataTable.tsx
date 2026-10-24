@@ -63,7 +63,7 @@ export function DataTable<T extends Record<string, any>>({
     return (
       <div style={{ width: '100%' }}>
         {paginatedData.length === 0 ? (
-          <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+          <div style={{ padding: '2rem', textAlign: 'center', color: '#475569', fontWeight: 500, background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
             {emptyMessage}
           </div>
         ) : (
@@ -95,8 +95,8 @@ export function DataTable<T extends Record<string, any>>({
                 onClick={() => col.sortable && handleSort(col.key)}
                 style={{
                   padding: '0.85rem 1rem',
-                  fontWeight: 600,
-                  color: '#475569',
+                  fontWeight: 700,
+                  color: '#334155',
                   cursor: col.sortable ? 'pointer' : 'default',
                   userSelect: 'none',
                   width: col.width,
@@ -115,7 +115,7 @@ export function DataTable<T extends Record<string, any>>({
         <tbody>
           {paginatedData.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
+              <td colSpan={columns.length} style={{ padding: '2rem', textAlign: 'center', color: '#475569', fontWeight: 500 }}>
                 {emptyMessage}
               </td>
             </tr>
@@ -137,7 +137,7 @@ export function DataTable<T extends Record<string, any>>({
                 }}
               >
                 {columns.map((col) => (
-                  <td key={col.key} style={{ padding: '0.85rem 1rem', color: '#1e293b' }}>
+                  <td key={col.key} style={{ padding: '0.85rem 1rem', color: '#1e293b', wordBreak: 'break-word', overflowWrap: 'break-word', lineHeight: 1.45 }}>
                     {col.render ? col.render(item) : item[col.key]}
                   </td>
                 ))}

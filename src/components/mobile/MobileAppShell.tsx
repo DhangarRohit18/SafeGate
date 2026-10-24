@@ -177,14 +177,14 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({
               <Menu size={20} />
             </button>
 
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#ffffff' }}>
-                <span style={{ fontSize: '0.9375rem', fontWeight: 800, letterSpacing: '-0.01em' }}>
+            <div style={{ minWidth: 0, maxWidth: '240px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#ffffff', minWidth: 0 }}>
+                <span style={{ fontSize: '0.9375rem', fontWeight: 800, letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block' }}>
                   {currentUser?.societyName || societyName}
                 </span>
-                <ChevronDown size={14} style={{ color: 'var(--aarizo-gold, #E5B842)', opacity: 0.9 }} />
+                <ChevronDown size={14} style={{ color: 'var(--aarizo-gold, #E5B842)', opacity: 0.9, flexShrink: 0 }} />
               </div>
-              <p style={{ fontSize: '0.6875rem', color: 'rgba(255, 255, 255, 0.72)', margin: 0, fontWeight: 600 }}>
+              <p style={{ fontSize: '0.6875rem', color: 'rgba(255, 255, 255, 0.72)', margin: 0, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {roleTitle} Portal
               </p>
             </div>
@@ -307,7 +307,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({
                 justifyContent: 'space-between',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0, flex: 1, marginRight: '0.5rem' }}>
                 <div
                   style={{
                     width: 42,
@@ -320,15 +320,16 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({
                     color: '#fff',
                     fontWeight: 800,
                     fontSize: '1.125rem',
+                    flexShrink: 0,
                   }}
                 >
                   {(currentUser?.name || roleTitle).charAt(0).toUpperCase()}
                 </div>
-                <div>
-                  <div style={{ color: '#ffffff', fontWeight: 700, fontSize: '0.9375rem' }}>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ color: '#ffffff', fontWeight: 700, fontSize: '0.9375rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {currentUser?.name || roleTitle}
                   </div>
-                  <div style={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.6875rem', fontWeight: 500 }}>
+                  <div style={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.6875rem', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {roleTitle}
                   </div>
                 </div>

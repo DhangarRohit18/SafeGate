@@ -21,8 +21,8 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       <div className="p-4 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-400">
         {icon || <Inbox className="w-8 h-8" />}
       </div>
-      <h3 className="text-base font-bold text-slate-900 dark:text-white">{title}</h3>
-      <p className="text-xs text-slate-500 max-w-sm">{description}</p>
+      <h3 className="text-base font-bold text-slate-900 dark:text-white leading-snug">{title}</h3>
+      <p className="text-sm text-slate-600 dark:text-slate-300 max-w-sm leading-relaxed font-medium">{description}</p>
       {actionLabel && onAction && (
         <button
           onClick={onAction}

@@ -154,7 +154,12 @@
   gap: 4px;
   font-weight: var(--font-weight-medium);
   border-radius: var(--radius-full);
-  line-height: 1;
+  line-height: 1.25;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
 }
 
 .badge-sm { padding: 3px 8px; font-size: var(--font-size-xs); }
@@ -175,6 +180,12 @@
   font-weight: var(--font-weight-medium);
   padding: 3px 8px;
   border-radius: var(--radius-full);
+  line-height: 1.25;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
 }
 
 .status-dot {

@@ -73,7 +73,7 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
 
       <div style={{ overflowY: 'auto', flex: 1 }}>
         {notifications.length === 0 ? (
-          <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
+          <div style={{ padding: '2rem', textAlign: 'center', color: '#475569', fontSize: '0.85rem', fontWeight: 500 }}>
             No notifications
           </div>
         ) : (
@@ -89,13 +89,13 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
                 transition: 'background 0.15s ease',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                <span style={{ fontWeight: 600, fontSize: '0.85rem', color: '#0f172a' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem', gap: '0.5rem' }}>
+                <span style={{ fontWeight: 700, fontSize: '0.85rem', color: '#0f172a', minWidth: 0, flex: 1, wordBreak: 'break-word', lineHeight: 1.35 }}>
                   {notif.title}
                 </span>
-                <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{notif.time}</span>
+                <span style={{ fontSize: '0.7rem', color: '#64748B', flexShrink: 0, whiteSpace: 'nowrap', fontWeight: 500 }}>{notif.time}</span>
               </div>
-              <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b', lineHeight: 1.4 }}>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#334155', lineHeight: 1.45, wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                 {notif.message}
               </p>
             </div>

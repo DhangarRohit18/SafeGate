@@ -29,22 +29,22 @@ export const MobileDataCard: React.FC<MobileDataCardProps> = ({
         boxShadow: '0 2px 10px rgba(8, 59, 86, 0.05)',
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-        <div>
-          <div style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--aarizo-text, #203746)' }}>{title}</div>
-          {subtitle && <div style={{ fontSize: '0.75rem', color: 'var(--aarizo-text-secondary, #657785)', marginTop: '0.125rem' }}>{subtitle}</div>}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem', gap: '0.5rem', minWidth: 0 }}>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--aarizo-text, #1E293B)', wordBreak: 'break-word', overflowWrap: 'break-word', lineHeight: 1.35 }}>{title}</div>
+          {subtitle && <div style={{ fontSize: '0.75rem', color: 'var(--aarizo-text-secondary, #475569)', marginTop: '0.125rem', wordBreak: 'break-word', overflowWrap: 'break-word' }}>{subtitle}</div>}
         </div>
-        {status && <div>{status}</div>}
+        {status && <div style={{ flexShrink: 0 }}>{status}</div>}
       </div>
 
       {attributes.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.75rem' }}>
           {attributes.map((attr, idx) => (
-            <div key={idx} style={{ flex: '1 1 45%' }}>
-              <div style={{ fontSize: '0.6875rem', color: 'var(--aarizo-text-muted, #8B9AA5)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            <div key={idx} style={{ flex: '1 1 45%', minWidth: 0 }}>
+              <div style={{ fontSize: '0.6875rem', color: 'var(--aarizo-text-secondary, #475569)', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600 }}>
                 {attr.label}
               </div>
-              <div style={{ fontSize: '0.8125rem', color: 'var(--aarizo-text, #203746)', fontWeight: 600 }}>
+              <div style={{ fontSize: '0.8125rem', color: 'var(--aarizo-text, #1E293B)', fontWeight: 700, wordBreak: 'break-word', overflowWrap: 'break-word', lineHeight: 1.35 }}>
                 {attr.value}
               </div>
             </div>

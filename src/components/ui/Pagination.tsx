@@ -10,7 +10,7 @@ interface PaginationProps {
 export const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', fontSize: '0.85rem' }}>
-      <span style={{ color: '#64748b' }}>
+      <span style={{ color: '#334155', fontWeight: 600 }}>
         Page {currentPage} of {totalPages}
       </span>
       <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -23,6 +23,8 @@ export const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages,
             border: '1px solid #cbd5e1',
             background: currentPage <= 1 ? '#f1f5f9' : '#fff',
             color: currentPage <= 1 ? '#94a3b8' : '#1e293b',
+            fontWeight: 600,
+            whiteSpace: 'nowrap',
             cursor: currentPage <= 1 ? 'not-allowed' : 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -40,6 +42,8 @@ export const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages,
             border: '1px solid #cbd5e1',
             background: currentPage >= totalPages ? '#f1f5f9' : '#fff',
             color: currentPage >= totalPages ? '#94a3b8' : '#1e293b',
+            fontWeight: 600,
+            whiteSpace: 'nowrap',
             cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer',
             display: 'flex',
             alignItems: 'center',

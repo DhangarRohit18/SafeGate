@@ -467,19 +467,43 @@ input, select, textarea {
   }
 }
 
-/* Text and word wrapping fixes */
-.mobile-app-shell h1,
-.mobile-app-shell h2,
-.mobile-app-shell h3,
-.mobile-app-shell h4,
-.mobile-app-shell h5,
-.mobile-app-shell h6,
-.mobile-app-shell button,
-.mobile-app-shell .badge,
-.mobile-app-shell [class*="badge"],
-.mobile-app-shell .card-title {
-  word-break: normal;
-  overflow-wrap: normal;
+/* Comprehensive Responsive Text Typography & Wrapping Resilience */
+h1, h2, h3, h4, h5, h6 {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+p, span, div, label {
+  overflow-wrap: break-word;
+}
+
+/* Tabular and Currency numbers protection */
+.tabular-nums,
+[data-tabular="true"],
+.stat-value,
+.currency-value {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
+/* Badge descender and overflow protection */
+.badge,
+[class*="badge"],
+.status-badge {
+  line-height: 1.25 !important;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* Accessible high-contrast placeholder styling */
+input::placeholder,
+textarea::placeholder {
+  color: #64748B !important;
+  opacity: 1 !important;
 }
 
 /* Smooth table responsiveness */

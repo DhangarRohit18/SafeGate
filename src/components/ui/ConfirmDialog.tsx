@@ -101,8 +101,8 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         >
           <AlertTriangle size={26} strokeWidth={2.25} />
         </div>
-        <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.15rem', color: '#083B56', fontWeight: 800 }}>{title}</h3>
-        <p style={{ margin: 0, fontSize: '0.875rem', color: '#64748B', lineHeight: 1.5 }}>{message}</p>
+        <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.15rem', color: '#083B56', fontWeight: 800, wordBreak: 'break-word', overflowWrap: 'break-word', lineHeight: 1.35 }}>{title}</h3>
+        <p style={{ margin: 0, fontSize: '0.875rem', color: '#334155', lineHeight: 1.5, wordBreak: 'break-word', overflowWrap: 'break-word', fontWeight: 500 }}>{message}</p>
       </div>
     </Modal>
   );

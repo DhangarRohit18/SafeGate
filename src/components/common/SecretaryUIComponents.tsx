@@ -90,18 +90,18 @@ export const StatCard: React.FC<StatCardProps> = ({
   return (
     <div
       onClick={onClick}
-      className={`bg-white border border-slate-200/80 rounded-2xl p-3.5 shadow-sm hover:border-[#F06543]/40 transition-all ${
+      className={`bg-white border border-slate-200/80 rounded-2xl p-3.5 shadow-sm hover:border-[#F06543]/40 transition-all min-w-0 ${
         onClick ? 'cursor-pointer hover:-translate-y-0.5' : ''
       }`}
     >
-      <div className="flex items-center justify-between mb-2">
-        <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${themeClasses}`}>
+      <div className="flex items-center justify-between mb-2 min-w-0">
+        <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${themeClasses}`}>
           <Icon size={18} />
         </div>
-        {subtext && <span className="text-[10px] font-bold text-slate-400">{subtext}</span>}
+        {subtext && <span className="text-[10px] font-bold text-slate-500 whitespace-nowrap">{subtext}</span>}
       </div>
-      <div className="text-xl sm:text-2xl font-black text-slate-900 leading-tight mb-0.5">{value}</div>
-      <div className="text-xs font-bold text-slate-500 truncate">{label}</div>
+      <div className="text-xl sm:text-2xl font-black text-slate-900 leading-tight mb-0.5 tabular-nums whitespace-nowrap">{value}</div>
+      <div className="text-xs font-bold text-slate-600 truncate min-w-0">{label}</div>
     </div>
   );
 };
@@ -189,7 +189,7 @@ export const StatusBadge: React.FC<{ status: StatusType; text?: string }> = ({ s
   }
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] border ${style}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] leading-tight border max-w-full truncate whitespace-nowrap ${style}`}>
       {label}
     </span>
   );
@@ -212,13 +212,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 mb-4">
       <div className="relative w-full sm:w-72">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={searchPlaceholder}
-          className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#F06543]"
+          className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-500 focus:outline-none focus:border-[#F06543]"
         />
       </div>
       {children && <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">{children}</div>}

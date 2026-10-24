@@ -76,10 +76,10 @@ export const IOSBottomSheet: React.FC<IOSBottomSheetProps> = ({
 
         {/* Header */}
         {title && (
-          <div style={{ padding: '0.75rem 1.25rem', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'between' }}>
-            <div style={{ flex: 1 }}>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>{title}</h3>
-              {subtitle && <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px' }}>{subtitle}</p>}
+          <div style={{ padding: '0.75rem 1.25rem', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', minWidth: 0 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', margin: 0, wordBreak: 'break-word', overflowWrap: 'break-word', lineHeight: 1.3 }}>{title}</h3>
+              {subtitle && <p style={{ fontSize: '0.75rem', color: '#475569', marginTop: '2px', wordBreak: 'break-word', overflowWrap: 'break-word', lineHeight: 1.35, fontWeight: 500 }}>{subtitle}</p>}
             </div>
             <button
               onClick={onClose}
@@ -93,7 +93,8 @@ export const IOSBottomSheet: React.FC<IOSBottomSheetProps> = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
-                color: '#64748b',
+                color: '#475569',
+                flexShrink: 0,
               }}
               aria-label="Close sheet"
             >

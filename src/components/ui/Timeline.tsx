@@ -42,12 +42,12 @@ export const Timeline: React.FC<TimelineProps> = ({ items }) => {
             }}
           />
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.2rem' }}>
-              <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#083B56' }}>{item.title}</span>
-              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{item.timestamp}</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.2rem', gap: '0.5rem', minWidth: 0 }}>
+              <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#083B56', minWidth: 0, flex: 1, wordBreak: 'break-word', lineHeight: 1.35 }}>{item.title}</span>
+              <span style={{ fontSize: '0.75rem', color: '#64748B', flexShrink: 0, whiteSpace: 'nowrap', fontWeight: 500 }}>{item.timestamp}</span>
             </div>
             {item.description && (
-              <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>{item.description}</p>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: '#334155', lineHeight: 1.45, wordBreak: 'break-word', overflowWrap: 'break-word' }}>{item.description}</p>
             )}
           </div>
         </div>

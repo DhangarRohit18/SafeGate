@@ -18,17 +18,17 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   const getColors = () => {
     switch (variant) {
       case 'success':
-        return { bg: 'var(--aarizo-success-bg, #EDF8F0)', color: 'var(--aarizo-success, #3F8F58)', border: '#c3e6cb' };
+        return { bg: 'var(--aarizo-success-bg, #EDF8F0)', color: '#166534', border: '#bbf7d0' };
       case 'warning':
-        return { bg: 'var(--aarizo-warning-bg, #FFF8E8)', color: 'var(--aarizo-warning, #D99A2B)', border: '#fce3b8' };
+        return { bg: 'var(--aarizo-warning-bg, #FFF8E8)', color: '#92400E', border: '#fde68a' };
       case 'danger':
-        return { bg: 'var(--aarizo-danger-bg, #FFF0F1)', color: 'var(--aarizo-danger, #D9535B)', border: '#fbc5c8' };
+        return { bg: 'var(--aarizo-danger-bg, #FFF0F1)', color: '#991B1B', border: '#fecaca' };
       case 'info':
-        return { bg: 'var(--aarizo-info-bg, #EAF6FC)', color: 'var(--aarizo-info, #176B91)', border: 'var(--aarizo-border, #DCE8EF)' };
+        return { bg: 'var(--aarizo-info-bg, #EAF6FC)', color: '#075985', border: '#bae6fd' };
       case 'purple':
-        return { bg: '#F4FAFE', color: 'var(--aarizo-blue, #176B91)', border: '#d0e5f2' };
+        return { bg: '#F4FAFE', color: '#075985', border: '#d0e5f2' };
       default:
-        return { bg: 'var(--aarizo-pale-blue, #F4FAFE)', color: 'var(--aarizo-text-secondary, #657785)', border: 'var(--aarizo-border, #DCE8EF)' };
+        return { bg: 'var(--aarizo-pale-blue, #F4FAFE)', color: '#334155', border: 'var(--aarizo-border, #DCE8EF)' };
     }
   };
 
@@ -49,10 +49,15 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
         border: `1px solid ${style.border}`,
         whiteSpace: 'nowrap',
         letterSpacing: '0.02em',
+        lineHeight: 1.25,
+        maxWidth: '100%',
+        verticalAlign: 'middle',
       }}
     >
       {icon}
-      <span>{label}</span>
+      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%', display: 'inline-block' }}>
+        {label}
+      </span>
     </span>
   );
 };
