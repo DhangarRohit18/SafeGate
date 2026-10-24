@@ -371,8 +371,52 @@ export const FacilityStaffShiftsPage: React.FC = () => {
       </div>
 
       {/* Modal: Assign Staff Shift */}
-      <Modal isOpen={showAssignModal} onClose={() => setShowAssignModal(false)} title="Assign Staff Duty Shift">
-        <form onSubmit={handleAssignShift} className="space-y-4">
+      <Modal
+        isOpen={showAssignModal}
+        onClose={() => setShowAssignModal(false)}
+        title="Assign Staff Duty Shift"
+        maxWidth="520px"
+        footer={
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
+            <button
+              type="button"
+              onClick={() => setShowAssignModal(false)}
+              style={{
+                padding: '0.625rem 1.25rem',
+                borderRadius: '12px',
+                border: '1px solid #CBD5E1',
+                background: '#FFFFFF',
+                color: '#475569',
+                fontWeight: 700,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              form="assign-shift-form"
+              type="submit"
+              style={{
+                padding: '0.625rem 1.375rem',
+                borderRadius: '12px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #F06543 0%, #E05432 100%)',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(240, 101, 67, 0.3)',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              Confirm Roster Assignment
+            </button>
+          </div>
+        }
+      >
+        <form id="assign-shift-form" onSubmit={handleAssignShift} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">Staff Member Name</label>
             <input
@@ -420,15 +464,6 @@ export const FacilityStaffShiftsPage: React.FC = () => {
                 className="w-full px-3 py-2 border rounded-lg text-sm"
               />
             </div>
-          </div>
-
-          <div className="pt-4 flex justify-end gap-2">
-            <button type="button" onClick={() => setShowAssignModal(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 text-sm font-semibold rounded-lg">
-              Cancel
-            </button>
-            <button type="submit" className="px-4 py-2 bg-[#F06543] text-white font-bold text-sm rounded-lg shadow-sm">
-              Confirm Roster Assignment
-            </button>
           </div>
         </form>
       </Modal>

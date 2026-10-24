@@ -306,8 +306,54 @@ export const SuperAdminDashboard: React.FC = () => {
       </div>
 
       {/* Provision New Society Modal */}
-      <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Provision New Society">
-        <Form onSubmit={handleAddSociety}>
+      <Modal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        title="Provision New Society"
+        maxWidth="500px"
+        footer={
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
+            <button
+              type="button"
+              onClick={() => setIsAddModalOpen(false)}
+              style={{
+                flex: 1,
+                padding: '0.625rem 1.25rem',
+                borderRadius: '12px',
+                border: '1px solid #CBD5E1',
+                background: '#FFFFFF',
+                color: '#475569',
+                fontWeight: 700,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              form="provision-society-form"
+              type="submit"
+              style={{
+                flex: 1,
+                padding: '0.625rem 1.375rem',
+                borderRadius: '12px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #F06543 0%, #E05432 100%)',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(240, 101, 67, 0.3)',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              Provision Society
+            </button>
+          </div>
+        }
+      >
+        <Form id="provision-society-form" onSubmit={handleAddSociety}>
           <FormField label="Society Name" required>
             <input
               type="text"
@@ -328,21 +374,6 @@ export const SuperAdminDashboard: React.FC = () => {
               style={{ width: '100%', padding: '0.7rem 0.85rem', borderRadius: '10px', border: '1px solid #CBD5E1', fontSize: '0.88rem', background: '#F8FAFC', color: '#083B56', fontWeight: 600, boxSizing: 'border-box' }}
             />
           </FormField>
-          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
-            <button
-              type="button"
-              onClick={() => setIsAddModalOpen(false)}
-              style={{ flex: 1, padding: '0.7rem', borderRadius: '10px', border: '1px solid #CBD5E1', background: '#ffffff', fontWeight: 700, cursor: 'pointer', color: '#52788D' }}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              style={{ flex: 1, padding: '0.7rem', borderRadius: '10px', border: 'none', background: '#F06543', color: '#ffffff', fontWeight: 700, cursor: 'pointer', boxShadow: '0 3px 12px rgba(240, 101, 67, 0.28)' }}
-            >
-              Provision Society
-            </button>
-          </div>
         </Form>
       </Modal>
     </div>

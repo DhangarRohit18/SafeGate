@@ -317,8 +317,52 @@ export const StaffManagementPage: React.FC = () => {
       </div>
 
       {/* Modal: Assign Staff */}
-      <Modal isOpen={isAddStaffModalOpen} onClose={() => setIsAddStaffModalOpen(false)} title="Assign New Staff Member">
-        <Form onSubmit={handleCreateStaff}>
+      <Modal
+        isOpen={isAddStaffModalOpen}
+        onClose={() => setIsAddStaffModalOpen(false)}
+        title="Assign New Staff Member"
+        maxWidth="540px"
+        footer={
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
+            <button
+              type="button"
+              onClick={() => setIsAddStaffModalOpen(false)}
+              style={{
+                padding: '0.625rem 1.25rem',
+                borderRadius: '12px',
+                border: '1px solid #CBD5E1',
+                background: '#FFFFFF',
+                color: '#475569',
+                fontWeight: 700,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              form="assign-staff-form"
+              type="submit"
+              style={{
+                padding: '0.625rem 1.375rem',
+                borderRadius: '12px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #F06543 0%, #E05432 100%)',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(240, 101, 67, 0.3)',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              Confirm Assignment
+            </button>
+          </div>
+        }
+      >
+        <Form id="assign-staff-form" onSubmit={handleCreateStaff}>
           <div className="space-y-4">
             <FormField label="Staff Name">
               <input
@@ -373,22 +417,6 @@ export const StaffManagementPage: React.FC = () => {
                   <CheckCircle2 size={13} /> Verification Document Attached
                 </p>
               )}
-            </div>
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-200">
-              <button
-                type="button"
-                onClick={() => setIsAddStaffModalOpen(false)}
-                className="px-4 py-2 border border-slate-300 bg-white text-slate-700 rounded-xl font-semibold text-xs sm:text-sm hover:bg-slate-50 transition cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                style={{ background: 'var(--aarizo-coral, #F06543)' }}
-                className="px-4 py-2 border-none text-white rounded-xl font-bold text-xs sm:text-sm shadow-md hover:opacity-95 transition cursor-pointer"
-              >
-                Confirm Assignment
-              </button>
             </div>
           </div>
         </Form>

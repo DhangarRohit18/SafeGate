@@ -339,8 +339,50 @@ export const AdminGuestStayPage: React.FC = () => {
       )}
 
       {/* Modal: Create Room */}
-      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Configure New Guest Suite">
-        <form onSubmit={handleCreateRoom} className="space-y-4">
+      <Modal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        title="Configure New Guest Suite"
+        maxWidth="540px"
+        footer={
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(false)}
+              style={{
+                padding: '0.625rem 1.25rem',
+                borderRadius: '12px',
+                border: '1px solid #CBD5E1',
+                background: '#FFFFFF',
+                color: '#475569',
+                fontWeight: 700,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              form="create-guest-suite-form"
+              type="submit"
+              style={{
+                padding: '0.625rem 1.375rem',
+                borderRadius: '12px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #083B56 0%, #176B91 100%)',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(8, 59, 86, 0.3)',
+              }}
+            >
+              Save Guest Suite
+            </button>
+          </div>
+        }
+      >
+        <form id="create-guest-suite-form" onSubmit={handleCreateRoom} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Room Number</label>
@@ -423,11 +465,6 @@ export const AdminGuestStayPage: React.FC = () => {
               onChange={e => setRoomForm({ ...roomForm, amenitiesText: e.target.value })}
               className="w-full px-3 py-2 border rounded-lg text-sm font-mono text-xs"
             />
-          </div>
-
-          <div className="pt-4 flex justify-end gap-2">
-            <button type="button" onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 text-sm font-semibold rounded-lg">Cancel</button>
-            <button type="submit" className="px-4 py-2 bg-[#083B56] hover:bg-[#176B91] text-white font-bold text-sm rounded-lg">Save Guest Suite</button>
           </div>
         </form>
       </Modal>

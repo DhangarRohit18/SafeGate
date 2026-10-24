@@ -308,8 +308,52 @@ export const TowerManagementPage: React.FC = () => {
       </div>
 
       {/* Modal: Register New Tower */}
-      <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Register New Tower">
-        <Form onSubmit={handleCreateTower}>
+      <Modal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        title="Register New Tower"
+        maxWidth="520px"
+        footer={
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
+            <button
+              type="button"
+              onClick={() => setIsAddModalOpen(false)}
+              style={{
+                padding: '0.625rem 1.25rem',
+                borderRadius: '12px',
+                border: '1px solid #CBD5E1',
+                background: '#FFFFFF',
+                color: '#475569',
+                fontWeight: 700,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              form="register-tower-form"
+              type="submit"
+              style={{
+                padding: '0.625rem 1.375rem',
+                borderRadius: '12px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #F06543 0%, #E05432 100%)',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(240, 101, 67, 0.3)',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              Save Tower
+            </button>
+          </div>
+        }
+      >
+        <Form id="register-tower-form" onSubmit={handleCreateTower}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <FormField label="Tower Name">
               <input
@@ -336,25 +380,9 @@ export const TowerManagementPage: React.FC = () => {
               value={totalFloors}
               onChange={(e) => setTotalFloors(Number(e.target.value))}
               min="1"
-              className="w-full p-2.5 rounded-xl border border-slate-300 text-slate-900 mb-4 focus:outline-none focus:ring-2 focus:ring-[#F06543]"
+              className="w-full p-2.5 rounded-xl border border-slate-300 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F06543]"
             />
           </FormField>
-          <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-slate-200">
-            <button
-              type="button"
-              onClick={() => setIsAddModalOpen(false)}
-              className="px-4 py-2 border border-slate-300 bg-white text-slate-700 rounded-xl font-semibold text-xs sm:text-sm hover:bg-slate-50 transition cursor-pointer"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              style={{ background: 'var(--aarizo-coral, #F06543)' }}
-              className="px-4 py-2 border-none text-white rounded-xl font-bold text-xs sm:text-sm shadow-md hover:opacity-95 transition cursor-pointer"
-            >
-              Save Tower
-            </button>
-          </div>
         </Form>
       </Modal>
     </div>

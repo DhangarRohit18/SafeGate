@@ -190,7 +190,8 @@ export const ResidentActivityPage: React.FC = () => {
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <OffersLauncherPill onOpen={() => setIsOffersOpen(true)} label="Resident Perks" />
             <div
               style={{
                 padding: '0.4rem 0.75rem',
@@ -370,8 +371,7 @@ export const ResidentActivityPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Floating Offers Pill Launcher & Popup */}
-      <OffersLauncherPill onOpen={() => setIsOffersOpen(true)} />
+      {/* Society Partner Discounts Modal */}
       <AdvertisementPopup
         forceOpen={isOffersOpen}
         onClose={() => setIsOffersOpen(false)}

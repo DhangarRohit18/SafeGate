@@ -1056,8 +1056,26 @@ export const BillingManagementPage: React.FC = () => {
         title="Create New Billing Cycle"
         subtitle="Publish society-wide recurring maintenance invoices"
         maxWidth="500px"
+        footer={
+          <div className="flex justify-end gap-2.5 w-full">
+            <button
+              type="button"
+              onClick={() => setIsCycleModalOpen(false)}
+              className="px-4 py-2.5 border border-[#DCE8EF] hover:bg-[#F4FAFE] text-[#083B56] font-extrabold rounded-xl text-xs transition cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              form="create-cycle-form"
+              type="submit"
+              className="px-5 py-2.5 bg-[#F06543] hover:bg-[#e05432] text-white font-extrabold rounded-xl text-xs shadow-md transition cursor-pointer"
+            >
+              Publish Cycle &amp; Generate Invoices
+            </button>
+          </div>
+        }
       >
-        <form onSubmit={handleCreateCycle} className="space-y-4 pt-1">
+        <form id="create-cycle-form" onSubmit={handleCreateCycle} className="space-y-4 pt-1">
           <div>
             <label className="block text-xs font-extrabold text-[#083B56] mb-1.5">Cycle Title *</label>
             <input
@@ -1089,21 +1107,6 @@ export const BillingManagementPage: React.FC = () => {
               />
             </div>
           </div>
-          <div className="flex justify-end gap-2.5 pt-4 border-t border-[#DCE8EF]">
-            <button
-              type="button"
-              onClick={() => setIsCycleModalOpen(false)}
-              className="px-4 py-2.5 border border-[#DCE8EF] hover:bg-[#F4FAFE] text-[#083B56] font-extrabold rounded-xl text-xs transition"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-5 py-2.5 bg-[#F06543] hover:bg-[#e05432] text-white font-extrabold rounded-xl text-xs shadow-md transition"
-            >
-              Publish Cycle &amp; Generate Invoices
-            </button>
-          </div>
         </form>
       </Modal>
 
@@ -1114,9 +1117,29 @@ export const BillingManagementPage: React.FC = () => {
         title={manualInvoice ? `Record Offline Payment · Unit ${manualInvoice.flatCode}` : 'Record Offline Payment'}
         subtitle="Acknowledge cash, physical cheque, or direct bank transfer"
         maxWidth="500px"
+        footer={
+          manualInvoice ? (
+            <div className="flex justify-end gap-2.5 w-full">
+              <button
+                type="button"
+                onClick={() => setManualInvoice(null)}
+                className="px-4 py-2.5 border border-[#DCE8EF] hover:bg-[#F4FAFE] text-[#083B56] font-extrabold rounded-xl text-xs transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                form="manual-payment-form"
+                type="submit"
+                className="px-5 py-2.5 bg-[#059669] hover:bg-[#047857] text-white font-extrabold rounded-xl text-xs shadow-md transition cursor-pointer"
+              >
+                Record Payment
+              </button>
+            </div>
+          ) : undefined
+        }
       >
         {manualInvoice && (
-          <form onSubmit={handleManualPaymentSubmit} className="space-y-4 pt-1">
+          <form id="manual-payment-form" onSubmit={handleManualPaymentSubmit} className="space-y-4 pt-1">
             <div className="p-3 bg-[#F7FBFE] rounded-xl text-xs flex justify-between items-center border border-[#DCE8EF]">
               <span className="text-slate-500 font-medium">Outstanding Balance:</span>
               <span className="font-extrabold text-[#083B56] text-sm">{formatCurrency(manualInvoice.outstandingBalance)}</span>
@@ -1169,22 +1192,6 @@ export const BillingManagementPage: React.FC = () => {
                 onRemove={() => setManualReceiptUrl('')}
               />
             </div>
-
-            <div className="flex justify-end gap-2.5 pt-4 border-t border-[#DCE8EF]">
-              <button
-                type="button"
-                onClick={() => setManualInvoice(null)}
-                className="px-4 py-2.5 border border-[#DCE8EF] hover:bg-[#F4FAFE] text-[#083B56] font-extrabold rounded-xl text-xs transition"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-5 py-2.5 bg-[#059669] hover:bg-[#047857] text-white font-extrabold rounded-xl text-xs shadow-md transition"
-              >
-                Record Payment
-              </button>
-            </div>
           </form>
         )}
       </Modal>
@@ -1196,9 +1203,29 @@ export const BillingManagementPage: React.FC = () => {
         title={penaltyInvoice ? `Apply Charge / Penalty · Unit ${penaltyInvoice.flatCode}` : 'Apply Charge / Penalty'}
         subtitle="Impose overdue late fee or special society contribution fund"
         maxWidth="480px"
+        footer={
+          penaltyInvoice ? (
+            <div className="flex justify-end gap-2.5 w-full">
+              <button
+                type="button"
+                onClick={() => setPenaltyInvoice(null)}
+                className="px-4 py-2.5 border border-[#DCE8EF] hover:bg-[#F4FAFE] text-[#083B56] font-extrabold rounded-xl text-xs transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                form="penalty-form"
+                type="submit"
+                className="px-5 py-2.5 bg-[#DC2626] hover:bg-[#b91c1c] text-white font-extrabold rounded-xl text-xs shadow-md transition cursor-pointer"
+              >
+                Apply Charge
+              </button>
+            </div>
+          ) : undefined
+        }
       >
         {penaltyInvoice && (
-          <form onSubmit={handlePenaltySubmit} className="space-y-4 pt-1">
+          <form id="penalty-form" onSubmit={handlePenaltySubmit} className="space-y-4 pt-1">
             <div>
               <label className="block text-xs font-extrabold text-[#083B56] mb-1.5">Charge Type</label>
               <select
@@ -1232,22 +1259,6 @@ export const BillingManagementPage: React.FC = () => {
                 onChange={(e) => setPenaltyReason(e.target.value)}
               />
             </div>
-
-            <div className="flex justify-end gap-2.5 pt-4 border-t border-[#DCE8EF]">
-              <button
-                type="button"
-                onClick={() => setPenaltyInvoice(null)}
-                className="px-4 py-2.5 border border-[#DCE8EF] hover:bg-[#F4FAFE] text-[#083B56] font-extrabold rounded-xl text-xs transition"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-5 py-2.5 bg-[#DC2626] hover:bg-[#b91c1c] text-white font-extrabold rounded-xl text-xs shadow-md transition"
-              >
-                Apply Charge
-              </button>
-            </div>
           </form>
         )}
       </Modal>
@@ -1259,9 +1270,31 @@ export const BillingManagementPage: React.FC = () => {
         title="Process Razorpay Refund"
         subtitle="Initiate instant gateway refund back to source instrument"
         maxWidth="500px"
+        footer={
+          refundTarget ? (
+            <div className="flex justify-end gap-2.5 w-full">
+              <button
+                type="button"
+                onClick={() => setRefundTarget(null)}
+                className="px-4 py-2.5 border border-[#DCE8EF] hover:bg-[#F4FAFE] text-[#083B56] font-extrabold rounded-xl text-xs transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                form="refund-form"
+                type="submit"
+                disabled={isProcessingRefund}
+                className="px-5 py-2.5 bg-[#DC2626] hover:bg-[#b91c1c] text-white font-extrabold rounded-xl text-xs shadow-md transition disabled:opacity-50 cursor-pointer"
+              >
+                {isProcessingRefund ? 'Processing via Razorpay...' : `Confirm Refund of ${formatCurrency(refundAmountInput)}`}
+              </button>
+            </div>
+          ) : undefined
+        }
       >
         {refundTarget && (
           <form
+            id="refund-form"
             onSubmit={async (e) => {
               e.preventDefault();
               setIsProcessingRefund(true);
@@ -1315,23 +1348,6 @@ export const BillingManagementPage: React.FC = () => {
                   className="w-full px-3.5 py-2.5 bg-[#F7FBFE] border border-[#DCE8EF] rounded-xl text-xs font-semibold text-[#083B56] focus:outline-none focus:ring-2 focus:ring-[#F06543]/30"
                 />
               </div>
-            </div>
-
-            <div className="flex justify-end gap-2.5 pt-4 border-t border-[#DCE8EF]">
-              <button
-                type="button"
-                onClick={() => setRefundTarget(null)}
-                className="px-4 py-2.5 border border-[#DCE8EF] hover:bg-[#F4FAFE] text-[#083B56] font-extrabold rounded-xl text-xs transition"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isProcessingRefund}
-                className="px-5 py-2.5 bg-[#DC2626] hover:bg-[#b91c1c] text-white font-extrabold rounded-xl text-xs shadow-md transition disabled:opacity-50"
-              >
-                {isProcessingRefund ? 'Processing via Razorpay...' : `Confirm Refund of ${formatCurrency(refundAmountInput)}`}
-              </button>
             </div>
           </form>
         )}

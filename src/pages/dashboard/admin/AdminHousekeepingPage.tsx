@@ -495,8 +495,55 @@ export const AdminHousekeepingPage: React.FC = () => {
 
       {/* Modal: Inspect & Verify Task */}
       {selectedTask && (
-        <Modal isOpen={!!selectedTask} onClose={() => setSelectedTask(null)} title={`Task Details: ${selectedTask.title}`}>
-          <div className="space-y-4 py-2">
+        <Modal
+          isOpen={!!selectedTask}
+          onClose={() => setSelectedTask(null)}
+          title={`Task Details: ${selectedTask.title}`}
+          maxWidth="540px"
+          footer={
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
+              <button
+                type="button"
+                onClick={() => setSelectedTask(null)}
+                style={{
+                  padding: '0.625rem 1.25rem',
+                  borderRadius: '12px',
+                  border: '1px solid #CBD5E1',
+                  background: '#FFFFFF',
+                  color: '#475569',
+                  fontWeight: 700,
+                  fontSize: '0.8125rem',
+                  cursor: 'pointer',
+                }}
+              >
+                Close
+              </button>
+              {selectedTask.status !== 'VERIFIED' && (
+                <button
+                  type="button"
+                  onClick={() => handleVerifyTask(selectedTask.id)}
+                  style={{
+                    padding: '0.625rem 1.375rem',
+                    borderRadius: '12px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                    color: '#FFFFFF',
+                    fontWeight: 800,
+                    fontSize: '0.8125rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    boxShadow: '0 4px 14px rgba(5, 150, 105, 0.3)',
+                  }}
+                >
+                  <CheckCircle2 size={16} /> Verify Photo Proof &amp; Close Task
+                </button>
+              )}
+            </div>
+          }
+        >
+          <div className="space-y-4 py-1">
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1.5 text-slate-700">
               <p className="flex justify-between"><span className="text-slate-400">Category:</span> <strong>{selectedTask.category}</strong></p>
               <p className="flex justify-between"><span className="text-slate-400">Location:</span> <strong>{selectedTask.areaLocation}</strong></p>
@@ -526,31 +573,55 @@ export const AdminHousekeepingPage: React.FC = () => {
                 <img src={selectedTask.photoProofUrl} alt="Photo proof" className="w-full h-44 object-cover rounded-xl border" />
               </div>
             )}
-
-            <div className="pt-2 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setSelectedTask(null)}
-                className="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-bold rounded-xl"
-              >
-                Close
-              </button>
-              {selectedTask.status !== 'VERIFIED' && (
-                <button
-                  onClick={() => handleVerifyTask(selectedTask.id)}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1 shadow-sm"
-                >
-                  <CheckCircle2 className="w-4 h-4" /> Verify Photo Proof &amp; Close Task
-                </button>
-              )}
-            </div>
           </div>
         </Modal>
       )}
 
       {/* Modal: Create Task */}
-      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create Housekeeping Operational Task">
-        <form onSubmit={handleCreateTask} className="space-y-4">
+      <Modal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        title="Create Housekeeping Operational Task"
+        maxWidth="540px"
+        footer={
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(false)}
+              style={{
+                padding: '0.625rem 1.25rem',
+                borderRadius: '12px',
+                border: '1px solid #CBD5E1',
+                background: '#FFFFFF',
+                color: '#475569',
+                fontWeight: 700,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              form="create-housekeeping-task-form"
+              type="submit"
+              style={{
+                padding: '0.625rem 1.375rem',
+                borderRadius: '12px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #F06543 0%, #E05432 100%)',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(240, 101, 67, 0.3)',
+              }}
+            >
+              Create Task
+            </button>
+          </div>
+        }
+      >
+        <form id="create-housekeeping-task-form" onSubmit={handleCreateTask} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">Task Title</label>
             <input
@@ -641,22 +712,6 @@ export const AdminHousekeepingPage: React.FC = () => {
               onChange={e => setTaskForm({ ...taskForm, checklistText: e.target.value })}
               className="w-full px-3 py-2 border rounded-lg text-sm font-mono text-xs"
             />
-          </div>
-
-          <div className="pt-4 flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={() => setShowCreateModal(false)}
-              className="px-4 py-2 text-slate-600 hover:bg-slate-100 text-sm font-semibold rounded-lg"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-[#F06543] hover:bg-[#D85332] text-white text-sm font-bold rounded-lg shadow-sm"
-            >
-              Create Task
-            </button>
           </div>
         </form>
       </Modal>

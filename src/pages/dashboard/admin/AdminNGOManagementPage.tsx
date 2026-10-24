@@ -405,6 +405,28 @@ export const AdminNGOManagementPage: React.FC = () => {
           isOpen={!!selectedNGO}
           onClose={() => setSelectedNGO(null)}
           title={`NGO Profile: ${selectedNGO.name}`}
+          maxWidth="500px"
+          footer={
+            <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+              <button
+                type="button"
+                onClick={() => setSelectedNGO(null)}
+                style={{
+                  padding: '0.625rem 1.25rem',
+                  borderRadius: '12px',
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #083B56 0%, #176B91 100%)',
+                  color: '#FFFFFF',
+                  fontWeight: 800,
+                  fontSize: '0.8125rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(8, 59, 86, 0.3)',
+                }}
+              >
+                Close
+              </button>
+            </div>
+          }
         >
           <div className="space-y-4 text-slate-800">
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-2">
@@ -441,15 +463,6 @@ export const AdminNGOManagementPage: React.FC = () => {
                 <p className="font-medium">{selectedNGO.activeDriveTitle}</p>
               </div>
             )}
-
-            <div className="pt-2 flex justify-end gap-2">
-              <button
-                onClick={() => setSelectedNGO(null)}
-                className="px-4 py-2 bg-[#083B56] text-white text-xs font-bold rounded-xl"
-              >
-                Close
-              </button>
-            </div>
           </div>
         </Modal>
       )}
@@ -459,8 +472,46 @@ export const AdminNGOManagementPage: React.FC = () => {
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
         title="Add NGO Partner / Drive"
+        maxWidth="540px"
+        footer={
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
+            <button
+              type="button"
+              onClick={() => setShowAddModal(false)}
+              style={{
+                padding: '0.625rem 1.25rem',
+                borderRadius: '12px',
+                border: '1px solid #CBD5E1',
+                background: '#FFFFFF',
+                color: '#475569',
+                fontWeight: 700,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              form="add-ngo-form"
+              type="submit"
+              style={{
+                padding: '0.625rem 1.375rem',
+                borderRadius: '12px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #F06543 0%, #E05432 100%)',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(240, 101, 67, 0.3)',
+              }}
+            >
+              Save NGO Partner
+            </button>
+          </div>
+        }
       >
-        <form onSubmit={handleAddNGO} className="space-y-3">
+        <form id="add-ngo-form" onSubmit={handleAddNGO} className="space-y-3">
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">NGO Organization Name</label>
             <input
@@ -541,21 +592,6 @@ export const AdminNGOManagementPage: React.FC = () => {
               onChange={(e) => setNewNGO({ ...newNGO, description: e.target.value })}
               className="w-full px-3 py-2 border rounded-lg text-xs"
             />
-          </div>
-          <div className="pt-3 flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={() => setShowAddModal(false)}
-              className="px-4 py-2 text-slate-600 hover:bg-slate-100 text-xs font-semibold rounded-lg"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-[#F06543] text-white text-xs font-extrabold rounded-lg shadow-sm"
-            >
-              Save NGO Partner
-            </button>
           </div>
         </form>
       </Modal>

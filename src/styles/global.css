@@ -112,8 +112,6 @@ a {
 }
 
 button {
-  border: none;
-  background: none;
   font: inherit;
   color: inherit;
   cursor: pointer;
@@ -514,29 +512,126 @@ input, select, textarea {
    ============================================================ */
 .fixed.inset-0[class*="z-50"],
 .fixed.inset-0.z-50,
+.fixed.inset-0[class*="z-"],
 .modal-overlay,
-.auth-modal-overlay {
+.drawer-overlay,
+.auth-modal-overlay,
+div[role="dialog"][style*="fixed"] {
   z-index: 99999 !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
   backdrop-filter: blur(8px) !important;
   -webkit-backdrop-filter: blur(8px) !important;
   background-color: rgba(8, 26, 42, 0.72) !important;
-  padding: 0.875rem !important;
+  padding: 1rem !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  box-sizing: border-box !important;
 }
 
-/* Modal Content Card Safety & Elegance */
+/* Modal Content Card Safety & Elegance: Guaranteed Centering */
 .aarizo-general-modal,
 .modal-content,
 .auth-modal-card,
-.fixed.inset-0[class*="z-50"] > div,
-.fixed.inset-0.z-50 > div,
-.modal-overlay > div {
+.fixed.inset-0[class*="z-50"] > div:not([class*="backdrop"]),
+.fixed.inset-0.z-50 > div:not([class*="backdrop"]),
+.fixed.inset-0[class*="z-"] > div:not([class*="backdrop"]),
+.modal-overlay > div:not([class*="backdrop"]),
+.auth-modal-overlay > div:not([class*="backdrop"]),
+div[role="dialog"] > div:not([class*="backdrop"]) {
   max-height: min(88vh, 760px) !important;
-  margin-bottom: 0 !important;
+  margin: auto !important;
+  align-self: center !important;
+  justify-self: center !important;
   border-radius: 1.25rem !important;
   box-shadow: 0 25px 65px -12px rgba(6, 40, 61, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+  position: relative !important;
+}
+
+.auth-modal-card {
+  background-color: #FFFFFF !important;
+  border-radius: 1.25rem !important;
+  padding: 1.5rem !important;
+  width: 95% !important;
+  max-width: 520px;
+  overflow-y: auto !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  box-sizing: border-box !important;
+}
+
+/* === Modal body overflow containment === */
+.aarizo-general-modal {
+  display: flex !important;
+  flex-direction: column !important;
+  max-height: min(88vh, 760px) !important;
+  overflow: hidden !important;
+  margin: auto !important;
+  align-self: center !important;
+}
+
+.aarizo-modal-body {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.aarizo-modal-body.aarizo-modal-body-no-footer {
+  padding-bottom: 2.5rem !important;
+}
+
+.aarizo-modal-footer {
+  flex-shrink: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  background-color: #F8FAFC !important;
+  border-top: 1px solid #E8F1F5 !important;
+  padding: 1.125rem 1.75rem 1.5rem 1.75rem !important;
+  min-height: 74px !important;
+}
+
+/* Ensure any action row inside modal forms has generous spacing and never wraps tightly into corners */
+.aarizo-modal-body form .flex.justify-end,
+.aarizo-modal-body .flex.justify-end {
+  margin-top: 1.25rem !important;
+  padding-top: 0.75rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.aarizo-modal-body button,
+.aarizo-modal-footer button {
+  min-height: 40px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  white-space: nowrap !important;
+}
+
+/* All direct children of modal body must fit */
+.aarizo-modal-body > * {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Tables inside modals: never overflow clipped */
+.aarizo-modal-body table,
+.modal-body table {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.aarizo-modal-body .overflow-x-auto,
+.modal-body .overflow-x-auto {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Automatic input and select styling inside all modals */
@@ -582,15 +677,73 @@ input, select, textarea {
   transform: scale(0.98);
 }
 
+/* High-contrast safety: Primary and dark action buttons must always have crisp white text & icons */
+button[class*="bg-[#083B56]"],
+button[class*="bg-[#176B91]"],
+button[class*="bg-[#F06543]"],
+button[class*="bg-[#0f172a]"],
+button[class*="bg-slate-900"],
+button[class*="bg-slate-800"],
+button[class*="bg-slate-950"],
+button[class*="bg-blue-600"],
+button[class*="bg-blue-700"],
+button[class*="bg-sky-600"],
+button[class*="bg-sky-700"],
+button[class*="bg-emerald-600"],
+button[class*="bg-rose-600"],
+button[class*="bg-red-600"],
+button[class*="from-[#083B56]"],
+button[class*="from-[#F06543]"],
+button[class*="from-emerald-600"],
+button.btn-primary,
+button.btn-onboarding-primary,
+.aarizo-general-modal button[type="submit"],
+.aarizo-modal-footer button[type="submit"],
+.modal-footer button[type="submit"],
+.modal-content button[type="submit"] {
+  color: #FFFFFF !important;
+}
+
+button[class*="bg-[#083B56]"] *,
+button[class*="bg-[#176B91]"] *,
+button[class*="bg-[#F06543]"] *,
+button[class*="bg-[#0f172a]"] *,
+button[class*="bg-slate-900"] *,
+button[class*="bg-slate-800"] *,
+button[class*="bg-slate-950"] *,
+button[class*="bg-blue-600"] *,
+button[class*="bg-blue-700"] *,
+button[class*="bg-sky-600"] *,
+button[class*="bg-sky-700"] *,
+button[class*="bg-emerald-600"] *,
+button[class*="bg-rose-600"] *,
+button[class*="bg-red-600"] *,
+button[class*="from-[#083B56]"] *,
+button[class*="from-[#F06543]"] *,
+button[class*="from-emerald-600"] *,
+button.btn-primary *,
+button.btn-onboarding-primary *,
+.aarizo-general-modal button[type="submit"] *,
+.aarizo-modal-footer button[type="submit"] *,
+.modal-footer button[type="submit"] *,
+.modal-content button[type="submit"] * {
+  color: #FFFFFF !important;
+}
+
 @media (max-width: 640px) {
   .fixed.inset-0[class*="z-50"] > div,
   .modal-overlay > div,
   .aarizo-general-modal {
-    max-height: 86vh !important;
+    max-height: 92vh !important;
     width: 100% !important;
     margin: auto !important;
   }
 }
 
-
-
+/* Ensure mobile bottom navigation dock stays strictly mobile-only (hidden on tablet/desktop) */
+@media (min-width: 768px) {
+  .mobile-bottom-nav,
+  nav.mobile-bottom-nav {
+    display: none !important;
+  }
+}

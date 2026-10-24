@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { SecretaryResidentRecord } from '../../../domains/secretary/types';
-import { UserCheck, UserX, X, ShieldAlert, FileText, CheckCircle2 } from 'lucide-react';
+import { UserCheck, UserX, ShieldAlert, FileText, CheckCircle2 } from 'lucide-react';
+import { Modal } from '../../ui/Modal';
 import '../secretary.css';
 
 interface ResidentApprovalModalProps {
@@ -34,90 +35,111 @@ export const ResidentApprovalModal: React.FC<ResidentApprovalModalProps> = ({
   };
 
   return (
-    <div className="auth-modal-overlay">
-      <div className="auth-modal-card" style={{ maxWidth: '440px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div className="otp-icon-header" style={{ width: '36px', height: '36px', background: 'var(--aarizo-light-blue, #EAF6FC)', color: 'var(--aarizo-blue, #176B91)', margin: 0 }}>
-              <UserCheck size={20} />
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title="Resident Approval Audit"
+      subtitle={`Application for ${resident.canonicalDisplay}`}
+      icon={<UserCheck size={18} className="text-[#0284C7]" />}
+      maxWidth="500px"
+      footer={
+        mode === 'review' ? (
+          <div className="flex items-center justify-between gap-3 w-full">
+            <button
+              type="button"
+              onClick={() => setMode('reject')}
+              className="px-4 py-2.5 rounded-xl border border-rose-200 bg-rose-50/60 text-rose-700 font-bold text-xs hover:bg-rose-100 transition flex items-center gap-1.5 cursor-pointer"
+            >
+              <UserX size={15} />
+              <span>Reject</span>
+            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 font-bold text-xs hover:bg-slate-50 transition cursor-pointer"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                onClick={handleApproveSubmit}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs shadow-sm hover:shadow transition flex items-center gap-1.5 cursor-pointer"
+              >
+                <CheckCircle2 size={15} />
+                <span>Approve Resident</span>
+              </button>
             </div>
-            <h3 className="otp-title" style={{ fontSize: '1.125rem', margin: 0 }}>
-              Resident Approval Audit
-            </h3>
           </div>
-          <button className="btn-auth-text" onClick={onClose} style={{ color: '#94a3b8' }}>
-            <X size={20} />
-          </button>
+        ) : (
+          <div className="flex items-center justify-end gap-3 w-full">
+            <button
+              type="button"
+              onClick={() => setMode('review')}
+              className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 font-bold text-xs hover:bg-slate-50 transition cursor-pointer"
+            >
+              Back
+            </button>
+            <button
+              type="button"
+              onClick={handleRejectSubmit}
+              className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm hover:shadow transition flex items-center gap-1.5 cursor-pointer"
+            >
+              <ShieldAlert size={15} />
+              <span>Confirm Rejection</span>
+            </button>
+          </div>
+        )
+      }
+    >
+      <div className="space-y-3.5">
+        <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2 py-0.5 rounded-md bg-sky-100 text-sky-800 text-[11px] font-bold">
+              {resident.canonicalDisplay}
+            </span>
+            <span className={`text-[11px] font-bold ${resident.type === 'Owner' ? 'text-sky-700' : 'text-amber-700'}`}>
+              {resident.type}
+            </span>
+          </div>
+          <h4 className="m-0 text-sm font-bold text-[#083B56]">{resident.name}</h4>
+          <p className="m-0 text-[11px] text-slate-500 mt-0.5">
+            Submitted: {resident.submittedAt} • Phone: {resident.phone}
+          </p>
         </div>
 
-        <div className="resident-card" style={{ background: '#f8fafc', padding: '0.875rem', border: '1px solid #e2e8f0', marginBottom: '1rem' }}>
-          <div>
-            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.25rem' }}>
-              <span className="resident-flat-badge">{resident.canonicalDisplay}</span>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: resident.type === 'Owner' ? 'var(--aarizo-blue, #176B91)' : '#d97706' }}>
-                {resident.type}
-              </span>
-            </div>
-            <h4 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem', fontWeight: 700 }}>{resident.name}</h4>
-            <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>
-              Submitted: {resident.submittedAt} • Phone: {resident.phone}
-            </p>
+        <div className="bg-slate-100/70 p-3 rounded-xl border border-slate-200 text-xs">
+          <div className="flex items-center gap-1.5 font-bold text-slate-700 mb-1">
+            <FileText size={14} className="text-sky-600" />
+            <span>Attached Document Verification</span>
           </div>
-        </div>
-
-        <div style={{ background: '#f1f5f9', padding: '0.75rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.8125rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>
-            <FileText size={15} style={{ color: 'var(--aarizo-blue, #176B91)' }} />
-            <span>Attached Document Checklist</span>
-          </div>
-          <div style={{ color: '#475569' }}>
+          <div className="text-slate-600 font-medium">
             📄 {resident.kycDocType || 'National ID & Rent Agreement'}
           </div>
         </div>
 
         {mode === 'review' ? (
           <div>
-            <label className="form-group-label" style={{ fontSize: '0.8125rem' }}>
+            <label className="block text-xs font-bold text-[#083B56] mb-1">
               Secretary Approval Note (Optional)
             </label>
             <textarea
-              className="search-input-field"
               rows={2}
-              style={{ width: '100%', marginBottom: '1rem', padding: '0.5rem', fontSize: '0.8125rem' }}
+              className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#F06543]"
               placeholder="e.g. Verified flat sale deed with registrar records..."
               value={approvalNote}
               onChange={(e) => setApprovalNote(e.target.value)}
             />
-
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button
-                className="btn-onboarding-primary"
-                style={{ flex: 1, background: '#16a34a' }}
-                onClick={handleApproveSubmit}
-              >
-                <CheckCircle2 size={16} />
-                <span>Approve Resident</span>
-              </button>
-              <button
-                className="btn-onboarding-primary"
-                style={{ flex: 1, background: '#dc2626' }}
-                onClick={() => setMode('reject')}
-              >
-                <UserX size={16} />
-                <span>Reject Application</span>
-              </button>
-            </div>
           </div>
         ) : (
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: '#dc2626', fontWeight: 700, marginBottom: '0.75rem' }}>
-              <ShieldAlert size={18} />
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5 text-rose-600 font-bold text-xs">
+              <ShieldAlert size={16} />
               <span>Select Application Rejection Reason</span>
             </div>
 
             <select
-              className="wing-filter-select"
-              style={{ width: '100%', marginBottom: '0.75rem', padding: '0.5rem' }}
+              className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-rose-500"
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}
             >
@@ -131,33 +153,16 @@ export const ResidentApprovalModal: React.FC<ResidentApprovalModalProps> = ({
             {rejectionReason === 'Other' && (
               <input
                 type="text"
-                className="search-input-field"
+                className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-rose-500"
                 placeholder="Type specific rejection reason..."
-                style={{ width: '100%', marginBottom: '0.75rem', padding: '0.5rem' }}
                 value={customReason}
                 onChange={(e) => setCustomReason(e.target.value)}
               />
             )}
-
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
-              <button
-                className="btn-onboarding-primary"
-                style={{ flex: 1, background: '#64748b' }}
-                onClick={() => setMode('review')}
-              >
-                Back
-              </button>
-              <button
-                className="btn-onboarding-primary"
-                style={{ flex: 1, background: '#dc2626' }}
-                onClick={handleRejectSubmit}
-              >
-                Confirm Rejection
-              </button>
-            </div>
           </div>
         )}
       </div>
-    </div>
+    </Modal>
   );
 };
+

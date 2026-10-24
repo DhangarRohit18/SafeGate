@@ -49,9 +49,15 @@ export const Modal: React.FC<ModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
+      className="modal-overlay fixed inset-0 z-50"
       style={{
         position: 'fixed',
-        inset: 0,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100vw',
+        height: '100vh',
         zIndex: 99999, // Guarantees overlay is above bottom nav (z-100/999) and all page chrome
         backgroundColor: 'rgba(8, 26, 42, 0.75)',
         backdropFilter: 'blur(8px)',
@@ -59,7 +65,8 @@ export const Modal: React.FC<ModalProps> = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '0.75rem',
+        padding: '1rem',
+        boxSizing: 'border-box',
         animation: 'aarizoModalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
       }}
       onClick={(e) => {
@@ -70,9 +77,9 @@ export const Modal: React.FC<ModalProps> = ({
     >
       <div
         ref={contentRef}
-        className={`aarizo-general-modal ${className}`}
+        className={`aarizo-general-modal modal-content ${className}`}
         style={{
-          width: 'calc(100% - 24px)',
+          width: '100%',
           maxWidth,
           maxHeight: 'min(88vh, 760px)',
           display: 'flex',
@@ -83,7 +90,10 @@ export const Modal: React.FC<ModalProps> = ({
           border: '1px solid rgba(226, 232, 240, 0.9)',
           overflow: 'hidden',
           animation: 'aarizoModalScaleUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-          margin: 'auto 12px',
+          margin: 'auto',
+          alignSelf: 'center',
+          boxSizing: 'border-box',
+          position: 'relative',
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -184,11 +194,16 @@ export const Modal: React.FC<ModalProps> = ({
 
         {/* Scrollable Body */}
         <div
+          className={`aarizo-modal-body ${!footer ? 'aarizo-modal-body-no-footer' : ''}`}
           style={{
-            padding: '1.25rem',
+            padding: footer ? '1.25rem 1.5rem 1.25rem 1.5rem' : '1.25rem 1.5rem 2.5rem 1.5rem',
             overflowY: 'auto',
-            flex: 1,
+            overflowX: 'hidden',
+            flex: '1 1 auto',
+            minHeight: 0,
             WebkitOverflowScrolling: 'touch',
+            boxSizing: 'border-box',
+            maxWidth: '100%',
           }}
         >
           {children}
@@ -197,15 +212,20 @@ export const Modal: React.FC<ModalProps> = ({
         {/* Sticky Action Footer */}
         {footer && (
           <div
+            className="aarizo-modal-footer"
             style={{
-              padding: '0.875rem 1.25rem calc(0.875rem + env(safe-area-inset-bottom, 0px)) 1.25rem',
+              padding: '1.125rem 1.75rem 1.5rem 1.75rem',
               borderTop: '1px solid #E8F1F5',
               background: '#F8FAFC',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'flex-end',
-              gap: '0.625rem',
+              gap: '0.75rem',
               flexShrink: 0,
+              minHeight: '74px',
+              boxSizing: 'border-box',
+              position: 'relative',
+              zIndex: 10,
             }}
           >
             {footer}
@@ -222,11 +242,22 @@ export const Modal: React.FC<ModalProps> = ({
           from { opacity: 0; transform: scale(0.96) translateY(8px); }
           to { opacity: 1; transform: scale(1) translateY(0); }
         }
+        .aarizo-modal-body > * {
+          max-width: 100%;
+          box-sizing: border-box;
+        }
         @media (max-width: 640px) {
           .aarizo-general-modal {
-            max-height: 86vh !important;
+            max-height: 92vh !important;
             border-radius: 20px !important;
-            width: calc(100% - 24px) !important;
+            width: calc(100% - 16px) !important;
+            margin: auto !important;
+          }
+          .aarizo-modal-body {
+            padding: 1rem 0.875rem !important;
+          }
+          .aarizo-modal-footer {
+            padding: 0.875rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px)) 1rem !important;
           }
         }
       `}</style>

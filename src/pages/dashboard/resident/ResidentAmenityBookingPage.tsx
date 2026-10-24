@@ -355,7 +355,8 @@ export const ResidentAmenityBookingPage: React.FC = () => {
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <OffersLauncherPill onClick={() => setIsAdOpen(true)} label="Sports & Fitness Deals" />
             <button
               onClick={() => setActiveTab(activeTab === 'EXPLORE' ? 'BOOKINGS' : 'EXPLORE')}
               style={{
@@ -1285,8 +1286,38 @@ export const ResidentAmenityBookingPage: React.FC = () => {
 
         {/* Booking Form Modal (Date & Time Picker + Razorpay trigger) */}
         {selectedAmenity && (
-          <Modal isOpen={!!selectedAmenity} onClose={() => setSelectedAmenity(null)} title={`Book Slot: ${selectedAmenity.name}`}>
-            <form onSubmit={handleBookSlot} className="space-y-4">
+          <Modal
+            isOpen={!!selectedAmenity}
+            onClose={() => setSelectedAmenity(null)}
+            title={`Book Slot: ${selectedAmenity.name}`}
+            subtitle={selectedAmenity.bookingFee && selectedAmenity.bookingFee > 0 ? `Reservation Fee: ₹${selectedAmenity.bookingFee}` : 'Complimentary Society Amenity'}
+            maxWidth="540px"
+            footer={
+              <div className="flex items-center justify-end gap-3 w-full">
+                <button
+                  type="button"
+                  onClick={() => setSelectedAmenity(null)}
+                  className="px-5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 font-bold text-xs hover:bg-slate-50 transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  form="amenity-booking-form"
+                  type="submit"
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#F06543] to-[#E05432] text-white font-bold text-xs shadow-sm hover:shadow transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  {selectedAmenity.bookingFee && selectedAmenity.bookingFee > 0 ? (
+                    <>
+                      <CreditCard size={15} /> Pay ₹{selectedAmenity.bookingFee} via Razorpay
+                    </>
+                  ) : (
+                    'Confirm Booking'
+                  )}
+                </button>
+              </div>
+            }
+          >
+            <form id="amenity-booking-form" onSubmit={handleBookSlot} className="space-y-4">
               {bookingError && (
                 <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-start gap-2">
                   <AlertCircle size={16} className="text-rose-600 shrink-0 mt-0.5" />
@@ -1472,28 +1503,6 @@ export const ResidentAmenityBookingPage: React.FC = () => {
                 />
               </div>
 
-              <div className="pt-4 flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedAmenity(null)}
-                  className="px-4 py-2 text-sm font-semibold rounded-lg hover:bg-slate-200 transition bg-slate-100 text-slate-600 border border-slate-300 cursor-pointer min-h-[44px]"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-white font-bold text-sm rounded-lg shadow-sm transition flex items-center gap-1.5 cursor-pointer min-h-[44px]"
-                  style={{ background: 'var(--aarizo-coral, #F06543)' }}
-                >
-                  {selectedAmenity.bookingFee && selectedAmenity.bookingFee > 0 ? (
-                    <>
-                      <CreditCard size={15} /> Pay ₹{selectedAmenity.bookingFee} via Razorpay
-                    </>
-                  ) : (
-                    'Confirm Booking'
-                  )}
-                </button>
-              </div>
             </form>
           </Modal>
         )}
@@ -1515,8 +1524,7 @@ export const ResidentAmenityBookingPage: React.FC = () => {
           />
         )}
 
-        {/* Society Partner Discounts Launcher & Modal */}
-        <OffersLauncherPill onClick={() => setIsAdOpen(true)} label="Sports &amp; Fitness Deals" />
+        {/* Society Partner Discounts Modal */}
         <AdvertisementPopup isOpen={isAdOpen} onClose={() => setIsAdOpen(false)} />
       </div>
     </div>

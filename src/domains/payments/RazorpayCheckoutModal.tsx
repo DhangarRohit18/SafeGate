@@ -41,6 +41,11 @@ export const RazorpayCheckoutModal: React.FC<RazorpayCheckoutModalProps> = ({
     <div
       className="fixed inset-0 flex items-center justify-center bg-black/65 backdrop-blur-xs p-3 sm:p-4"
       style={{ zIndex: 99999 }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
     >
       <RazorpayCheckout
         invoiceId={invoiceId}
@@ -56,7 +61,7 @@ export const RazorpayCheckoutModal: React.FC<RazorpayCheckoutModalProps> = ({
         onSuccess={(res: CheckoutResult) => {
           onSuccess({
             transactionId: res.paymentId || `pay_${Date.now()}`,
-            method: 'upi',
+            method: ((res as any).method as any) || 'upi',
             amount: res.amount || amount,
           });
         }}

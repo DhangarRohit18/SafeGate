@@ -623,14 +623,38 @@ export const ResidentCommunityHubPage: React.FC = () => {
         )}
 
         {/* Modal: Create Post */}
-        <Modal isOpen={showCreatePostModal} onClose={() => setShowCreatePostModal(false)} title="Create Neighbor Post">
-          <form onSubmit={handleCreatePost} className="space-y-4">
+        <Modal
+          isOpen={showCreatePostModal}
+          onClose={() => setShowCreatePostModal(false)}
+          title="Create Neighbor Post"
+          subtitle="Share recommendations, discussions, or alerts with neighbors"
+          maxWidth="520px"
+          footer={
+            <div className="flex items-center justify-end gap-3 w-full">
+              <button
+                type="button"
+                onClick={() => setShowCreatePostModal(false)}
+                className="px-5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 font-bold text-xs hover:bg-slate-50 transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                form="create-post-form"
+                type="submit"
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#F06543] to-[#E05432] text-white font-bold text-xs shadow-sm hover:shadow transition cursor-pointer"
+              >
+                Publish Post
+              </button>
+            </div>
+          }
+        >
+          <form id="create-post-form" onSubmit={handleCreatePost} className="space-y-3.5 pt-1">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Category</label>
+              <label className="block text-xs font-bold text-[#083B56] mb-1">Category</label>
               <select
                 value={postCategory}
                 onChange={e => setPostCategory(e.target.value as any)}
-                className="w-full px-3 py-2 border rounded-lg text-sm"
+                className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#F06543]"
               >
                 <option value="GENERAL">General Discussion</option>
                 <option value="RECOMMENDATION">Vendor / Worker Recommendation</option>
@@ -639,101 +663,142 @@ export const ResidentCommunityHubPage: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Post Content</label>
+              <label className="block text-xs font-bold text-[#083B56] mb-1">Post Content</label>
               <textarea
                 rows={4}
                 required
                 placeholder="What would you like to share with society residents?"
                 value={postContent}
                 onChange={e => setPostContent(e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg text-sm"
+                className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#F06543]"
               />
-            </div>
-            <div className="pt-4 flex justify-end gap-2">
-              <button type="button" onClick={() => setShowCreatePostModal(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 text-sm font-semibold rounded-lg">Cancel</button>
-              <button type="submit" className="px-4 py-2 bg-[#F06543] text-white font-bold text-sm rounded-lg shadow-sm">Publish Post</button>
             </div>
           </form>
         </Modal>
 
         {/* Modal: Propose Event */}
-        <Modal isOpen={showCreateEventModal} onClose={() => setShowCreateEventModal(false)} title="Propose Society Event">
-          <form onSubmit={handleCreateEvent} className="space-y-4">
+        <Modal
+          isOpen={showCreateEventModal}
+          onClose={() => setShowCreateEventModal(false)}
+          title="Propose Society Event"
+          subtitle="Organize festivals, sports meets, or cultural activities"
+          maxWidth="540px"
+          footer={
+            <div className="flex items-center justify-end gap-3 w-full">
+              <button
+                type="button"
+                onClick={() => setShowCreateEventModal(false)}
+                className="px-5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 font-bold text-xs hover:bg-slate-50 transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                form="create-event-form"
+                type="submit"
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#F06543] to-[#E05432] text-white font-bold text-xs shadow-sm hover:shadow transition cursor-pointer"
+              >
+                Publish Event
+              </button>
+            </div>
+          }
+        >
+          <form id="create-event-form" onSubmit={handleCreateEvent} className="space-y-3.5 pt-1">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Event Title</label>
+              <label className="block text-xs font-bold text-[#083B56] mb-1">Event Title</label>
               <input
                 type="text"
                 required
                 placeholder="e.g. Diwali Rangoli Competition"
                 value={eventTitle}
                 onChange={e => setEventTitle(e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg text-sm"
+                className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#F06543]"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Description</label>
+              <label className="block text-xs font-bold text-[#083B56] mb-1">Description</label>
               <textarea
                 rows={2}
                 value={eventDesc}
                 onChange={e => setEventDesc(e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg text-sm"
+                placeholder="Details, entry guidelines, or schedule..."
+                className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#F06543]"
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Location</label>
+                <label className="block text-xs font-bold text-[#083B56] mb-1">Location / Venue</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Clubhouse Terrace"
                   value={eventLocation}
                   onChange={e => setEventLocation(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg text-sm"
+                  className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#F06543]"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Date &amp; Time</label>
+                <label className="block text-xs font-bold text-[#083B56] mb-1">Date &amp; Time</label>
                 <input
                   type="datetime-local"
                   required
                   value={eventDate}
                   onChange={e => setEventDate(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg text-sm"
+                  className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#F06543]"
                 />
               </div>
-            </div>
-            <div className="pt-4 flex justify-end gap-2">
-              <button type="button" onClick={() => setShowCreateEventModal(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 text-sm font-semibold rounded-lg">Cancel</button>
-              <button type="submit" className="px-4 py-2 bg-[#F06543] text-white font-bold text-sm rounded-lg shadow-sm">Publish Event</button>
             </div>
           </form>
         </Modal>
 
         {/* Modal: Create Poll */}
-        <Modal isOpen={showCreatePollModal} onClose={() => setShowCreatePollModal(false)} title="Create Resident Poll">
-          <form onSubmit={handleCreatePoll} className="space-y-4">
+        <Modal
+          isOpen={showCreatePollModal}
+          onClose={() => setShowCreatePollModal(false)}
+          title="Create Resident Poll"
+          subtitle="Gather community consensus on society decisions"
+          maxWidth="520px"
+          footer={
+            <div className="flex items-center justify-end gap-3 w-full">
+              <button
+                type="button"
+                onClick={() => setShowCreatePollModal(false)}
+                className="px-5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 font-bold text-xs hover:bg-slate-50 transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                form="create-poll-form"
+                type="submit"
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#F06543] to-[#E05432] text-white font-bold text-xs shadow-sm hover:shadow transition cursor-pointer"
+              >
+                Create Poll
+              </button>
+            </div>
+          }
+        >
+          <form id="create-poll-form" onSubmit={handleCreatePoll} className="space-y-3.5 pt-1">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Question</label>
+              <label className="block text-xs font-bold text-[#083B56] mb-1">Question</label>
               <input
                 type="text"
                 required
                 placeholder="e.g. Should we organize a weekend yoga class?"
                 value={pollQuestion}
                 onChange={e => setPollQuestion(e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg text-sm"
+                className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#F06543]"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Poll Expiry Date</label>
+              <label className="block text-xs font-bold text-[#083B56] mb-1">Poll Expiry Date</label>
               <input
                 type="date"
                 value={pollExpires}
                 onChange={e => setPollExpires(e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg text-sm mb-2"
+                className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#F06543]"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Poll Options</label>
+              <label className="block text-xs font-bold text-[#083B56] mb-1">Poll Options</label>
               {pollOptions.map((opt, idx) => (
                 <input
                   key={idx}
@@ -745,21 +810,17 @@ export const ResidentCommunityHubPage: React.FC = () => {
                     updated[idx] = e.target.value;
                     setPollOptions(updated);
                   }}
-                  className="w-full px-3 py-2 border rounded-lg text-sm mb-2"
+                  className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#F06543] mb-2"
                   placeholder={`Option ${idx + 1}`}
                 />
               ))}
               <button
                 type="button"
                 onClick={() => setPollOptions([...pollOptions, ''])}
-                className="px-3 py-1.5 text-[#F06543] border border-[#F06543]/30 hover:bg-[#FFF5F2] text-xs font-extrabold rounded-lg mt-1"
+                className="px-3.5 py-1.5 text-[#F06543] border border-[#F06543]/40 bg-[#FFF5F2] hover:bg-[#FFEAE4] text-xs font-bold rounded-xl transition cursor-pointer"
               >
                 + Add Option
               </button>
-            </div>
-            <div className="pt-4 flex justify-end gap-2">
-              <button type="button" onClick={() => setShowCreatePollModal(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 text-sm font-semibold rounded-lg">Cancel</button>
-              <button type="submit" className="px-4 py-2 bg-[#F06543] text-white font-bold text-sm rounded-lg shadow-sm">Create Poll</button>
             </div>
           </form>
         </Modal>

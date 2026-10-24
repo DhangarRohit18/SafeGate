@@ -710,8 +710,48 @@ export const VendorManagementPage: React.FC = () => {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         title={isInviting ? 'Invite New Society Vendor' : 'Onboard Society Vendor'}
+        maxWidth="600px"
+        footer={
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
+            <button
+              type="button"
+              onClick={() => setIsAddModalOpen(false)}
+              style={{
+                padding: '0.625rem 1.25rem',
+                borderRadius: '12px',
+                border: '1px solid #CBD5E1',
+                background: '#FFFFFF',
+                color: '#475569',
+                fontWeight: 700,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              form="vendor-add-form"
+              type="submit"
+              style={{
+                padding: '0.625rem 1.375rem',
+                borderRadius: '12px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #176B91 0%, #083B56 100%)',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(23, 107, 145, 0.3)',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              {isInviting ? 'Send Invitation' : 'Onboard Vendor'}
+            </button>
+          </div>
+        }
       >
-        <Form onSubmit={handleCreateOrInviteVendor}>
+        <Form id="vendor-add-form" onSubmit={handleCreateOrInviteVendor}>
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <FormField label="Company Name *">
@@ -801,22 +841,6 @@ export const VendorManagementPage: React.FC = () => {
               {documentName && (
                 <p className="text-xs text-emerald-600 mt-1 font-semibold">Attached: {documentName}</p>
               )}
-            </div>
-
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-700">
-              <button
-                type="button"
-                onClick={() => setIsAddModalOpen(false)}
-                className="px-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-semibold text-xs sm:text-sm hover:bg-slate-50 transition cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-[#176B91] hover:bg-[#083B56] text-white rounded-xl font-bold text-xs sm:text-sm shadow-md transition cursor-pointer"
-              >
-                {isInviting ? 'Send Invitation' : 'Onboard Vendor'}
-              </button>
             </div>
           </div>
         </Form>

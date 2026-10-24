@@ -393,7 +393,33 @@ export const AdminChildSafetyPage: React.FC = () => {
 
       {/* Child Details Modal */}
       {selectedChild && (
-        <Modal isOpen={!!selectedChild} onClose={() => setSelectedChild(null)} title={`Child Safety Pass: ${selectedChild.fullName}`}>
+        <Modal
+          isOpen={!!selectedChild}
+          onClose={() => setSelectedChild(null)}
+          title={`Child Safety Pass: ${selectedChild.fullName}`}
+          maxWidth="500px"
+          footer={
+            <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+              <button
+                type="button"
+                onClick={() => setSelectedChild(null)}
+                style={{
+                  padding: '0.625rem 1.25rem',
+                  borderRadius: '12px',
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #083B56 0%, #176B91 100%)',
+                  color: '#FFFFFF',
+                  fontWeight: 800,
+                  fontSize: '0.8125rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(8, 59, 86, 0.3)',
+                }}
+              >
+                Close
+              </button>
+            </div>
+          }
+        >
           <div className="space-y-4 text-slate-800">
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-2">
               <div className="flex justify-between">
@@ -436,12 +462,6 @@ export const AdminChildSafetyPage: React.FC = () => {
                   ))
                 )}
               </div>
-            </div>
-
-            <div className="pt-2 flex justify-end gap-2">
-              <button onClick={() => setSelectedChild(null)} className="px-4 py-2 bg-[#083B56] text-white text-xs font-bold rounded-xl">
-                Close
-              </button>
             </div>
           </div>
         </Modal>

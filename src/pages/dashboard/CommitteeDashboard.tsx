@@ -667,8 +667,49 @@ export const CommitteeDashboard: React.FC = () => {
               isOpen={showUploadModal}
               onClose={() => setShowUploadModal(false)}
               title="Upload Governance Document"
+              maxWidth="520px"
+              footer={
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowUploadModal(false)}
+                    style={{
+                      padding: '0.625rem 1.25rem',
+                      borderRadius: '12px',
+                      border: '1px solid #CBD5E1',
+                      background: '#FFFFFF',
+                      color: '#475569',
+                      fontWeight: 700,
+                      fontSize: '0.8125rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    form="governance-doc-form"
+                    type="submit"
+                    style={{
+                      padding: '0.625rem 1.375rem',
+                      borderRadius: '12px',
+                      border: 'none',
+                      background: 'linear-gradient(135deg, #F06543 0%, #E05432 100%)',
+                      color: '#FFFFFF',
+                      fontWeight: 800,
+                      fontSize: '0.8125rem',
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 14px rgba(240, 101, 67, 0.3)',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    Save &amp; Publish
+                  </button>
+                </div>
+              }
             >
               <form
+                id="governance-doc-form"
                 onSubmit={(e) => {
                   e.preventDefault();
                   if (!docTitle) return;
@@ -688,7 +729,7 @@ export const CommitteeDashboard: React.FC = () => {
                   setUploadedDocUrl('');
                   setShowUploadModal(false);
                 }}
-                style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingTop: '0.5rem' }}
+                style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingTop: '0.25rem' }}
               >
                 <div>
                   <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#083B56', display: 'block', marginBottom: '0.35rem' }}>
@@ -724,21 +765,6 @@ export const CommitteeDashboard: React.FC = () => {
                     category="general"
                     onUploadSuccess={(url) => setUploadedDocUrl(url)}
                   />
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #E2E8F0' }}>
-                  <button
-                    type="button"
-                    onClick={() => setShowUploadModal(false)}
-                    style={{ padding: '0.65rem 1.25rem', borderRadius: '10px', border: '1px solid #CBD5E1', background: '#ffffff', color: '#52788D', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer' }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    style={{ padding: '0.65rem 1.4rem', borderRadius: '10px', border: 'none', background: '#F06543', color: '#ffffff', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer', boxShadow: '0 3px 12px rgba(240, 101, 67, 0.28)' }}
-                  >
-                    Save &amp; Publish
-                  </button>
                 </div>
               </form>
             </Modal>

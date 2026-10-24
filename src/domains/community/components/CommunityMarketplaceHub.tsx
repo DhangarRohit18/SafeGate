@@ -297,6 +297,8 @@ export const CommunityMarketplaceHub: React.FC<CommunityMarketplaceHubProps> = (
               <span>{flatNumber}</span>
             </div>
 
+            <OffersLauncherPill onOpen={() => setIsAdPopupOpen(true)} label="Resident Offers" />
+
             {activeTab === 'MARKETPLACE' && (
               <button
                 onClick={() => setIsListingModalOpen(true)}
@@ -1505,7 +1507,17 @@ export const CommunityMarketplaceHub: React.FC<CommunityMarketplaceHubProps> = (
               <button
                 type="button"
                 onClick={() => setSelectedListingDetail(null)}
-                className="px-4 py-2 rounded-xl bg-[#083B56] text-white text-xs font-extrabold hover:bg-[#176B91] transition-colors"
+                style={{
+                  padding: '0.5rem 1rem',
+                  background: 'linear-gradient(135deg, #083B56 0%, #176B91 100%)',
+                  color: '#FFFFFF',
+                  fontWeight: 800,
+                  fontSize: '0.75rem',
+                  borderRadius: '0.75rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(8, 59, 86, 0.2)',
+                }}
               >
                 Close View
               </button>
@@ -1525,6 +1537,56 @@ export const CommunityMarketplaceHub: React.FC<CommunityMarketplaceHubProps> = (
           subtitle={`${selectedDirectoryDetail.flat} · ${selectedDirectoryDetail.tower}`}
           icon={<Users size={20} />}
           maxWidth="520px"
+          footer={
+            <div className="flex items-center justify-end gap-2.5 w-full">
+              <button
+                type="button"
+                onClick={() => setSelectedDirectoryDetail(null)}
+                style={{
+                  padding: '0.625rem 1.125rem',
+                  backgroundColor: '#F1F5F9',
+                  color: '#475569',
+                  fontWeight: 700,
+                  fontSize: '0.8125rem',
+                  borderRadius: '0.75rem',
+                  border: '1px solid #E2E8F0',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.15s ease',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#E2E8F0')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#F1F5F9')}
+              >
+                Close Profile
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  alert(`Message sent to ${selectedDirectoryDetail.name} via resident portal.`);
+                  setSelectedDirectoryDetail(null);
+                }}
+                style={{
+                  padding: '0.625rem 1.25rem',
+                  background: 'linear-gradient(135deg, #F06543 0%, #E05432 100%)',
+                  color: '#FFFFFF',
+                  fontWeight: 800,
+                  fontSize: '0.8125rem',
+                  borderRadius: '0.75rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  boxShadow: '0 4px 12px rgba(240, 101, 67, 0.25)',
+                  transition: 'transform 0.15s ease',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-1px)')}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+              >
+                <MessageSquare size={14} color="#FFFFFF" />
+                <span style={{ color: '#FFFFFF', fontWeight: 800 }}>Say Hello</span>
+              </button>
+            </div>
+          }
         >
           <div className="space-y-4 text-xs">
             <div className="flex items-center gap-3.5 p-3.5 rounded-xl bg-[#F8FAFC] border border-[#DCE8EF]">
@@ -1599,27 +1661,6 @@ export const CommunityMarketplaceHub: React.FC<CommunityMarketplaceHubProps> = (
                 </div>
               )}
             </div>
-
-            <div className="pt-2 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setSelectedDirectoryDetail(null)}
-                className="px-4 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-xl"
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  alert(`Message sent to ${selectedDirectoryDetail.name} via resident portal.`);
-                  setSelectedDirectoryDetail(null);
-                }}
-                className="px-4 py-2 bg-[#F06543] text-white font-extrabold text-xs rounded-xl flex items-center gap-1.5 shadow-sm"
-              >
-                <MessageSquare size={13} />
-                <span>Say Hello</span>
-              </button>
-            </div>
           </div>
         </Modal>
       )}
@@ -1634,7 +1675,57 @@ export const CommunityMarketplaceHub: React.FC<CommunityMarketplaceHubProps> = (
           title={`${selectedLostFoundDetail.type} Notice: ${selectedLostFoundDetail.title}`}
           subtitle={`Reported on ${selectedLostFoundDetail.date}`}
           icon={<HelpCircle size={20} />}
-          maxWidth="500px"
+          maxWidth="520px"
+          footer={
+            <div className="flex items-center justify-end gap-2.5 w-full">
+              <button
+                type="button"
+                onClick={() => setSelectedLostFoundDetail(null)}
+                style={{
+                  padding: '0.625rem 1.125rem',
+                  backgroundColor: '#F1F5F9',
+                  color: '#475569',
+                  fontWeight: 700,
+                  fontSize: '0.8125rem',
+                  borderRadius: '0.75rem',
+                  border: '1px solid #E2E8F0',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.15s ease',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#E2E8F0')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#F1F5F9')}
+              >
+                Close Notice
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  alert(`Contacting reporter ${selectedLostFoundDetail.contactName} at ${selectedLostFoundDetail.contactPhone}`);
+                  setSelectedLostFoundDetail(null);
+                }}
+                style={{
+                  padding: '0.625rem 1.25rem',
+                  background: 'linear-gradient(135deg, #083B56 0%, #176B91 100%)',
+                  color: '#FFFFFF',
+                  fontWeight: 800,
+                  fontSize: '0.8125rem',
+                  borderRadius: '0.75rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  boxShadow: '0 4px 12px rgba(8, 59, 86, 0.25)',
+                  transition: 'transform 0.15s ease',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-1px)')}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+              >
+                <Phone size={14} color="#FFFFFF" strokeWidth={2.5} />
+                <span style={{ color: '#FFFFFF', fontWeight: 800 }}>Contact Desk / Finder</span>
+              </button>
+            </div>
+          }
         >
           <div className="space-y-4 text-xs">
             <div className="flex justify-between items-center p-3 rounded-xl bg-[#F8FAFC] border border-[#DCE8EF]">
@@ -1671,27 +1762,6 @@ export const CommunityMarketplaceHub: React.FC<CommunityMarketplaceHubProps> = (
                 <span>Reported By: <strong className="text-slate-900">{selectedLostFoundDetail.contactName} ({selectedLostFoundDetail.contactFlat})</strong></span>
               </div>
             </div>
-
-            <div className="pt-2 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setSelectedLostFoundDetail(null)}
-                className="px-4 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-xl"
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  alert(`Contacting reporter ${selectedLostFoundDetail.contactName} at ${selectedLostFoundDetail.contactPhone}`);
-                  setSelectedLostFoundDetail(null);
-                }}
-                className="px-4 py-2 bg-[#083B56] text-white font-extrabold text-xs rounded-xl flex items-center gap-1.5"
-              >
-                <Phone size={13} />
-                <span>Contact Desk / Finder</span>
-              </button>
-            </div>
           </div>
         </Modal>
       )}
@@ -1721,7 +1791,17 @@ export const CommunityMarketplaceHub: React.FC<CommunityMarketplaceHubProps> = (
                 const form = document.getElementById('create-listing-form') as HTMLFormElement;
                 if (form) form.requestSubmit();
               }}
-              className="px-5 py-2.5 text-white text-xs font-extrabold rounded-xl shadow-md bg-[#F06543]"
+              style={{
+                padding: '0.625rem 1.25rem',
+                background: 'linear-gradient(135deg, #F06543 0%, #E05432 100%)',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                fontSize: '0.75rem',
+                borderRadius: '0.75rem',
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(240, 101, 67, 0.25)',
+              }}
             >
               Publish Listing
             </button>
@@ -1817,7 +1897,17 @@ export const CommunityMarketplaceHub: React.FC<CommunityMarketplaceHubProps> = (
                 const form = document.getElementById('create-lost-found-form') as HTMLFormElement;
                 if (form) form.requestSubmit();
               }}
-              className="px-5 py-2.5 bg-[#F06543] text-white text-xs font-extrabold rounded-xl shadow-md"
+              style={{
+                padding: '0.625rem 1.25rem',
+                background: 'linear-gradient(135deg, #F06543 0%, #E05432 100%)',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                fontSize: '0.75rem',
+                borderRadius: '0.75rem',
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(240, 101, 67, 0.25)',
+              }}
             >
               Publish Report
             </button>
@@ -1872,8 +1962,7 @@ export const CommunityMarketplaceHub: React.FC<CommunityMarketplaceHubProps> = (
         </form>
       </Modal>
 
-      {/* Floating Offers Pill Launcher & Popup */}
-      <OffersLauncherPill onOpen={() => setIsAdPopupOpen(true)} />
+      {/* Society Partner Discounts Modal */}
       <AdvertisementPopup
         forceOpen={isAdPopupOpen}
         onClose={() => setIsAdPopupOpen(false)}

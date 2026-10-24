@@ -16,8 +16,29 @@ import { FileUploader } from '../../../components/common';
 import { Modal } from '../../../components/ui/Modal';
 import { AdvertisementPopup } from '../../../components/ads/AdvertisementPopup';
 import { OffersLauncherPill } from '../../../components/ads/OffersLauncherPill';
+import { triggerHaptic } from '../../../utils/nativeMobile';
 
 const formatINR = (amt: number): string => `₹${Number(amt || 0).toLocaleString('en-IN')}`;
+
+const formatComponentName = (comp: string): string => {
+  const map: Record<string, string> = {
+    MAINTENANCE: 'Society Maintenance',
+    WATER: 'Water Consumption',
+    ELECTRICITY: 'Common Area & Backup Power',
+    PARKING: 'Allocated Parking Slot',
+    CLUBHOUSE: 'Gym & Clubhouse Facilities',
+    PENALTY: 'Late Payment Penalty',
+    SPECIAL_CONTRIBUTION: 'Special Contribution Fund',
+    SERVICE_CHARGES: 'Sewage & Service Charges',
+    SINKING_FUND: 'Sinking Fund',
+    CORPUS_FUND: 'Corpus Fund',
+  };
+  if (map[comp]) return map[comp];
+  return comp
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+};
 
 export const ResidentBillingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -88,31 +109,41 @@ export const ResidentBillingPage: React.FC = () => {
           updatedAt: new Date(inv.updatedAt).toISOString(),
         }));
         setInvoices(mapped);
-      }
 
-      // Fetch payment ledger records directly from Prisma / PostgreSQL
-      const dbPayments = await apiClient.getPayments(currentSocietyId);
-      if (dbPayments && Array.isArray(dbPayments) && dbPayments.length > 0) {
-        const mappedTxns: PaymentTransaction[] = dbPayments.map((p: any) => ({
-          id: p.id,
-          invoiceId: p.invoiceId || 'inv-unknown',
-          invoiceNumber: p.invoice?.invoiceNumber || p.metadata?.invoiceNumber || p.invoiceId || 'INV-SETTLED',
-          societyId: p.societyId,
-          flatCode: currentResident.flatCode,
-          residentName: p.resident?.name || currentResident.name,
-          transactionId: p.razorpayPaymentId || p.razorpayOrderId || p.id,
-          amount: Number(p.amount || 0),
-          paymentMethod: (p.paymentMethod as any) || 'ONLINE_GATEWAY',
-          status: p.status === 'SUCCESS' ? 'SUCCESS' : p.status === 'REFUNDED' ? 'REFUNDED' : 'FAILED',
-          gatewayReference: p.razorpayPaymentId || p.razorpayOrderId || 'N/A',
-          gatewayResponseNotes: p.failureReason || (p.status === 'SUCCESS' ? 'Verified by PostgreSQL/Prisma' : ''),
-          paymentDate: new Date(p.createdAt).toLocaleString('en-IN'),
-        }));
-        setTransactions(mappedTxns);
+        // Fetch payment ledger records directly from Prisma / PostgreSQL
+        try {
+          const dbPayments = await apiClient.getPayments(currentSocietyId);
+          if (dbPayments && Array.isArray(dbPayments) && dbPayments.length > 0) {
+            const mappedTxns: PaymentTransaction[] = dbPayments.map((p: any) => ({
+              id: p.id,
+              invoiceId: p.invoiceId || 'inv-unknown',
+              invoiceNumber: p.invoice?.invoiceNumber || p.metadata?.invoiceNumber || p.invoiceId || 'INV-SETTLED',
+              societyId: p.societyId,
+              flatCode: currentResident.flatCode,
+              residentName: p.resident?.name || currentResident.name,
+              transactionId: p.razorpayPaymentId || p.razorpayOrderId || p.id,
+              amount: Number(p.amount || 0),
+              paymentMethod: (p.paymentMethod as any) || 'ONLINE_GATEWAY',
+              status: p.status === 'SUCCESS' ? 'SUCCESS' : p.status === 'REFUNDED' ? 'REFUNDED' : 'FAILED',
+              gatewayReference: p.razorpayPaymentId || p.razorpayOrderId || 'N/A',
+              gatewayResponseNotes: p.failureReason || (p.status === 'SUCCESS' ? 'Verified by PostgreSQL/Prisma' : ''),
+              paymentDate: new Date(p.createdAt).toLocaleString('en-IN'),
+            }));
+            setTransactions(mappedTxns);
+            return;
+          }
+        } catch {
+          // Fallback to billingService transactions
+        }
+
+        const txnList = billingService
+          .getTransactions(currentSocietyId)
+          .filter((t) => t.flatCode === currentResident.flatCode || t.residentName === currentResident.name);
+        setTransactions(txnList);
         return;
       }
     } catch (e) {
-      // Fallback
+      console.warn('[ResidentBillingPage] Live invoices fetch note:', e);
     }
 
     const invList = billingService
@@ -122,8 +153,8 @@ export const ResidentBillingPage: React.FC = () => {
       .getTransactions(currentSocietyId)
       .filter((t) => t.flatCode === currentResident.flatCode || t.residentName === currentResident.name);
 
-    setInvoices((prev) => (prev.length > 0 ? prev : invList));
-    setTransactions((prev) => (prev.length > 0 ? prev : txnList));
+    setInvoices(invList);
+    setTransactions(txnList);
   };
 
   useEffect(() => {
@@ -181,7 +212,7 @@ export const ResidentBillingPage: React.FC = () => {
     });
 
     const unsub = realtimeService.subscribe('*', (msg) => {
-      if (['PAYMENT_COMPLETED', 'BILLING_UPDATED', 'INVOICE_GENERATED', 'OFFLINE_PAYMENT_LOGGED'].includes(msg.topic)) {
+      if (['PAYMENT_COMPLETED', 'PAYMENT_STATUS', 'BILLING_UPDATED', 'INVOICE_GENERATED', 'OFFLINE_PAYMENT_LOGGED'].includes(msg.topic)) {
         reloadData();
       }
     });
@@ -253,6 +284,19 @@ export const ResidentBillingPage: React.FC = () => {
   const activeInvoice = invoices.find((i) => i.outstandingBalance > 0) || invoices[0] || defaultInvoice;
   const displayTransactions = transactions.length > 0 ? transactions : sampleTransactions;
 
+  const formatPaymentMethod = (method?: string): string => {
+    if (!method) return 'Online';
+    const m = method.toUpperCase();
+    if (m.includes('ONLINE') || m.includes('GATEWAY')) return 'Razorpay Gateway';
+    if (m.includes('UPI')) return 'UPI';
+    if (m.includes('CARD')) return 'Credit / Debit Card';
+    if (m.includes('NET') || m.includes('BANK') || m.includes('NEFT')) return 'Net Banking / NEFT';
+    if (m.includes('WALLET')) return 'Wallet';
+    if (m.includes('CASH')) return 'Cash';
+    if (m.includes('CHEQUE')) return 'Cheque';
+    return method.replace(/_/g, ' ');
+  };
+
   const handleOpenReceipt = (invoice: SocietyInvoice, txn?: PaymentTransaction) => {
     setReceiptInvoice(invoice);
     setReceiptTransaction(txn);
@@ -308,7 +352,8 @@ export const ResidentBillingPage: React.FC = () => {
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <OffersLauncherPill onClick={() => setIsAdOpen(true)} label="Utility & Insurance Deals" />
             <div
               style={{
                 padding: '0.4rem 0.75rem',
@@ -604,8 +649,8 @@ export const ResidentBillingPage: React.FC = () => {
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
-                      <span style={{ fontSize: '0.8125rem', fontWeight: 800, color: '#F06543', letterSpacing: '0.02em', textTransform: 'uppercase' }}>
-                        {item.component.replace(/_/g, ' ')}
+                      <span style={{ fontSize: '0.8125rem', fontWeight: 800, color: '#F06543', letterSpacing: '0.02em' }}>
+                        {formatComponentName(item.component)}
                       </span>
                       <span style={{ fontSize: '0.875rem', fontWeight: 900, color: '#083B56', whiteSpace: 'nowrap', flexShrink: 0 }}>
                         {formatINR(item.amount)}
@@ -631,7 +676,7 @@ export const ResidentBillingPage: React.FC = () => {
                   <tbody style={{ color: '#083B56' }}>
                     {activeInvoice.lineItems.map((item) => (
                       <tr key={item.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                        <td style={{ padding: '0.75rem 1rem', fontWeight: 800, color: '#F06543' }}>{item.component.replace(/_/g, ' ')}</td>
+                        <td style={{ padding: '0.75rem 1rem', fontWeight: 800, color: '#F06543' }}>{formatComponentName(item.component)}</td>
                         <td style={{ padding: '0.75rem 1rem', color: '#475569' }}>{item.description}</td>
                         <td style={{ padding: '0.75rem 1rem', textAlign: 'right', fontWeight: 900, color: '#083B56', whiteSpace: 'nowrap' }}>{formatINR(item.amount)}</td>
                       </tr>
@@ -757,8 +802,8 @@ export const ResidentBillingPage: React.FC = () => {
                   key: 'paymentMethod',
                   header: 'Method',
                   render: (t: PaymentTransaction) => (
-                    <span className="px-2 py-0.5 rounded-md bg-slate-100 font-mono text-[11px] font-extrabold text-[#083B56] border border-slate-200">
-                      {t.paymentMethod}
+                    <span className="px-2 py-0.5 rounded-md bg-slate-100 text-[11px] font-bold text-[#083B56] border border-slate-200">
+                      {formatPaymentMethod(t.paymentMethod)}
                     </span>
                   ),
                 },
@@ -878,7 +923,6 @@ export const ResidentBillingPage: React.FC = () => {
       {checkoutInvoice && (
         <RazorpayCheckoutModal
           isOpen={!!checkoutInvoice}
-          onClose={() => setCheckoutInvoice(null)}
           amount={paymentAmount || checkoutInvoice.outstandingBalance}
           purpose={checkoutInvoice.cycleName}
           societyName="Green Valley Society"
@@ -889,19 +933,90 @@ export const ResidentBillingPage: React.FC = () => {
           userName={currentResident.name}
           flatCode={currentResident.flatCode}
           onSuccess={async (paymentDetails) => {
-            // Cryptographic server verification already performed inside RazorpayService.executeCheckout
-            // Also notify local billing service for ledger consistency
+            // 1. Synchronize with local billing service ledger
             try {
               await billingService.processOnlinePayment(
                 checkoutInvoice.id,
                 paymentDetails.amount,
-                currentResident
+                currentResident,
+                undefined,
+                {
+                  transactionId: paymentDetails.transactionId,
+                  paymentMethod: 'ONLINE_GATEWAY',
+                  notes: 'Verified via Dwellora Secure Gateway',
+                }
               );
             } catch (err) {
               console.warn('[ResidentBilling] Local ledger update note:', err);
             }
+
+            // 2. Optimistically update invoice to PAID in React state immediately
+            setInvoices((prev) =>
+              prev.map((inv) =>
+                inv.id === checkoutInvoice.id || inv.invoiceNumber === checkoutInvoice.invoiceNumber
+                  ? {
+                      ...inv,
+                      status: 'PAID',
+                      paidAmount: inv.totalAmount,
+                      outstandingBalance: 0,
+                      updatedAt: new Date().toISOString(),
+                    }
+                  : inv
+              )
+            );
+
+            // 3. Immediately insert verified transaction into history list
+            const newTxn: PaymentTransaction = {
+              id: paymentDetails.transactionId,
+              invoiceId: checkoutInvoice.id,
+              invoiceNumber: checkoutInvoice.invoiceNumber,
+              societyId: currentSocietyId,
+              flatCode: currentResident.flatCode,
+              residentName: currentResident.name,
+              transactionId: paymentDetails.transactionId,
+              amount: paymentDetails.amount,
+              paymentMethod: 'ONLINE_GATEWAY',
+              status: 'SUCCESS',
+              gatewayReference: paymentDetails.transactionId,
+              gatewayResponseNotes: 'Verified by Payment Gateway',
+              paymentDate: new Date().toLocaleString('en-IN'),
+            };
+            setTransactions((prev) => [newTxn, ...prev]);
+
+            // 4. Trigger native haptic feedback
+            triggerHaptic('success');
+
+            // 5. Broadcast real-time events across tabs & components
+            realtimeService.publish(
+              'PAYMENT_COMPLETED',
+              {
+                invoiceId: checkoutInvoice.id,
+                amount: paymentDetails.amount,
+                status: 'PAID',
+                flatCode: currentResident.flatCode,
+              },
+              currentSocietyId,
+              'RESIDENT',
+              'Razorpay Checkout'
+            );
+            realtimeService.publish(
+              'PAYMENT_STATUS',
+              {
+                invoiceId: checkoutInvoice.id,
+                amount: paymentDetails.amount,
+                status: 'PAID',
+                flatCode: currentResident.flatCode,
+              },
+              currentSocietyId,
+              'RESIDENT',
+              'Razorpay Checkout'
+            );
+
             reloadData();
+          }}
+          onClose={() => {
             setCheckoutInvoice(null);
+            reloadData();
           }}
         />
       )}
@@ -911,51 +1026,16 @@ export const ResidentBillingPage: React.FC = () => {
         <Modal
           isOpen={isOfflineSlipModalOpen}
           onClose={() => setIsOfflineSlipModalOpen(false)}
-          title={`Upload Offline Payment Receipt · Invoice #${activeInvoice.invoiceNumber}`}
-        >
-          <div className="space-y-4">
-            <p className="text-xs text-slate-600">
-              Paid via NEFT, IMPS, UPI direct transfer, or physical Cheque? Upload your bank counterfoil or payment screenshot for society office reconciliation.
-            </p>
-
-            <FileUploader
-              label="Bank Transfer Counterfoil / Cheque Copy (PDF or Photo)"
-              entityType="resident"
-              entityId="flat-1204"
-              societyId={currentSocietyId}
-              onUploadSuccess={(res) => {
-                setOfflineSlipUrl(res.downloadUrl);
-                setOfflineSlipFilename(res.name);
-              }}
-              onRemove={() => {
-                setOfflineSlipUrl('');
-                setOfflineSlipFilename('');
-              }}
-            />
-
-            {offlineSlipUrl && (
-              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center justify-between">
-                <span>Receipt Uploaded: <strong>{offlineSlipFilename || 'slip.pdf'}</strong></span>
-                <a href={offlineSlipUrl} target="_blank" rel="noreferrer" className="text-[#176B91] underline font-bold">Preview</a>
-              </div>
-            )}
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Transaction Ref / Cheque No. &amp; Notes</label>
-              <textarea
-                rows={2}
-                value={offlineSlipNotes}
-                onChange={(e) => setOfflineSlipNotes(e.target.value)}
-                placeholder="e.g. UTR # 4291829012 deposited in HDFC Society A/c on 02 Oct"
-                className="w-full p-2.5 border border-slate-200 rounded-xl text-xs"
-              />
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2">
+          title={`Upload Offline Payment Receipt`}
+          subtitle={`Unit ${currentResident.flatCode} · Invoice #${activeInvoice.invoiceNumber}`}
+          icon={<UploadCloud className="w-5 h-5 text-[#F06543]" />}
+          maxWidth="520px"
+          footer={
+            <div className="flex items-center justify-end gap-3 w-full">
               <button
                 type="button"
                 onClick={() => setIsOfflineSlipModalOpen(false)}
-                className="px-4 py-2 border rounded-xl text-xs text-slate-700"
+                className="px-5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 font-bold text-xs hover:bg-slate-50 transition cursor-pointer"
               >
                 Cancel
               </button>
@@ -981,12 +1061,55 @@ export const ResidentBillingPage: React.FC = () => {
                   setOfflineSlipUrl('');
                   setOfflineSlipNotes('');
                 }}
-                className={`px-4 py-2 text-white font-bold rounded-xl text-xs transition-all ${
-                  offlineSlipUrl ? 'bg-[#083B56] hover:bg-[#176B91]' : 'bg-slate-300 cursor-not-allowed'
+                className={`px-6 py-2.5 rounded-xl text-white font-bold text-xs transition-all shadow-sm ${
+                  offlineSlipUrl
+                    ? 'bg-gradient-to-r from-[#083B56] to-[#176B91] hover:shadow-md cursor-pointer'
+                    : 'bg-slate-300 cursor-not-allowed'
                 }`}
               >
                 Submit for Verification
               </button>
+            </div>
+          }
+        >
+          <div className="space-y-3.5 pt-1">
+            <div className="p-3 bg-sky-50/80 border border-sky-200 rounded-xl text-xs text-[#083B56] leading-relaxed">
+              Paid via <strong>NEFT, IMPS, RTGS, direct UPI, or Cheque</strong>? Upload your bank counterfoil or payment screenshot for society accountant reconciliation.
+            </div>
+
+            <FileUploader
+              label="Bank Transfer Counterfoil / Cheque Copy (PDF or Image)"
+              description="Upload transaction receipt or bank stamped slip (up to 5MB)"
+              entityType="resident"
+              entityId="flat-1204"
+              societyId={currentSocietyId}
+              compact={true}
+              onUploadSuccess={(res) => {
+                setOfflineSlipUrl(res.downloadUrl);
+                setOfflineSlipFilename(res.name);
+              }}
+              onRemove={() => {
+                setOfflineSlipUrl('');
+                setOfflineSlipFilename('');
+              }}
+            />
+
+            {offlineSlipUrl && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center justify-between">
+                <span>Receipt Uploaded: <strong>{offlineSlipFilename || 'slip.pdf'}</strong></span>
+                <a href={offlineSlipUrl} target="_blank" rel="noreferrer" className="text-[#176B91] underline font-bold">Preview</a>
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs font-bold text-[#083B56] mb-1">Transaction Ref / Cheque No. &amp; Notes</label>
+              <textarea
+                rows={2}
+                value={offlineSlipNotes}
+                onChange={(e) => setOfflineSlipNotes(e.target.value)}
+                placeholder="e.g. UTR # 4291829012 deposited in HDFC Society A/c on 02 Oct"
+                className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#F06543]"
+              />
             </div>
           </div>
         </Modal>
@@ -1004,8 +1127,7 @@ export const ResidentBillingPage: React.FC = () => {
         />
       )}
 
-      {/* Society Partner Discounts Launcher & Modal */}
-      <OffersLauncherPill onClick={() => setIsAdOpen(true)} label="Utility & Home Insurance Deals" />
+      {/* Society Partner Discounts Modal */}
       <AdvertisementPopup isOpen={isAdOpen} onClose={() => setIsAdOpen(false)} />
     </div>
   );

@@ -271,7 +271,8 @@ export const VisitorPassHubPage: React.FC = () => {
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <OffersLauncherPill onOpen={() => setIsOffersOpen(true)} label="Visitor Deals" />
             <div
               style={{
                 padding: '0.4rem 0.75rem',
@@ -947,35 +948,95 @@ export const VisitorPassHubPage: React.FC = () => {
         </div>
 
       {/* Pre-Approve Visitor Modal */}
-      <Modal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} title="Generate Visitor Gate Pass">
-        <Form onSubmit={handleCreatePass}>
+      <Modal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        title="Generate Visitor Gate Pass"
+        subtitle="Pre-approve guest, delivery, cab, or service entry"
+        maxWidth="560px"
+        footer={
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
+            <button
+              type="button"
+              onClick={() => setIsCreateModalOpen(false)}
+              style={{
+                padding: '0.625rem 1.25rem',
+                borderRadius: '12px',
+                border: '1px solid #CBD5E1',
+                background: '#FFFFFF',
+                color: '#475569',
+                fontWeight: 700,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              form="visitor-pass-create-form"
+              type="submit"
+              style={{
+                padding: '0.625rem 1.5rem',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #F06543 0%, #E05432 100%)',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                fontSize: '0.8125rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                boxShadow: '0 4px 14px rgba(240, 101, 67, 0.3)',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <QrCode size={15} />
+              <span>Generate QR Gate Pass</span>
+            </button>
+          </div>
+        }
+      >
+        <Form id="visitor-pass-create-form" onSubmit={handleCreatePass} style={{ gap: '0.875rem' }}>
           {/* Category Selector Grid */}
-          <div className="space-y-1.5 mb-4">
-            <label className="text-xs font-bold text-[#083B56]">Select Visitor Category</label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {categoriesConfig.map((cat) => (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => openCreateWithCategory(cat.id)}
-                  className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between ${
-                    category === cat.id
-                      ? 'border-[#F06543] bg-orange-50/50 text-[#F06543] font-bold ring-1 ring-[#F06543]'
-                      : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className={category === cat.id ? 'text-[#F06543]' : 'text-slate-500'}>
-                      {cat.icon}
-                    </span>
-                    {category === cat.id && <CheckCircle2 size={14} className="text-[#F06543]" />}
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold leading-tight">{cat.label}</p>
-                    <p className="text-[10px] text-slate-400 truncate">{cat.desc}</p>
-                  </div>
-                </button>
-              ))}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-[#083B56] uppercase tracking-wider">Select Visitor Category</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+              {categoriesConfig.map((cat) => {
+                const isSelected = category === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => openCreateWithCategory(cat.id)}
+                    className={`p-2.5 rounded-xl text-left transition-all flex flex-col justify-between cursor-pointer ${
+                      isSelected
+                        ? 'border-2 border-[#F06543] bg-[#FFF5F2] shadow-sm'
+                        : 'border border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/80 shadow-2xs'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div
+                        className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
+                          isSelected
+                            ? 'bg-[#F06543] text-white shadow-xs'
+                            : 'bg-slate-100 text-slate-600'
+                        }`}
+                      >
+                        {cat.icon}
+                      </div>
+                      {isSelected && <CheckCircle2 size={16} className="text-[#F06543]" />}
+                    </div>
+                    <div>
+                      <p className={`text-xs font-bold leading-tight ${isSelected ? 'text-[#083B56]' : 'text-slate-800'}`}>
+                        {cat.label}
+                      </p>
+                      <p className="text-[10px] text-slate-500 font-medium truncate mt-0.5">{cat.desc}</p>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -987,7 +1048,7 @@ export const VisitorPassHubPage: React.FC = () => {
                 value={visitorName}
                 onChange={(e) => setVisitorName(e.target.value)}
                 placeholder="e.g. Rahul Verma"
-                className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-[#F06543]/30 focus:border-[#F06543] focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-[#F7FBFE] border border-[#DCE8EF] rounded-xl text-xs font-semibold text-[#083B56] focus:outline-none focus:ring-2 focus:ring-[#F06543]/25 focus:border-[#F06543] transition-all"
               />
             </FormField>
 
@@ -998,17 +1059,17 @@ export const VisitorPassHubPage: React.FC = () => {
                 value={visitorPhone}
                 onChange={(e) => setVisitorPhone(e.target.value)}
                 placeholder="10-digit mobile number"
-                className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-[#F06543]/30 focus:border-[#F06543] focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-[#F7FBFE] border border-[#DCE8EF] rounded-xl text-xs font-semibold text-[#083B56] focus:outline-none focus:ring-2 focus:ring-[#F06543]/25 focus:border-[#F06543] transition-all"
               />
             </FormField>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormField label="Pass Validity Type">
               <select
                 value={passLifecycle}
                 onChange={(e) => setPassLifecycle(e.target.value as PassLifecycleType)}
-                className="w-full p-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-[#F06543]/30 focus:border-[#F06543] focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-[#F7FBFE] border border-[#DCE8EF] rounded-xl text-xs font-semibold text-[#083B56] focus:outline-none focus:ring-2 focus:ring-[#F06543]/25 focus:border-[#F06543] transition-all"
               >
                 <option value="ONE_TIME">One-Time Entry (Single Use)</option>
                 <option value="REUSABLE">Reusable Pass (Frequent Entry)</option>
@@ -1022,19 +1083,19 @@ export const VisitorPassHubPage: React.FC = () => {
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
                 placeholder="e.g. Swiggy, Uber, UrbanCompany"
-                className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-[#F06543]/30 focus:border-[#F06543] focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-[#F7FBFE] border border-[#DCE8EF] rounded-xl text-xs font-semibold text-[#083B56] focus:outline-none focus:ring-2 focus:ring-[#F06543]/25 focus:border-[#F06543] transition-all"
               />
             </FormField>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormField label="Vehicle Number (Optional)">
               <input
                 type="text"
                 value={vehicleNumber}
                 onChange={(e) => setVehicleNumber(e.target.value)}
                 placeholder="e.g. MH-12-AB-1234"
-                className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-[#F06543]/30 focus:border-[#F06543] focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-[#F7FBFE] border border-[#DCE8EF] rounded-xl text-xs font-semibold text-[#083B56] focus:outline-none focus:ring-2 focus:ring-[#F06543]/25 focus:border-[#F06543] transition-all"
               />
             </FormField>
 
@@ -1044,13 +1105,13 @@ export const VisitorPassHubPage: React.FC = () => {
                 value={purpose}
                 onChange={(e) => setPurpose(e.target.value)}
                 placeholder="e.g. Weekend Dinner / Plumbing Repair"
-                className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-[#F06543]/30 focus:border-[#F06543] focus:outline-none"
+                className="w-full px-3.5 py-2.5 bg-[#F7FBFE] border border-[#DCE8EF] rounded-xl text-xs font-semibold text-[#083B56] focus:outline-none focus:ring-2 focus:ring-[#F06543]/25 focus:border-[#F06543] transition-all"
               />
             </FormField>
           </div>
 
           {category === 'EVENT_GROUP' && (
-            <div className="mt-3">
+            <div>
               <FormField label="Expected Group Size (Count)">
                 <input
                   type="number"
@@ -1058,23 +1119,22 @@ export const VisitorPassHubPage: React.FC = () => {
                   max={100}
                   value={groupCount}
                   onChange={(e) => setGroupCount(Number(e.target.value))}
-                  className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-[#F06543]/30 focus:border-[#F06543] focus:outline-none"
+                  className="w-full px-3.5 py-2.5 bg-[#F7FBFE] border border-[#DCE8EF] rounded-xl text-xs font-semibold text-[#083B56] focus:outline-none focus:ring-2 focus:ring-[#F06543]/25 focus:border-[#F06543] transition-all"
                 />
               </FormField>
             </div>
           )}
 
-          <div className="mt-4">
-            <label className="block text-xs font-bold text-[#083B56] mb-1.5">
-              Visitor Photo / ID Document (Optional)
-            </label>
+          <div>
             <FileUploader
-              label="Attach Visitor Photo or ID Proof"
+              label="Visitor Photo / ID Document (Optional)"
+              description="Upload visitor photo or Govt ID proof (JPG, PNG, PDF up to 5MB)"
               entityType="resident"
               entityId={currentResidentId}
               societyId={currentSocietyId}
               accept="image/*,application/pdf"
               maxSizeMB={5}
+              compact={true}
               onUploadSuccess={(res) => {
                 setVisitorPhotoUrl(res.downloadUrl);
               }}
@@ -1087,96 +1147,81 @@ export const VisitorPassHubPage: React.FC = () => {
               </div>
             )}
           </div>
-
-          <div className="flex gap-3 mt-6 pt-4 border-t border-[#DCE8EF]">
-            <button
-              type="button"
-              onClick={() => setIsCreateModalOpen(false)}
-              className="flex-1 py-2.5 rounded-xl border border-[#DCE8EF] bg-[#F8FAFC] text-[#475569] font-bold text-xs hover:bg-slate-200 transition-colors cursor-pointer"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="flex-1 py-2.5 rounded-xl text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
-              style={{
-                background: '#F06543',
-                boxShadow: '0 3px 10px rgba(240, 101, 67, 0.25)',
-                border: 'none',
-              }}
-            >
-              Generate QR Gate Pass
-            </button>
-          </div>
         </Form>
       </Modal>
 
       {/* QR Pass Preview Modal */}
       {selectedPassForQR && (
-        <Modal isOpen={!!selectedPassForQR} onClose={() => setSelectedPassForQR(null)} title="Gate Entry Digital Ticket">
-          <div className="text-center space-y-4 py-2">
-            {/* Ticket Box */}
-            <div className="bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 p-5 relative overflow-hidden">
-              <div className="inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-[#FFF0EC] text-[#F06543] uppercase tracking-wider mb-2">
+        <Modal
+          isOpen={!!selectedPassForQR}
+          onClose={() => setSelectedPassForQR(null)}
+          title="Gate Entry Digital Ticket"
+          subtitle={`Authorized Entry for Flat ${currentFlat}`}
+          icon={<QrCode className="w-5 h-5 text-[#F06543]" />}
+          maxWidth="460px"
+          footer={
+            <div className="flex items-center gap-2.5 w-full">
+              <button
+                type="button"
+                onClick={() => shareViaWhatsApp(selectedPassForQR)}
+                className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer"
+              >
+                <Share2 size={15} /> Share via WhatsApp
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedPassForQR(null)}
+                className="py-2.5 px-4 rounded-xl border border-slate-200 bg-white text-slate-700 font-bold text-xs hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                Done
+              </button>
+            </div>
+          }
+        >
+          <div className="flex flex-col items-center gap-3.5 py-1">
+            {/* Category badge + name */}
+            <div className="text-center">
+              <span className="inline-block px-3 py-0.5 rounded-full text-[10px] font-extrabold bg-[#FFF0EC] text-[#F06543] uppercase tracking-wider mb-1">
                 {selectedPassForQR.category.replace(/_/g, ' ')}
-              </div>
-
-              <h3 className="text-xl font-extrabold text-slate-900 mb-1">{selectedPassForQR.visitorName}</h3>
-              <p className="text-xs text-slate-500 mb-4">
-                Authorized entry for <strong>Flat {currentFlat}</strong>
+              </span>
+              <h3 className="text-xl font-black text-[#083B56] leading-tight m-0">{selectedPassForQR.visitorName}</h3>
+              <p className="text-xs text-slate-500 mt-0.5 m-0">
+                Authorized entry for <strong className="text-slate-700">Flat {currentFlat}</strong>
               </p>
+            </div>
 
-              {/* QR Code Container */}
-              <div className="bg-white p-4 rounded-xl shadow-xs border border-slate-200 inline-block mb-4">
-                <QRGenerator value={selectedPassForQR.qrDataString} label={selectedPassForQR.passCode} size={180} />
+            {/* QR Code */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-3.5 flex flex-col items-center gap-2.5 w-full max-w-[280px]">
+              <div className="p-2 bg-[#F8FAFC] rounded-xl border border-slate-100">
+                <QRGenerator value={selectedPassForQR.qrDataString} showLabel={false} size={150} />
               </div>
 
-              {/* Monospace Code Highlight */}
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 max-w-xs mx-auto flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] uppercase font-bold text-amber-800">4-Digit Security Code</p>
-                  <p className="text-lg font-mono font-extrabold text-[#F06543] tracking-widest">
+              {/* Security code inline */}
+              <div className="w-full bg-amber-50/80 border border-amber-200 rounded-xl px-3.5 py-2.5 flex items-center justify-between gap-2">
+                <div className="text-left">
+                  <p className="text-[10px] uppercase font-bold text-amber-800 tracking-wider m-0">4-Digit Security Code</p>
+                  <p className="text-2xl font-mono font-black text-[#F06543] tracking-[0.25em] leading-tight mt-0.5 m-0">
                     {selectedPassForQR.passCode}
                   </p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => copyToClipboard(selectedPassForQR.passCode)}
-                  className="px-3 py-1.5 bg-white border border-amber-300 rounded-lg text-xs font-bold text-slate-700 hover:bg-amber-100 transition-colors flex items-center gap-1"
+                  className="shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-amber-300 rounded-lg text-xs font-bold text-slate-700 hover:bg-amber-100 transition-colors cursor-pointer"
                 >
                   {copiedCode === selectedPassForQR.passCode ? (
-                    <>
-                      <Check size={13} className="text-emerald-600" /> Copied
-                    </>
+                    <><Check size={13} className="text-emerald-600" /> Copied</>
                   ) : (
-                    <>
-                      <Copy size={13} /> Copy
-                    </>
+                    <><Copy size={13} /> Copy</>
                   )}
                 </button>
               </div>
-            </div>
-
-            {/* Modal Actions */}
-            <div className="flex flex-col sm:flex-row gap-2 pt-2">
-              <button
-                onClick={() => shareViaWhatsApp(selectedPassForQR)}
-                className="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md active:scale-95"
-              >
-                <Share2 size={16} /> Share Pass via WhatsApp
-              </button>
-              <button
-                onClick={() => setSelectedPassForQR(null)}
-                className="py-3 px-4 rounded-xl border border-slate-300 bg-slate-100 text-slate-700 font-bold text-xs hover:bg-slate-200 transition-colors"
-              >
-                Done
-              </button>
             </div>
           </div>
         </Modal>
       )}
 
-      {/* Floating Offers Pill Launcher & Popup */}
-      <OffersLauncherPill onOpen={() => setIsOffersOpen(true)} />
+      {/* Society Partner Discounts Modal */}
       <AdvertisementPopup
         forceOpen={isOffersOpen}
         onClose={() => setIsOffersOpen(false)}

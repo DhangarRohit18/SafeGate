@@ -5,7 +5,7 @@ import {
   ShieldCheck, ShieldAlert, Trash2, BedDouble, HardHat,
   Users, Building2, MessageSquare, ChevronRight, Tag, Gift,
 } from 'lucide-react';
-import { AdvertisementPopup, OffersLauncherPill } from '../../../components/common/AdvertisementPopup';
+import { AdvertisementPopup } from '../../../components/common/AdvertisementPopup';
 import { useAuth } from '../../../context/AuthContext';
 
 const SERVICES = [
@@ -174,8 +174,7 @@ export const ResidentServicesPage: React.FC = () => {
         })}
       </div>
 
-      {/* Floating Offers Pill Launcher & Popup */}
-      <OffersLauncherPill onOpen={() => setIsOffersOpen(true)} />
+      {/* Society Partner Discounts Modal */}
       <AdvertisementPopup
         forceOpen={isOffersOpen}
         onClose={() => setIsOffersOpen(false)}

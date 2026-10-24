@@ -422,7 +422,6 @@ export const ResidentHome: React.FC = () => {
       </div>
 
       {/* ── Advertisement & Sponsored Offers Pop-up ── */}
-      <OffersLauncherPill onOpen={() => setShowOffersModal(true)} />
       <AdvertisementPopup
         societyId={currentUser?.societyId || 'soc-gvs'}
         forceOpen={showOffersModal}

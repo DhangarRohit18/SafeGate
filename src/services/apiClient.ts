@@ -4,17 +4,31 @@
  * Provides multi-tenant context headers (societyId, userId, userRole) and handles fallbacks.
  */
 
-const API_BASE =
-  (import.meta as any).env?.VITE_BACKEND_URL
-    ? `${(import.meta as any).env.VITE_BACKEND_URL}/api`
-    : (typeof window !== 'undefined' && (window.location.port === '5173' || window.location.port === '5174')
-      ? 'http://localhost:5000/api'
-      : '/api');
+function getApiBaseUrl(): string {
+  const envUrl = (import.meta as any).env?.VITE_BACKEND_URL;
+  if (typeof window !== 'undefined') {
+    // Android emulator host loopback detection (Capacitor or Chrome on Android)
+    const isAndroid = /android/i.test(navigator.userAgent) || (window as any).Capacitor?.getPlatform?.() === 'android';
+    if (isAndroid && envUrl && (envUrl.includes('localhost') || envUrl.includes('127.0.0.1'))) {
+      return envUrl.replace(/localhost|127\.0\.0\.1/, '10.0.2.2') + '/api';
+    }
+  }
+  if (envUrl) {
+    return `${envUrl.replace(/\/+$/, '')}/api`;
+  }
+  if (typeof window !== 'undefined' && (window.location.port === '5173' || window.location.port === '5174')) {
+    return 'http://localhost:5000/api';
+  }
+  return '/api';
+}
+
+const API_BASE = getApiBaseUrl();
 
 interface RequestOptions extends RequestInit {
   societyId?: string;
   userId?: string;
   userRole?: string;
+  throwOnError?: boolean;
 }
 
 function getStoredAuthHeaders(): Record<string, string> {
@@ -55,14 +69,27 @@ async function apiRequest<T>(endpoint: string, options: RequestOptions = {}): Pr
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.warn(`[API] ${options.method || 'GET'} ${url} returned ${response.status}:`, errorText);
+      let errorMsg = `Server returned ${response.status}`;
+      try {
+        const errorJson = await response.json();
+        errorMsg = errorJson.error || errorJson.message || errorMsg;
+      } catch {
+        const errorText = await response.text().catch(() => '');
+        if (errorText) errorMsg = errorText;
+      }
+      console.warn(`[API] ${options.method || 'GET'} ${url} returned ${response.status}:`, errorMsg);
+      if (options.throwOnError) {
+        throw new Error(errorMsg);
+      }
       return null;
     }
 
     return (await response.json()) as T;
-  } catch (err) {
+  } catch (err: any) {
     console.warn(`[API] Failed to fetch ${url}. Falling back to client-side cache/state.`, err);
+    if (options.throwOnError) {
+      throw err;
+    }
     return null;
   }
 }
@@ -207,16 +234,18 @@ export const apiClient = {
   },
 
   // Razorpay Payment Engine
-  createRazorpayOrder: (invoiceId: string, amount: number) =>
-    apiRequest<{ orderId: string; amount: number; currency: string; keyId: string; notes?: any }>('/payments/razorpay/create-order', {
+  createRazorpayOrder: (invoiceId: string, amount: number, invoiceNumber?: string) =>
+    apiRequest<{ orderId: string; amount: number; currency: string; keyId: string; invoiceNumber?: string; notes?: any }>('/payments/razorpay/create-order', {
       method: 'POST',
-      body: JSON.stringify({ invoiceId, amount }),
+      body: JSON.stringify({ invoiceId, amount, invoiceNumber }),
+      throwOnError: true,
     }),
 
   verifyRazorpayPayment: (data: { invoiceId: string; razorpayPaymentId: string; razorpayOrderId: string; amount: number; razorpaySignature?: string }) =>
     apiRequest<{ success: boolean; message: string; invoice: any; transactionId: string }>('/payments/razorpay/verify', {
       method: 'POST',
       body: JSON.stringify(data),
+      throwOnError: true,
     }),
 
   refundRazorpayPayment: (data: { paymentId: string; amount: number; reason: string }) =>

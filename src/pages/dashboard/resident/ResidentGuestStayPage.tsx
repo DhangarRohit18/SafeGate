@@ -162,6 +162,7 @@ export const ResidentGuestStayPage: React.FC = () => {
             Book society guest suites for visiting family, friends, or business guests with automatic Gate Access QRs.
           </p>
         </div>
+        <OffersLauncherPill onClick={() => setIsAdOpen(true)} label="Travel & Hospitality Perks" />
       </div>
 
       {/* Guest Rooms Catalog */}
@@ -314,36 +315,83 @@ export const ResidentGuestStayPage: React.FC = () => {
 
       {/* Modal: View QR Access Pass */}
       {viewingQRResv && (
-        <Modal isOpen={!!viewingQRResv} onClose={() => setViewingQRResv(null)} title="Guest Gate Access QR Pass">
-          <div className="text-center space-y-4 py-2">
-            <div className="bg-[#EAF6FC] p-4 rounded-2xl border border-[#A7D7EC] inline-block">
-              <div className="w-48 h-48 bg-white p-3 rounded-xl border border-slate-300 shadow-inner mx-auto flex items-center justify-center">
-                <QRCodeSVG value={viewingQRResv.qrCode} size={160} level="M" />
-              </div>
-              <div className="mt-2 text-xs font-mono font-bold text-slate-700">
-                {viewingQRResv.qrCode}
-              </div>
-            </div>
-            <div>
-              <h3 className="font-bold text-lg text-slate-900">{viewingQRResv.primaryGuestName}</h3>
-              <p className="text-xs text-slate-500">Suite: <strong>{viewingQRResv.roomName} (#{viewingQRResv.roomNumber})</strong></p>
-              <p className="text-xs text-slate-400 mt-1">Check-in: {viewingQRResv.checkInDate} | Check-out: {viewingQRResv.checkOutDate}</p>
-            </div>
+        <Modal
+          isOpen={!!viewingQRResv}
+          onClose={() => setViewingQRResv(null)}
+          title="Guest Gate Access QR Pass"
+          subtitle={`Suite: ${viewingQRResv.roomName} (#${viewingQRResv.roomNumber})`}
+          icon={<Hotel className="w-5 h-5 text-[#F06543]" />}
+          maxWidth="440px"
+          footer={
             <button
+              type="button"
               onClick={() => setViewingQRResv(null)}
-              className="w-full py-2.5 text-white font-bold text-sm rounded-xl transition-all shadow-sm"
-              style={{ background: 'var(--aarizo-blue, #176B91)' }}
+              className="w-full py-2.5 text-white font-bold text-xs rounded-xl transition-all shadow-sm cursor-pointer"
+              style={{ background: 'var(--aarizo-coral, #F06543)' }}
             >
               Done / Share Pass with Guest
             </button>
+          }
+        >
+          <div className="flex flex-col items-center gap-3.5 py-1">
+            {/* Guest info */}
+            <div className="text-center">
+              <h3 className="text-xl font-black text-[#083B56] m-0">{viewingQRResv.primaryGuestName}</h3>
+              <p className="text-xs text-slate-500 mt-0.5 m-0">
+                Suite: <strong className="text-slate-700">{viewingQRResv.roomName} (#{viewingQRResv.roomNumber})</strong>
+              </p>
+              <p className="text-[11px] text-slate-400 mt-0.5 m-0">
+                Check-in: {viewingQRResv.checkInDate} · Check-out: {viewingQRResv.checkOutDate}
+              </p>
+            </div>
+
+            {/* QR Code */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-3.5 w-full max-w-[280px] flex flex-col items-center gap-2">
+              <div className="bg-[#EAF6FC] p-3 rounded-xl border border-[#A7D7EC] flex items-center justify-center">
+                <QRCodeSVG value={viewingQRResv.qrCode} size={150} level="M" />
+              </div>
+              <span className="text-xs font-mono font-bold text-slate-700 bg-slate-50 border border-slate-200 px-3 py-1 rounded-lg tracking-widest">
+                {viewingQRResv.qrCode}
+              </span>
+            </div>
           </div>
         </Modal>
       )}
 
       {/* Modal: Book Guest Room */}
       {selectedRoom && (
-        <Modal isOpen={!!selectedRoom} onClose={() => setSelectedRoom(null)} title={`Book ${selectedRoom.roomName}`}>
-          <form onSubmit={handleBookRoom} className="space-y-4">
+        <Modal
+          isOpen={!!selectedRoom}
+          onClose={() => setSelectedRoom(null)}
+          title={`Book ${selectedRoom.roomName}`}
+          subtitle={`₹${selectedRoom.pricePerNight} / Night · Max Capacity: ${selectedRoom.capacity} Guests`}
+          maxWidth="520px"
+          footer={
+            <div className="flex items-center justify-end gap-3 w-full">
+              <button
+                type="button"
+                onClick={() => setSelectedRoom(null)}
+                className="px-5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 font-bold text-xs hover:bg-slate-50 transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                form="book-guest-room-form"
+                type="submit"
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#F06543] to-[#E05432] text-white font-bold text-xs shadow-sm hover:shadow transition flex items-center gap-1.5 cursor-pointer"
+              >
+                {selectedRoom.pricePerNight && selectedRoom.pricePerNight > 0 ? (
+                  <>
+                    <CreditCard size={15} /> Pay &amp; Generate QR Pass
+                  </>
+                ) : (
+                  'Confirm & Generate QR Pass'
+                )}
+              </button>
+            </div>
+          }
+        >
+          <form id="book-guest-room-form" onSubmit={handleBookRoom} className="space-y-4">
             <div className="bg-sky-50 p-3 rounded-xl text-xs text-[#083B56] font-medium border border-sky-100">
               <strong>Rate:</strong> ₹{selectedRoom.pricePerNight} / Night · Max Capacity: {selectedRoom.capacity} Guests
             </div>
@@ -450,23 +498,6 @@ export const ResidentGuestStayPage: React.FC = () => {
                 </p>
               )}
             </div>
-
-            <div className="pt-4 flex justify-end gap-2">
-              <button type="button" onClick={() => setSelectedRoom(null)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 text-sm font-semibold rounded-lg">Cancel</button>
-              <button
-                type="submit"
-                className="px-4 py-2 text-white font-bold text-sm rounded-lg shadow-sm transition flex items-center gap-1.5"
-                style={{ background: 'var(--aarizo-blue, #176B91)' }}
-              >
-                {selectedRoom.pricePerNight && selectedRoom.pricePerNight > 0 ? (
-                  <>
-                    <CreditCard size={15} /> Pay &amp; Generate QR Pass
-                  </>
-                ) : (
-                  'Confirm & Generate QR Pass'
-                )}
-              </button>
-            </div>
           </form>
         </Modal>
       )}
@@ -490,8 +521,7 @@ export const ResidentGuestStayPage: React.FC = () => {
         />
       )}
 
-      {/* Society Partner Discounts Launcher & Modal */}
-      <OffersLauncherPill onClick={() => setIsAdOpen(true)} label="Travel &amp; Hospitality Perks" />
+      {/* Society Partner Discounts Modal */}
       <AdvertisementPopup isOpen={isAdOpen} onClose={() => setIsAdOpen(false)} />
     </div>
   );

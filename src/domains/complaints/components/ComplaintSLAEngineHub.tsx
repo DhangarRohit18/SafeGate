@@ -42,7 +42,7 @@ export const ComplaintSLAEngineHub: React.FC = () => {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<ComplaintCategory>('PLUMBING');
   const [description, setDescription] = useState('');
-  const [location, setLocation] = useState('Tower B Â· Flat B-1204');
+  const [location, setLocation] = useState('Tower B · Flat B-1204');
   const [urgency, setUrgency] = useState<'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'>('MEDIUM');
   const [photoUrl, setPhotoUrl] = useState('');
 
@@ -85,7 +85,7 @@ export const ComplaintSLAEngineHub: React.FC = () => {
       societyId: 'soc-gvs',
       residentId: currentUser?.id || 'res-1',
       residentName: currentUser?.name || 'Vikram Joshi',
-      flatCode: currentUser?.flatDetails || 'Tower B Â· B-1204',
+      flatCode: currentUser?.flatDetails || 'Tower B · B-1204',
       category,
       title,
       description,
@@ -760,7 +760,7 @@ export const ComplaintSLAEngineHub: React.FC = () => {
                 <option value="LOW">Low Priority</option>
                 <option value="MEDIUM">Medium Priority</option>
                 <option value="HIGH">High (Fast-track FM)</option>
-                <option value="CRITICAL">Critical â€“ Emergency</option>
+                <option value="CRITICAL">Critical – Emergency</option>
               </select>
             </div>
           </div>
@@ -772,7 +772,7 @@ export const ComplaintSLAEngineHub: React.FC = () => {
               required
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="e.g. Tower B Â· Flat B-1204 or Basement 1"
+              placeholder="e.g. Tower B · Flat B-1204 or Basement 1"
               className="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#176B91]/20 focus:border-[#176B91] transition"
             />
           </div>

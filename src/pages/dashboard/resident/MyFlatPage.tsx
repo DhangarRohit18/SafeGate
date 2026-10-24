@@ -113,17 +113,20 @@ export const MyFlatPage: React.FC = () => {
       <div style={{ padding: '1rem', paddingBottom: '6rem', maxWidth: '1280px', margin: '0 auto', fontFamily: 'sans-serif' }}>
         {/* Header */}
         <header style={{ marginBottom: '1.5rem', background: 'linear-gradient(135deg, var(--aarizo-navy, #083B56) 0%, #0D4767 100%)', padding: '1.5rem', borderRadius: '16px', color: '#FFFFFF', boxShadow: '0 4px 16px rgba(8, 59, 86, 0.08)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <Home size={28} color="var(--aarizo-sky, #83CBEA)" />
-            <div>
-              <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: '#FFFFFF' }}>Tower B · Flat 1204</h1>
-              <p style={{ margin: '0.2rem 0 0 0', color: 'var(--aarizo-sky, #83CBEA)', fontSize: '0.85rem' }}>Green Valley Society · 3 BHK Owner Occupied</p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <Home size={28} color="var(--aarizo-sky, #83CBEA)" />
+              <div>
+                <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: '#FFFFFF' }}>Tower B · Flat 1204</h1>
+                <p style={{ margin: '0.2rem 0 0 0', color: 'var(--aarizo-sky, #83CBEA)', fontSize: '0.85rem' }}>Green Valley Society · 3 BHK Owner Occupied</p>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <RealtimeSyncBadge state="live" label="Live Synced" />
+              <OffersLauncherPill onClick={() => setIsAdOpen(true)} label="Home & Moving Deals" />
             </div>
           </div>
-          <RealtimeSyncBadge state="live" label="Live Synced" />
-        </div>
-      </header>
+        </header>
 
       {/* Grid Section 1: Family Members */}
       <section style={{ marginBottom: '2rem' }}>
@@ -301,8 +304,31 @@ export const MyFlatPage: React.FC = () => {
       </section>
 
       {/* Add Family Member Modal */}
-      <Modal isOpen={isFamilyModalOpen} onClose={() => setIsFamilyModalOpen(false)} title="Add Family Member">
-        <Form onSubmit={handleAddFamilyMember}>
+      <Modal
+        isOpen={isFamilyModalOpen}
+        onClose={() => setIsFamilyModalOpen(false)}
+        title="Add Family Member"
+        subtitle="Associate family member to Unit 1204"
+        footer={
+          <div className="flex items-center justify-end gap-3 w-full">
+            <button
+              type="button"
+              onClick={() => setIsFamilyModalOpen(false)}
+              className="px-5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 font-bold text-xs hover:bg-slate-50 transition cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              form="add-family-member-form"
+              type="submit"
+              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#F06543] to-[#E05432] text-white font-bold text-xs shadow-sm hover:shadow transition cursor-pointer"
+            >
+              Save Member
+            </button>
+          </div>
+        }
+      >
+        <Form id="add-family-member-form" onSubmit={handleAddFamilyMember}>
           <FormField label="Full Name" required>
             <input
               type="text"
@@ -352,17 +378,35 @@ export const MyFlatPage: React.FC = () => {
               </p>
             )}
           </div>
-
-          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
-            <button type="button" onClick={() => setIsFamilyModalOpen(false)} style={{ flex: 1, padding: '0.6rem', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff' }}>Cancel</button>
-            <button type="submit" style={{ flex: 1, padding: '0.6rem', borderRadius: '8px', border: 'none', background: 'var(--aarizo-blue, #176B91)', color: '#fff', fontWeight: 600 }}>Save Member</button>
-          </div>
         </Form>
       </Modal>
 
       {/* Add Vehicle Modal */}
-      <Modal isOpen={isVehicleModalOpen} onClose={() => setIsVehicleModalOpen(false)} title="Register Vehicle & Parking Tag">
-        <Form onSubmit={handleAddVehicle}>
+      <Modal
+        isOpen={isVehicleModalOpen}
+        onClose={() => setIsVehicleModalOpen(false)}
+        title="Register Vehicle & Parking Tag"
+        subtitle="Issue FASTag / RFID parking access for Unit 1204"
+        footer={
+          <div className="flex items-center justify-end gap-3 w-full">
+            <button
+              type="button"
+              onClick={() => setIsVehicleModalOpen(false)}
+              className="px-5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 font-bold text-xs hover:bg-slate-50 transition cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              form="add-vehicle-form"
+              type="submit"
+              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#F06543] to-[#E05432] text-white font-bold text-xs shadow-sm hover:shadow transition cursor-pointer"
+            >
+              Register Vehicle
+            </button>
+          </div>
+        }
+      >
+        <Form id="add-vehicle-form" onSubmit={handleAddVehicle}>
           <FormField label="Vehicle Number" required>
             <input
               type="text"
@@ -410,17 +454,41 @@ export const MyFlatPage: React.FC = () => {
               </p>
             )}
           </div>
-
-          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
-            <button type="button" onClick={() => setIsVehicleModalOpen(false)} style={{ flex: 1, padding: '0.6rem', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff' }}>Cancel</button>
-            <button type="submit" style={{ flex: 1, padding: '0.6rem', borderRadius: '8px', border: 'none', background: 'var(--aarizo-blue, #176B91)', color: '#fff', fontWeight: 600 }}>Register Vehicle</button>
-          </div>
         </Form>
       </Modal>
 
       {/* Upload Document Modal */}
-      <Modal isOpen={isDocModalOpen} onClose={() => setIsDocModalOpen(false)} title="Upload Flat Agreement / Document">
+      <Modal
+        isOpen={isDocModalOpen}
+        onClose={() => setIsDocModalOpen(false)}
+        title="Upload Flat Agreement / Document"
+        subtitle="Keep ownership deeds & tenant agreements digitally verified"
+        footer={
+          <div className="flex items-center justify-end gap-3 w-full">
+            <button
+              type="button"
+              onClick={() => setIsDocModalOpen(false)}
+              className="px-5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-700 font-bold text-xs hover:bg-slate-50 transition cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              form="upload-flat-doc-form"
+              type="submit"
+              disabled={!newDocUrl}
+              className={`px-6 py-2.5 rounded-xl text-white font-bold text-xs transition-all shadow-sm ${
+                newDocUrl
+                  ? 'bg-gradient-to-r from-[#F06543] to-[#E05432] hover:shadow-md cursor-pointer'
+                  : 'bg-slate-300 cursor-not-allowed'
+              }`}
+            >
+              Save Document
+            </button>
+          </div>
+        }
+      >
         <form
+          id="upload-flat-doc-form"
           onSubmit={(e) => {
             e.preventDefault();
             if (!newDocTitle || !newDocUrl) return;
@@ -459,30 +527,10 @@ export const MyFlatPage: React.FC = () => {
             onUploadSuccess={(res) => setNewDocUrl(res.downloadUrl)}
             onRemove={() => setNewDocUrl('')}
           />
-
-          <div className="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              onClick={() => setIsDocModalOpen(false)}
-              className="px-4 py-2 border rounded-lg text-xs text-slate-700"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={!newDocUrl}
-              className={`px-4 py-2 text-white font-bold rounded-lg text-xs ${
-                newDocUrl ? 'bg-[#083B56] hover:bg-[#176B91]' : 'bg-slate-300 cursor-not-allowed'
-              }`}
-            >
-              Save Document
-            </button>
-          </div>
         </form>
       </Modal>
 
-      {/* Partner Offers & Ads */}
-      <OffersLauncherPill onClick={() => setIsAdOpen(true)} label="Home &amp; Moving Deals" />
+      {/* Partner Offers & Ads Modal */}
       <AdvertisementPopup isOpen={isAdOpen} onClose={() => setIsAdOpen(false)} />
       </div>
     </div>

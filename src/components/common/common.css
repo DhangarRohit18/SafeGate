@@ -498,6 +498,8 @@
 .modal-overlay, .drawer-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
+  width: 100vw;
+  height: 100vh;
   background: rgba(8, 26, 42, 0.72);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
@@ -505,7 +507,8 @@
   align-items: center;
   justify-content: center;
   z-index: 99999;
-  padding: 0.75rem;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .modal-content {
@@ -519,6 +522,9 @@
   box-shadow: 0 24px 60px -12px rgba(8, 59, 86, 0.35);
   border: 1px solid rgba(226, 232, 240, 0.8);
   overflow: hidden;
+  margin: auto;
+  align-self: center;
+  position: relative;
 }
 
 .modal-header, .drawer-header {
@@ -532,6 +538,9 @@
 .modal-body, .drawer-body {
   padding: var(--space-4);
   overflow-y: auto;
+  overflow-x: auto;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .modal-footer {

@@ -622,47 +622,17 @@ export const SecurityTerminalPage: React.FC = () => {
 
       {/* Verification Result Modal */}
       {validationResult && (
-        <Modal isOpen={!!validationResult} onClose={() => setValidationResult(null)} title="Pass Validation Result">
-          <div style={{ textAlign: 'center' }}>
-            <div
-              style={{
-                width: 56,
-                height: 56,
-                borderRadius: '50%',
-                background: validationResult.isValid ? '#ECFDF5' : '#FEF2F2',
-                color: validationResult.isValid ? '#059669' : '#DC2626',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '1rem',
-              }}
-            >
-              {validationResult.isValid ? <CheckCircle2 size={32} /> : <XCircle size={32} />}
-            </div>
-
-            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', fontWeight: 800, color: validationResult.isValid ? '#065F46' : '#991B1B' }}>
-              {validationResult.isValid ? 'PASS VALIDATED' : 'ENTRY REJECTED'}
-            </h3>
-
-            {validationResult.pass && (
-              <div style={{ padding: '0.875rem', background: '#F4FAFE', borderRadius: '12px', border: '1px solid #DCE8EF', margin: '0.75rem 0', textAlign: 'left', fontSize: '0.8125rem', color: '#083B56' }}>
-                <div style={{ marginBottom: '0.25rem' }}>Visitor: <strong>{validationResult.pass.visitorName}</strong></div>
-                <div style={{ marginBottom: '0.25rem' }}>Destination: <strong>{validationResult.pass.flatCode}</strong> ({validationResult.pass.residentName})</div>
-                <div>Category: {validationResult.pass.category}</div>
-              </div>
-            )}
-
-            {!validationResult.isValid && (
-              <p style={{ color: '#DC2626', fontWeight: 700, fontSize: '0.875rem', margin: '0.5rem 0 1rem 0' }}>
-                {validationResult.reason}
-              </p>
-            )}
-
-            <div style={{ display: 'flex', gap: '0.625rem', marginTop: '1rem' }}>
+        <Modal
+          isOpen={!!validationResult}
+          onClose={() => setValidationResult(null)}
+          title="Pass Validation Result"
+          maxWidth="460px"
+          footer={
+            <div className="flex gap-2.5 w-full">
               <button
                 type="button"
                 onClick={() => setValidationResult(null)}
-                style={{ flex: 1, padding: '0.75rem', borderRadius: '10px', border: '1px solid #DCE8EF', background: '#ffffff', fontWeight: 700, fontSize: '0.8125rem', cursor: 'pointer', color: '#083B56' }}
+                className="flex-1 py-2.5 rounded-xl border border-slate-200 bg-white font-bold text-xs text-[#083B56] hover:bg-slate-50 transition-colors cursor-pointer"
               >
                 Dismiss
               </button>
@@ -670,12 +640,40 @@ export const SecurityTerminalPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => handleCheckIn(validationResult.pass!)}
-                  style={{ flex: 1, padding: '0.75rem', borderRadius: '10px', border: 'none', background: '#059669', color: '#ffffff', fontWeight: 800, fontSize: '0.8125rem', cursor: 'pointer' }}
+                  className="flex-1 py-2.5 rounded-xl border-0 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs transition-colors shadow-sm cursor-pointer"
                 >
                   Approve Entry
                 </button>
               )}
             </div>
+          }
+        >
+          <div className="flex flex-col items-center gap-3.5 py-1 text-center">
+            {/* Status icon */}
+            <div
+              className={`w-14 h-14 rounded-full flex items-center justify-center ${
+                validationResult.isValid ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
+              }`}
+            >
+              {validationResult.isValid ? <CheckCircle2 size={32} /> : <XCircle size={32} />}
+            </div>
+
+            <div>
+              <h3 className={`text-lg font-black mb-0.5 ${validationResult.isValid ? 'text-emerald-700' : 'text-red-700'}`}>
+                {validationResult.isValid ? 'PASS VALIDATED ✓' : 'ENTRY REJECTED ✗'}
+              </h3>
+              {!validationResult.isValid && (
+                <p className="text-xs font-bold text-red-600 m-0">{validationResult.reason}</p>
+              )}
+            </div>
+
+            {validationResult.pass && (
+              <div className="w-full p-3 bg-[#F4FAFE] rounded-xl border border-[#DCE8EF] text-left text-xs text-[#083B56] space-y-1.5">
+                <div><span className="text-slate-500">Visitor: </span><strong>{validationResult.pass.visitorName}</strong></div>
+                <div><span className="text-slate-500">Destination: </span><strong>{validationResult.pass.flatCode}</strong> ({validationResult.pass.residentName})</div>
+                <div><span className="text-slate-500">Category: </span>{validationResult.pass.category?.replace(/_/g, ' ')}</div>
+              </div>
+            )}
           </div>
         </Modal>
       )}
@@ -692,8 +690,52 @@ export const SecurityTerminalPage: React.FC = () => {
       </Modal>
 
       {/* Blacklist Modal */}
-      <Modal isOpen={isBlacklistModalOpen} onClose={() => setIsBlacklistModalOpen(false)} title="Watchlist Management">
-        <Form onSubmit={handleAddBlacklist}>
+      <Modal
+        isOpen={isBlacklistModalOpen}
+        onClose={() => setIsBlacklistModalOpen(false)}
+        title="Watchlist Management"
+        maxWidth="460px"
+        footer={
+          <div style={{ display: 'flex', gap: '0.625rem', width: '100%' }}>
+            <button
+              type="button"
+              onClick={() => setIsBlacklistModalOpen(false)}
+              style={{
+                flex: 1,
+                padding: '0.65rem 1rem',
+                borderRadius: '12px',
+                border: '1px solid #CBD5E1',
+                background: '#ffffff',
+                color: '#475569',
+                fontWeight: 700,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              form="blacklist-form"
+              type="submit"
+              style={{
+                flex: 1,
+                padding: '0.65rem 1rem',
+                borderRadius: '12px',
+                border: 'none',
+                background: '#DC2626',
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(220, 38, 38, 0.25)',
+              }}
+            >
+              Add to Watchlist
+            </button>
+          </div>
+        }
+      >
+        <Form id="blacklist-form" onSubmit={handleAddBlacklist}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <FormField label="Visitor Name" required>
               <input
@@ -726,13 +768,6 @@ export const SecurityTerminalPage: React.FC = () => {
               />
             </FormField>
           </div>
-
-          <button
-            type="submit"
-            style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: 'none', background: '#DC2626', color: '#ffffff', fontWeight: 800, marginTop: '1rem', cursor: 'pointer', fontSize: '0.8125rem' }}
-          >
-            Add to Watchlist
-          </button>
         </Form>
 
         {/* Existing Watchlist Items */}
@@ -750,8 +785,56 @@ export const SecurityTerminalPage: React.FC = () => {
       </Modal>
 
       {/* Walk-in Visitor Entry Modal */}
-      <Modal isOpen={isWalkInModalOpen} onClose={() => setIsWalkInModalOpen(false)} title="Register Walk-in Gate Entry">
-        <Form onSubmit={handleCreateWalkIn}>
+      <Modal
+        isOpen={isWalkInModalOpen}
+        onClose={() => setIsWalkInModalOpen(false)}
+        title="Register Walk-in Gate Entry"
+        maxWidth="540px"
+        footer={
+          <div style={{ display: 'flex', gap: '0.625rem', width: '100%' }}>
+            <button
+              type="button"
+              onClick={() => setIsWalkInModalOpen(false)}
+              style={{
+                flex: 1,
+                padding: '0.65rem 1rem',
+                borderRadius: '12px',
+                border: '1px solid #CBD5E1',
+                background: '#ffffff',
+                color: '#475569',
+                fontWeight: 700,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              form="walk-in-form"
+              type="submit"
+              style={{
+                flex: 2,
+                padding: '0.65rem 1.25rem',
+                borderRadius: '12px',
+                border: 'none',
+                background: 'var(--aarizo-coral, #F06543)',
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                boxShadow: '0 2px 8px rgba(240, 101, 67, 0.25)',
+              }}
+            >
+              <CheckCircle2 size={16} /> Allow &amp; Check In Visitor
+            </button>
+          </div>
+        }
+      >
+        <Form id="walk-in-form" onSubmit={handleCreateWalkIn}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '70vh', overflowY: 'auto', paddingRight: '0.25rem' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem' }}>
               <FormField label="Visitor Full Name" required>
@@ -857,21 +940,6 @@ export const SecurityTerminalPage: React.FC = () => {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.625rem', marginTop: '1rem', borderTop: '1px solid #DCE8EF', paddingTop: '0.875rem' }}>
-            <button
-              type="button"
-              onClick={() => setIsWalkInModalOpen(false)}
-              style={{ flex: 1, padding: '0.75rem', borderRadius: '10px', border: '1px solid #DCE8EF', background: '#ffffff', fontWeight: 700, fontSize: '0.8125rem', cursor: 'pointer', color: '#083B56' }}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              style={{ flex: 2, padding: '0.75rem', borderRadius: '10px', border: 'none', background: 'var(--aarizo-coral, #F06543)', color: '#ffffff', fontWeight: 800, fontSize: '0.8125rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem', boxShadow: '0 2px 8px rgba(240, 101, 67, 0.25)' }}
-            >
-              <CheckCircle2 size={16} /> Allow &amp; Check In Visitor
-            </button>
-          </div>
         </Form>
       </Modal>
     </div>

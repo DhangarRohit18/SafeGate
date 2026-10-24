@@ -245,14 +245,18 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
             </div>
           ) : (
             <>
-              <div className="w-11 h-11 rounded-xl bg-[#EAF6FC] dark:bg-slate-700 flex items-center justify-center text-[#176B91] dark:text-[#83CBEA] mb-2 shadow-xs">
-                <Upload className="w-5 h-5" />
+              <div
+                className={`${
+                  compact ? 'w-8 h-8 rounded-lg mb-1' : 'w-11 h-11 rounded-xl mb-2'
+                } bg-[#EAF6FC] dark:bg-slate-700 flex items-center justify-center text-[#176B91] dark:text-[#83CBEA] shadow-xs`}
+              >
+                <Upload className={compact ? 'w-4 h-4' : 'w-5 h-5'} />
               </div>
 
-              <p className="text-xs font-bold text-slate-800 dark:text-slate-200 mb-0.5">
+              <p className={`${compact ? 'text-[11px]' : 'text-xs'} font-bold text-slate-800 dark:text-slate-200 mb-0.5`}>
                 Drag &amp; drop file here, or <span className="text-[#176B91] underline">browse</span>
               </p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-sm">
+              <p className={`${compact ? 'text-[10px]' : 'text-[11px]'} text-slate-500 dark:text-slate-400 max-w-sm`}>
                 {description}
               </p>
             </>

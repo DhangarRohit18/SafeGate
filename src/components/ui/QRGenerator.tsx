@@ -5,17 +5,20 @@ interface QRGeneratorProps {
   value: string;
   size?: number;
   label?: string;
+  showLabel?: boolean;
 }
 
-export const QRGenerator: React.FC<QRGeneratorProps> = ({ value, size = 160, label }) => {
+export const QRGenerator: React.FC<QRGeneratorProps> = ({ value, size = 160, label, showLabel = true }) => {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', padding: '1rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-      <div style={{ padding: '0.75rem', background: '#ffffff', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="flex flex-col items-center justify-center gap-2 p-3 bg-white rounded-2xl border border-slate-200 shadow-xs max-w-full box-border">
+      <div className="p-2 bg-white rounded-xl flex items-center justify-center">
         <QRCodeSVG value={value || 'DWELLORA-QR-PASS'} size={size} level="M" />
       </div>
-      <span style={{ fontSize: '0.85rem', fontWeight: 600, fontFamily: 'monospace', color: '#334155' }}>
-        {label || value}
-      </span>
+      {showLabel && (label || value) && (
+        <span className="text-xs font-mono font-bold text-slate-700 bg-slate-50 border border-slate-200 px-2.5 py-0.5 rounded-md tracking-wider">
+          {label || value}
+        </span>
+      )}
     </div>
   );
 };

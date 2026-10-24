@@ -133,34 +133,33 @@ export const VisualParkingMap: React.FC<VisualParkingMapProps> = ({
       {/* Interactive Slot Detail Modal */}
       {selectedSlot && (
         <Modal isOpen={!!selectedSlot} onClose={() => setSelectedSlot(null)} title={`Parking Bay ${selectedSlot.slotNumber}`}>
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Location: <strong>{selectedSlot.level}</strong></span>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-slate-500">Location: <strong className="text-[#083B56]">{selectedSlot.level}</strong></span>
               <StatusBadge label={selectedSlot.occupancyState} variant={selectedSlot.occupancyState === 'OCCUPIED' ? 'danger' : selectedSlot.occupancyState === 'AVAILABLE' ? 'success' : 'info'} />
             </div>
 
-            <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '10px', marginBottom: '1.25rem', fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <div>Assigned Flat: <strong>{selectedSlot.assignedFlatCode || 'Unassigned'}</strong></div>
-              <div>Primary Resident: <strong>{selectedSlot.assignedResidentName || 'N/A'}</strong></div>
-              <div>Registered Vehicle: <strong>{selectedSlot.assignedVehicleNumber || 'N/A'}</strong></div>
-              <div>Slot Category: <strong>{selectedSlot.slotType}</strong></div>
+            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-xs text-[#083B56] space-y-1.5">
+              <div><span className="text-slate-500">Assigned Flat: </span><strong>{selectedSlot.assignedFlatCode || 'Unassigned'}</strong></div>
+              <div><span className="text-slate-500">Primary Resident: </span><strong>{selectedSlot.assignedResidentName || 'N/A'}</strong></div>
+              <div><span className="text-slate-500">Registered Vehicle: </span><strong className="font-mono">{selectedSlot.assignedVehicleNumber || 'N/A'}</strong></div>
+              <div><span className="text-slate-500">Slot Category: </span><strong>{selectedSlot.slotType}</strong></div>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <div className="flex gap-2.5">
               <button
+                type="button"
                 onClick={() => setShowQRModal(true)}
-                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', padding: '0.65rem', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff', fontWeight: 600, cursor: 'pointer' }}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-bold text-[#083B56] hover:bg-slate-50 transition-colors"
               >
-                <QrCode size={16} color="#176B91" /> View Parking QR
+                <QrCode size={15} /> View Parking QR
               </button>
 
               {selectedSlot.occupancyState !== 'OCCUPIED' && onEntryScan && (
                 <button
-                  onClick={() => {
-                    onEntryScan(selectedSlot);
-                    setSelectedSlot(null);
-                  }}
-                  style={{ flex: 1, padding: '0.65rem', borderRadius: '8px', border: 'none', background: '#10b981', color: '#fff', fontWeight: 600, cursor: 'pointer' }}
+                  type="button"
+                  onClick={() => { onEntryScan(selectedSlot); setSelectedSlot(null); }}
+                  className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold transition-colors"
                 >
                   Scan Vehicle Entry
                 </button>
@@ -168,11 +167,9 @@ export const VisualParkingMap: React.FC<VisualParkingMapProps> = ({
 
               {selectedSlot.occupancyState === 'OCCUPIED' && onExitScan && (
                 <button
-                  onClick={() => {
-                    onExitScan(selectedSlot);
-                    setSelectedSlot(null);
-                  }}
-                  style={{ flex: 1, padding: '0.65rem', borderRadius: '8px', border: 'none', background: '#64748b', color: '#fff', fontWeight: 600, cursor: 'pointer' }}
+                  type="button"
+                  onClick={() => { onExitScan(selectedSlot); setSelectedSlot(null); }}
+                  className="flex-1 py-2.5 rounded-xl bg-slate-600 hover:bg-slate-700 text-white text-sm font-bold transition-colors"
                 >
                   Scan Vehicle Exit
                 </button>
@@ -185,11 +182,11 @@ export const VisualParkingMap: React.FC<VisualParkingMapProps> = ({
       {/* Parking QR Modal */}
       {selectedSlot && showQRModal && (
         <Modal isOpen={showQRModal} onClose={() => setShowQRModal(false)} title={`Parking Permit QR — ${selectedSlot.slotNumber}`}>
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ margin: '0 0 1rem 0', color: '#64748b', fontSize: '0.85rem' }}>
-              Present this permit QR to security scanner for instant gate parking clearance.
+          <div className="flex flex-col items-center gap-4 py-1">
+            <p className="text-sm text-slate-500 text-center">
+              Present this permit QR to the security scanner for instant gate parking clearance.
             </p>
-            <QRGenerator value={selectedSlot.qrDataString} label={`${selectedSlot.slotNumber} • ${selectedSlot.assignedVehicleNumber || 'PERMIT'}`} size={180} />
+            <QRGenerator value={selectedSlot.qrDataString} label={`${selectedSlot.slotNumber} · ${selectedSlot.assignedVehicleNumber || 'PERMIT'}`} size={180} />
           </div>
         </Modal>
       )}

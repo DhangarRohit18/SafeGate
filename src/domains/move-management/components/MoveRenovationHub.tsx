@@ -228,7 +228,8 @@ export const MoveRenovationHub: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <OffersLauncherPill onClick={() => setIsAdOpen(true)} label="Movers & Interior Deals" />
           <button
             onClick={() => setModalMode('CREATE_MOVE')}
             style={{
@@ -812,8 +813,7 @@ export const MoveRenovationHub: React.FC = () => {
         }}
       />
 
-      {/* Society Partner Discounts Launcher & Modal */}
-      <OffersLauncherPill onClick={() => setIsAdOpen(true)} label="Movers &amp; Interior Deals" />
+      {/* Society Partner Discounts Modal */}
       <AdvertisementPopup isOpen={isAdOpen} onClose={() => setIsAdOpen(false)} />
     </div>
   );

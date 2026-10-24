@@ -659,45 +659,17 @@ export const ParkingGateScannerPage: React.FC = () => {
 
       {/* Validation Result Modal */}
       {validationResult && (
-        <Modal isOpen={!!validationResult} onClose={() => setValidationResult(null)} title="Parking Tag Validation">
-          <div style={{ textAlign: 'center', padding: '0.5rem 0' }}>
-            <div
-              style={{
-                width: '60px',
-                height: '60px',
-                borderRadius: '50%',
-                background: validationResult.isValid ? '#ECFDF5' : '#FEF2F2',
-                color: validationResult.isValid ? '#059669' : '#DC2626',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '1rem',
-              }}
-            >
-              {validationResult.isValid ? <CheckCircle2 size={34} /> : <XCircle size={34} />}
-            </div>
-
-            <h3 style={{ margin: '0 0 0.5rem 0', color: validationResult.isValid ? '#059669' : '#DC2626', fontSize: '1.2rem', fontWeight: 800 }}>
-              {validationResult.isValid ? 'VALID PARKING PERMIT' : 'PERMIT REJECTED'}
-            </h3>
-
-            {validationResult.slot && (
-              <div style={{ padding: '1rem', background: '#F8FAFC', borderRadius: '10px', border: '1px solid #E2E8F0', margin: '1rem 0', textAlign: 'left', fontSize: '0.9rem' }}>
-                <div style={{ marginBottom: '0.35rem' }}>Parking Bay: <strong>{validationResult.slot.slotNumber}</strong> ({validationResult.slot.level})</div>
-                <div style={{ marginBottom: '0.35rem' }}>Assigned Flat: <strong>{validationResult.slot.assignedFlatCode || 'N/A'}</strong> ({validationResult.slot.assignedResidentName || 'Visitor'})</div>
-                <div style={{ marginBottom: '0.35rem' }}>Vehicle: <strong style={{ fontFamily: 'monospace' }}>{validationResult.slot.assignedVehicleNumber || 'N/A'}</strong></div>
-                <div>Current Occupancy: <strong style={{ color: validationResult.slot.occupancyState === 'OCCUPIED' ? '#DC2626' : '#059669' }}>{validationResult.slot.occupancyState}</strong></div>
-              </div>
-            )}
-
-            {!validationResult.isValid && (
-              <p style={{ color: '#DC2626', fontWeight: 600, fontSize: '0.9rem' }}>{validationResult.reason}</p>
-            )}
-
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
+        <Modal
+          isOpen={!!validationResult}
+          onClose={() => setValidationResult(null)}
+          title="Parking Tag Validation"
+          maxWidth="460px"
+          footer={
+            <div className="flex gap-2.5 w-full">
               <button
+                type="button"
                 onClick={() => setValidationResult(null)}
-                style={{ flex: 1, padding: '0.75rem', borderRadius: '10px', border: '1px solid #CBD5E1', background: '#ffffff', fontWeight: 600, color: '#083B56', cursor: 'pointer' }}
+                className="flex-1 py-2.5 rounded-xl border border-slate-200 bg-white font-bold text-xs text-[#083B56] hover:bg-slate-50 transition-colors cursor-pointer"
               >
                 Dismiss
               </button>
@@ -705,16 +677,18 @@ export const ParkingGateScannerPage: React.FC = () => {
                 <>
                   {validationResult.slot.occupancyState !== 'OCCUPIED' && (
                     <button
+                      type="button"
                       onClick={() => handleEntry(validationResult.slot!)}
-                      style={{ flex: 1, padding: '0.75rem', borderRadius: '10px', border: 'none', background: '#059669', color: '#ffffff', fontWeight: 700, cursor: 'pointer' }}
+                      className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors cursor-pointer shadow-sm"
                     >
                       Scan Entry (IN)
                     </button>
                   )}
                   {validationResult.slot.occupancyState === 'OCCUPIED' && (
                     <button
+                      type="button"
                       onClick={() => handleExit(validationResult.slot!)}
-                      style={{ flex: 1, padding: '0.75rem', borderRadius: '10px', border: 'none', background: '#DC2626', color: '#ffffff', fontWeight: 700, cursor: 'pointer' }}
+                      className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs transition-colors cursor-pointer shadow-sm"
                     >
                       Scan Exit (OUT)
                     </button>
@@ -722,6 +696,40 @@ export const ParkingGateScannerPage: React.FC = () => {
                 </>
               )}
             </div>
+          }
+        >
+          <div className="flex flex-col items-center gap-3.5 py-1 text-center">
+            {/* Status icon */}
+            <div
+              className={`w-14 h-14 rounded-full flex items-center justify-center ${
+                validationResult.isValid ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
+              }`}
+            >
+              {validationResult.isValid ? <CheckCircle2 size={32} /> : <XCircle size={32} />}
+            </div>
+
+            <div>
+              <h3 className={`text-lg font-black mb-0.5 ${validationResult.isValid ? 'text-emerald-700' : 'text-red-700'}`}>
+                {validationResult.isValid ? 'VALID PARKING PERMIT ✓' : 'PERMIT REJECTED ✗'}
+              </h3>
+              {!validationResult.isValid && (
+                <p className="text-xs font-semibold text-red-600 m-0">{validationResult.reason}</p>
+              )}
+            </div>
+
+            {validationResult.slot && (
+              <div className="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 text-left text-xs text-[#083B56] space-y-1.5">
+                <div><span className="text-slate-500">Parking Bay: </span><strong>{validationResult.slot.slotNumber}</strong> ({validationResult.slot.level})</div>
+                <div><span className="text-slate-500">Assigned Flat: </span><strong>{validationResult.slot.assignedFlatCode || 'N/A'}</strong> ({validationResult.slot.assignedResidentName || 'Visitor'})</div>
+                <div><span className="text-slate-500">Vehicle: </span><strong className="font-mono">{validationResult.slot.assignedVehicleNumber || 'N/A'}</strong></div>
+                <div>
+                  <span className="text-slate-500">Occupancy: </span>
+                  <strong className={validationResult.slot.occupancyState === 'OCCUPIED' ? 'text-red-600' : 'text-emerald-600'}>
+                    {validationResult.slot.occupancyState}
+                  </strong>
+                </div>
+              </div>
+            )}
           </div>
         </Modal>
       )}

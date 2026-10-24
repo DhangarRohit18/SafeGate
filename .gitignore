@@ -47,3 +47,6 @@ android/captures/
 # Logs
 logs/
 *.log
+
+# Gemini / Antigravity IDE
+.gemini/

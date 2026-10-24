@@ -890,8 +890,50 @@ export const AdminAmenityManagementPage: React.FC = () => {
       )}
 
       {/* Modal: Create Amenity */}
-      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create Society Amenity">
-        <form onSubmit={handleCreateAmenity} className="space-y-4">
+      <Modal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        title="Create Society Amenity"
+        maxWidth="580px"
+        footer={
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(false)}
+              style={{
+                padding: '0.625rem 1.25rem',
+                borderRadius: '12px',
+                border: '1px solid #CBD5E1',
+                background: '#FFFFFF',
+                color: '#475569',
+                fontWeight: 700,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              form="create-amenity-form"
+              type="submit"
+              style={{
+                padding: '0.625rem 1.375rem',
+                borderRadius: '12px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #F06543 0%, #E05432 100%)',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(240, 101, 67, 0.3)',
+              }}
+            >
+              Create Amenity
+            </button>
+          </div>
+        }
+      >
+        <form id="create-amenity-form" onSubmit={handleCreateAmenity} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">Amenity Name</label>
             <input
@@ -993,16 +1035,54 @@ export const AdminAmenityManagementPage: React.FC = () => {
               Available for Booking
             </label>
           </div>
-          <div className="pt-4 flex justify-end gap-2">
-            <button type="button" onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 text-sm font-semibold rounded-lg">Cancel</button>
-            <button type="submit" className="px-4 py-2 bg-[#F06543] hover:bg-[#D85332] text-white text-sm font-semibold rounded-lg">Create Amenity</button>
-          </div>
         </form>
       </Modal>
 
       {/* Modal: Add Blackout Date */}
-      <Modal isOpen={showBlackoutModal} onClose={() => setShowBlackoutModal(false)} title={`Block Dates: ${selectedAmenity?.name}`}>
-        <form onSubmit={handleAddBlackout} className="space-y-4">
+      <Modal
+        isOpen={showBlackoutModal}
+        onClose={() => setShowBlackoutModal(false)}
+        title={`Block Dates: ${selectedAmenity?.name}`}
+        maxWidth="500px"
+        footer={
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
+            <button
+              type="button"
+              onClick={() => setShowBlackoutModal(false)}
+              style={{
+                padding: '0.625rem 1.25rem',
+                borderRadius: '12px',
+                border: '1px solid #CBD5E1',
+                background: '#FFFFFF',
+                color: '#475569',
+                fontWeight: 700,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              form="block-dates-form"
+              type="submit"
+              style={{
+                padding: '0.625rem 1.375rem',
+                borderRadius: '12px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #E11D48 0%, #BE123C 100%)',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(225, 29, 72, 0.3)',
+              }}
+            >
+              Save Block Dates
+            </button>
+          </div>
+        }
+      >
+        <form id="block-dates-form" onSubmit={handleAddBlackout} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Start Date</label>
@@ -1035,16 +1115,54 @@ export const AdminAmenityManagementPage: React.FC = () => {
               className="w-full px-3 py-2 border rounded-lg text-sm"
             />
           </div>
-          <div className="pt-4 flex justify-end gap-2">
-            <button type="button" onClick={() => setShowBlackoutModal(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 text-sm font-semibold rounded-lg">Cancel</button>
-            <button type="submit" className="px-4 py-2 bg-rose-600 text-white hover:bg-rose-700 text-sm font-semibold rounded-lg">Save Blackout Date</button>
-          </div>
         </form>
       </Modal>
 
       {/* Modal: Schedule Maintenance */}
-      <Modal isOpen={showMaintenanceModal} onClose={() => setShowMaintenanceModal(false)} title={`Schedule Maintenance: ${selectedAmenity?.name}`}>
-        <form onSubmit={handleAddMaintenance} className="space-y-4">
+      <Modal
+        isOpen={showMaintenanceModal}
+        onClose={() => setShowMaintenanceModal(false)}
+        title={`Schedule Maintenance: ${selectedAmenity?.name}`}
+        maxWidth="520px"
+        footer={
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
+            <button
+              type="button"
+              onClick={() => setShowMaintenanceModal(false)}
+              style={{
+                padding: '0.625rem 1.25rem',
+                borderRadius: '12px',
+                border: '1px solid #CBD5E1',
+                background: '#FFFFFF',
+                color: '#475569',
+                fontWeight: 700,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              form="schedule-maintenance-form"
+              type="submit"
+              style={{
+                padding: '0.625rem 1.375rem',
+                borderRadius: '12px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #083B56 0%, #176B91 100%)',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                fontSize: '0.8125rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(8, 59, 86, 0.3)',
+              }}
+            >
+              Schedule Maintenance
+            </button>
+          </div>
+        }
+      >
+        <form id="schedule-maintenance-form" onSubmit={handleAddMaintenance} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">Maintenance Title</label>
             <input
@@ -1085,10 +1203,6 @@ export const AdminAmenityManagementPage: React.FC = () => {
               onChange={e => setMaintenanceForm({ ...maintenanceForm, notes: e.target.value })}
               className="w-full px-3 py-2 border rounded-lg text-sm"
             />
-          </div>
-          <div className="pt-4 flex justify-end gap-2">
-            <button type="button" onClick={() => setShowMaintenanceModal(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 text-sm font-semibold rounded-lg">Cancel</button>
-            <button type="submit" className="px-4 py-2 bg-[#083B56] hover:bg-[#176B91] text-white text-sm font-semibold rounded-lg">Schedule Maintenance</button>
           </div>
         </form>
       </Modal>

@@ -441,8 +441,52 @@ export const SecurityEmergencyTerminalPage: React.FC = () => {
 
       {/* Modal: Dispatch Responder */}
       {selectedIncident && showRespondModal && (
-        <Modal isOpen={showRespondModal} onClose={() => setShowRespondModal(false)} title={`Dispatch Responder: ${selectedIncident.incidentNumber}`}>
-          <form onSubmit={handleRespond} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingTop: '0.5rem' }}>
+        <Modal
+          isOpen={showRespondModal}
+          onClose={() => setShowRespondModal(false)}
+          title={`Dispatch Responder: ${selectedIncident.incidentNumber}`}
+          maxWidth="500px"
+          footer={
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
+              <button
+                type="button"
+                onClick={() => setShowRespondModal(false)}
+                style={{
+                  padding: '0.625rem 1.25rem',
+                  border: '1px solid #CBD5E1',
+                  borderRadius: '12px',
+                  background: '#ffffff',
+                  color: '#475569',
+                  fontWeight: 700,
+                  fontSize: '0.8125rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                form="dispatch-responder-form"
+                type="submit"
+                style={{
+                  padding: '0.625rem 1.375rem',
+                  background: 'linear-gradient(135deg, #083B56 0%, #176B91 100%)',
+                  color: '#ffffff',
+                  borderRadius: '12px',
+                  fontWeight: 800,
+                  fontSize: '0.8125rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(8, 59, 86, 0.3)',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                Confirm Dispatch
+              </button>
+            </div>
+          }
+        >
+          <form id="dispatch-responder-form" onSubmit={handleRespond} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingTop: '0.25rem' }}>
             <div>
               <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#083B56', marginBottom: '0.35rem' }}>Assigned Guard / Responder Name</label>
               <input
@@ -463,18 +507,58 @@ export const SecurityEmergencyTerminalPage: React.FC = () => {
                 style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '10px', border: '1px solid #CBD5E1', fontSize: '0.88rem', color: '#083B56', background: '#F8FAFC', fontWeight: 600, boxSizing: 'border-box' }}
               />
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #E2E8F0' }}>
-              <button type="button" onClick={() => setShowRespondModal(false)} style={{ padding: '0.65rem 1.25rem', border: '1px solid #CBD5E1', borderRadius: '10px', background: '#ffffff', color: '#52788D', fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
-              <button type="submit" style={{ padding: '0.65rem 1.4rem', background: '#083B56', color: '#ffffff', borderRadius: '10px', fontWeight: 700, border: 'none', cursor: 'pointer' }}>Confirm Dispatch</button>
-            </div>
           </form>
         </Modal>
       )}
 
       {/* Modal: Resolve Incident */}
       {selectedIncident && showResolveModal && (
-        <Modal isOpen={showResolveModal} onClose={() => setShowResolveModal(false)} title={`Resolve Emergency: ${selectedIncident.incidentNumber}`}>
-          <form onSubmit={handleResolve} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingTop: '0.5rem' }}>
+        <Modal
+          isOpen={showResolveModal}
+          onClose={() => setShowResolveModal(false)}
+          title={`Resolve Emergency: ${selectedIncident.incidentNumber}`}
+          maxWidth="520px"
+          footer={
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', width: '100%' }}>
+              <button
+                type="button"
+                onClick={() => setShowResolveModal(false)}
+                style={{
+                  padding: '0.625rem 1.25rem',
+                  border: '1px solid #CBD5E1',
+                  borderRadius: '12px',
+                  background: '#ffffff',
+                  color: '#475569',
+                  fontWeight: 700,
+                  fontSize: '0.8125rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                form="resolve-incident-form"
+                type="submit"
+                style={{
+                  padding: '0.625rem 1.375rem',
+                  background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                  color: '#ffffff',
+                  borderRadius: '12px',
+                  fontWeight: 800,
+                  fontSize: '0.8125rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(5, 150, 105, 0.3)',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                Mark Incident Resolved
+              </button>
+            </div>
+          }
+        >
+          <form id="resolve-incident-form" onSubmit={handleResolve} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingTop: '0.25rem' }}>
             <div>
               <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#083B56', marginBottom: '0.35rem' }}>Resolution Summary & Action Taken</label>
               <textarea
@@ -499,21 +583,6 @@ export const SecurityEmergencyTerminalPage: React.FC = () => {
                   <FileCheck size={14} /> Document attached successfully
                 </div>
               )}
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #E2E8F0' }}>
-              <button
-                type="button"
-                onClick={() => setShowResolveModal(false)}
-                style={{ padding: '0.65rem 1.25rem', border: '1px solid #CBD5E1', borderRadius: '10px', background: '#ffffff', color: '#52788D', fontWeight: 700, cursor: 'pointer' }}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                style={{ padding: '0.65rem 1.4rem', background: '#059669', color: '#ffffff', borderRadius: '10px', fontWeight: 700, border: 'none', cursor: 'pointer' }}
-              >
-                Mark Incident Resolved
-              </button>
             </div>
           </form>
         </Modal>

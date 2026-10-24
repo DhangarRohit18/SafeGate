@@ -231,9 +231,11 @@ export const SocietyServicesHub: React.FC<SocietyServicesHubProps> = ({ userRole
           </div>
         </div>
 
-        {isVendor && (
-          <button
-            onClick={() => setModalMode('ADD_ITEM')}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', flexWrap: 'wrap' }}>
+          <OffersLauncherPill onOpen={() => setIsOffersOpen(true)} label="Society Deals (25% Off)" />
+          {isVendor && (
+            <button
+              onClick={() => setModalMode('ADD_ITEM')}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -252,6 +254,7 @@ export const SocietyServicesHub: React.FC<SocietyServicesHubProps> = ({ userRole
             <PlusCircle size={16} /> Add Catalog Service
           </button>
         )}
+        </div>
       </div>
 
       {/* Navigation Tabs */}
@@ -958,8 +961,7 @@ export const SocietyServicesHub: React.FC<SocietyServicesHubProps> = ({ userRole
         />
       )}
 
-      {/* Floating Offers Pill Launcher & Popup */}
-      <OffersLauncherPill onOpen={() => setIsOffersOpen(true)} />
+      {/* Society Partner Discounts Modal */}
       <AdvertisementPopup
         forceOpen={isOffersOpen}
         onClose={() => setIsOffersOpen(false)}

@@ -427,7 +427,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({
 
       {/* ── Screenshot-Matched Bottom Navigation with Center FAB (Mobile Only) ── */}
       <nav
-        className="flex md:hidden"
+        className="mobile-bottom-nav flex md:hidden"
         style={{
           position: 'fixed',
           bottom: 0,
@@ -445,7 +445,7 @@ export const MobileAppShell: React.FC<MobileAppShellProps> = ({
           boxShadow: '0 -4px 16px rgba(8, 59, 86, 0.08)',
           height: 'calc(62px + env(safe-area-inset-bottom, 0px))',
           boxSizing: 'border-box',
-          display: isKeyboardVisible ? 'none' : 'flex',
+          ...(isKeyboardVisible ? { display: 'none' } : {}),
         }}
       >
         {/* First 2 items on left */}
