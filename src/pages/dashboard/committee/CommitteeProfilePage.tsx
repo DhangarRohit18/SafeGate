@@ -82,7 +82,7 @@ export const CommitteeProfilePage: React.FC = () => {
     setTimeout(() => {
       setProfileData(editForm);
       try {
-        const existing = localStorage.getItem('aarizo_user');
+        const existing = localStorage.getItem('dwellora_user') || localStorage.getItem('aarizo_user');
         const userObj = existing ? JSON.parse(existing) : {};
         const updated = {
           ...userObj,
@@ -91,6 +91,7 @@ export const CommitteeProfilePage: React.FC = () => {
           email: editForm.email,
           flatDetails: editForm.flatDetails,
         };
+        localStorage.setItem('dwellora_user', JSON.stringify(updated));
         localStorage.setItem('aarizo_user', JSON.stringify(updated));
       } catch (e) {
         console.warn('Could not save profile to localStorage:', e);

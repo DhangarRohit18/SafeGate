@@ -20,7 +20,7 @@ export abstract class BaseRepository<T extends BaseEntity> {
 
   protected getCurrentUserId(): string | null {
     try {
-      const rawUser = localStorage.getItem('aarizo_user') || localStorage.getItem('communityos_auth_user');
+      const rawUser = localStorage.getItem('dwellora_user') || localStorage.getItem('aarizo_user') || localStorage.getItem('communityos_auth_user');
       if (rawUser) {
         const parsed = JSON.parse(rawUser);
         return parsed.id || parsed.uid || null;

@@ -37,7 +37,7 @@ function getStoredAuthHeaders(): Record<string, string> {
   };
 
   try {
-    const rawUser = localStorage.getItem('aarizo_user') || localStorage.getItem('communityos_auth_user');
+    const rawUser = localStorage.getItem('dwellora_user') || localStorage.getItem('aarizo_user') || localStorage.getItem('communityos_auth_user');
     if (rawUser) {
       const parsed = JSON.parse(rawUser);
       if (parsed.societyId) headers['x-society-id'] = parsed.societyId;
